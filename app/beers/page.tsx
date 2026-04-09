@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -202,7 +202,9 @@ export default function BeersPage() {
       {/* Beers Content */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <BeersContent beers={beers} />
+          <Suspense fallback={<div className="text-center">Loading beers...</div>}>
+            <BeersContent beers={beers} />
+          </Suspense>
         </div>
       </section>
 

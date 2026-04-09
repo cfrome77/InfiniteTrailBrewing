@@ -1,14 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { BlogPost } from "@/types";
 import { createClient } from "@/lib/supabase/client";
 
 export default function BlogAdminPage() {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [loadingUser, setLoadingUser] = useState(true);
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
 
@@ -22,27 +18,6 @@ export default function BlogAdminPage() {
     featured: false,
     is_published: false,
   });
-
-  // --- Check if user is logged in ---
-  useEffect(() => {
-    const checkUser = async () => {
-      const supabase = createClient();
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession();
-
-      if (error || !session) {
-        router.replace("/admin/login"); // Redirect to login if not authenticated
-        return;
-      }
-
-      setUser(session.user);
-      setLoadingUser(false);
-    };
-
-    checkUser();
-  }, [router]);
 
   // --- Fetch blog posts ---
   const fetchPosts = async () => {
@@ -61,8 +36,8 @@ export default function BlogAdminPage() {
   };
 
   useEffect(() => {
-    if (user) fetchPosts();
-  }, [user]);
+    fetchPosts();
+  }, []);
 
   const addNewPost = async () => {
     if (!newPost.title || !newPost.content || !newPost.slug) {
@@ -137,8 +112,8 @@ export default function BlogAdminPage() {
     setPosts((prev) => prev.filter((p) => p.id !== id));
   };
 
-  if (loadingUser || loadingPosts)
-    return <div className="text-center mt-10">Loading...</div>;
+  if (loadingPosts)
+    return <div className="text-center mt-10">Loading posts...</div>;
 
   return (
     <div className="container mx-auto px-4 py-8">
