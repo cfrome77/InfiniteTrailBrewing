@@ -43,8 +43,9 @@ export function Navbar() {
     })
 
     const checkInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setIsAdmin(session?.user?.app_metadata?.role === "admin")
+      // Use getUser() instead of getSession() to ensure we have the latest metadata from the server
+      const { data: { user } } = await supabase.auth.getUser()
+      setIsAdmin(user?.app_metadata?.role === "admin")
     }
     checkInitialSession()
 
