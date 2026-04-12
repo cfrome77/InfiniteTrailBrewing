@@ -19,3 +19,4 @@
  GET /api/auth/me 200 in 13ms (next.js: 6ms, application-code: 8ms)
 ✓ Compiled in 4.6s
 ✓ Compiled in 1006ms
+✓ Compiled in 2.2s
