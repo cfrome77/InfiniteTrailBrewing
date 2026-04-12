@@ -18,3 +18,4 @@
  GET /admin/beers 200 in 216ms (next.js: 4ms, application-code: 212ms)
  GET /api/auth/me 200 in 13ms (next.js: 6ms, application-code: 8ms)
 ✓ Compiled in 4.6s
+✓ Compiled in 1006ms

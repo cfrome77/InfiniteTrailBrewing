@@ -39,12 +39,12 @@ export function Navbar() {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAdmin(!!session)
+      setIsAdmin(session?.user?.app_metadata?.role === "admin")
     })
 
     const checkInitialSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
-      setIsAdmin(!!session)
+      setIsAdmin(session?.user?.app_metadata?.role === "admin")
     }
     checkInitialSession()
 

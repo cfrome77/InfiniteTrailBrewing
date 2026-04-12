@@ -10,11 +10,11 @@ export default async function AdminLayout({
 }) {
   const supabase = await createClient();
   const {
-    data: { session },
+    data: { user },
     error,
-  } = await supabase.auth.getSession();
+  } = await supabase.auth.getUser();
 
-  if (error || !session) {
+  if (error || !user || user.app_metadata?.role !== "admin") {
     redirect("/login");
   }
 
