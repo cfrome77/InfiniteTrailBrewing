@@ -123,11 +123,75 @@ export default function BlogAdminPage() {
       <div className="border rounded-lg p-6 mb-8 shadow">
         <h2 className="font-serif text-2xl text-forest mb-4">Add New Post</h2>
 
-        {/* ... form inputs same as before ... */}
+        <div className="grid md:grid-cols-2 gap-4 mb-4">
+          <input
+            type="text"
+            placeholder="Title"
+            value={newPost.title}
+            onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+            className="border px-3 py-2 rounded"
+          />
+          <input
+            type="text"
+            placeholder="Slug"
+            value={newPost.slug}
+            onChange={(e) => setNewPost({ ...newPost, slug: e.target.value })}
+            className="border px-3 py-2 rounded"
+          />
+          <input
+            type="text"
+            placeholder="Author"
+            value={newPost.author}
+            onChange={(e) => setNewPost({ ...newPost, author: e.target.value })}
+            className="border px-3 py-2 rounded"
+          />
+          <input
+            type="text"
+            placeholder="Category"
+            value={newPost.category}
+            onChange={(e) => setNewPost({ ...newPost, category: e.target.value })}
+            className="border px-3 py-2 rounded"
+          />
+        </div>
+
+        <textarea
+          placeholder="Excerpt"
+          value={newPost.excerpt}
+          onChange={(e) => setNewPost({ ...newPost, excerpt: e.target.value })}
+          className="border w-full px-3 py-2 rounded mb-4 h-20"
+        />
+
+        <textarea
+          placeholder="Content (Markdown supported)"
+          value={newPost.content}
+          onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+          className="border w-full px-3 py-2 rounded mb-4 h-40"
+        />
+
+        <div className="flex items-center gap-6 mb-6">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={newPost.featured}
+              onChange={(e) => setNewPost({ ...newPost, featured: e.target.checked })}
+              className="w-4 h-4"
+            />
+            <span className="text-forest">Featured Post</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={newPost.is_published}
+              onChange={(e) => setNewPost({ ...newPost, is_published: e.target.checked })}
+              className="w-4 h-4"
+            />
+            <span className="text-forest">Published</span>
+          </label>
+        </div>
 
         <button
           onClick={addNewPost}
-          className="bg-forest text-tan px-4 py-2 rounded hover:bg-forest/90"
+          className="bg-forest text-tan px-6 py-2 rounded font-serif hover:bg-forest/90 transition-colors"
         >
           Add Post
         </button>
