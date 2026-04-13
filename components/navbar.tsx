@@ -4,8 +4,15 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, Instagram, Facebook } from "lucide-react"
+import { Menu, X, Instagram, Facebook, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { createClient } from "@/lib/supabase/client"
 
 const navLinks = [
   { href: "/beers", label: "Our Beers" },
@@ -17,8 +24,10 @@ const navLinks = [
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const pathname = usePathname()
   const isHomePage = pathname === "/"
+  const supabase = createClient()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,6 +36,23 @@ export function Navbar() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAdmin(session?.user?.app_metadata?.role === "admin")
+    })
+
+    const checkInitialSession = async () => {
+      // Use getUser() instead of getSession() to ensure we have the latest metadata from the server
+      const { data: { user } } = await supabase.auth.getUser()
+      setIsAdmin(user?.app_metadata?.role === "admin")
+    }
+    checkInitialSession()
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [supabase])
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -72,6 +98,33 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
+
+          {isAdmin && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="font-sans text-sm tracking-wide uppercase flex items-center gap-1 text-tan/70 hover:text-tan transition-colors outline-none">
+                  Admin <ChevronDown className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-forest border-tan/20 text-tan">
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/beers" className="cursor-pointer hover:bg-tan/10 focus:bg-tan/10 focus:text-tan">
+                    Beer Panel
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/blog" className="cursor-pointer hover:bg-tan/10 focus:bg-tan/10 focus:text-tan">
+                    Blog Panel
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/logout" className="cursor-pointer text-red-400 hover:bg-red-400/10 focus:bg-red-400/10 focus:text-red-400">
+                    Logout
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           <div className="flex items-center gap-3 ml-2 pl-4 border-l border-tan/30">
             <Link 
               href="https://instagram.com" 
@@ -122,6 +175,30 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
+
+            {isAdmin && (
+              <>
+                <div className="h-px bg-tan/20 my-2" />
+                <Link
+                  href="/admin/beers"
+                  className="font-sans text-lg tracking-wide uppercase py-2 text-tan/70 hover:text-tan"
+                >
+                  Admin: Beer Panel
+                </Link>
+                <Link
+                  href="/admin/blog"
+                  className="font-sans text-lg tracking-wide uppercase py-2 text-tan/70 hover:text-tan"
+                >
+                  Admin: Blog Panel
+                </Link>
+                <Link
+                  href="/logout"
+                  className="font-sans text-lg tracking-wide uppercase py-2 text-red-400 hover:text-red-300"
+                >
+                  Logout
+                </Link>
+              </>
+            )}
             <div className="flex items-center gap-4 mt-4 pt-4 border-t border-tan/20">
               <Link 
                 href="https://instagram.com" 

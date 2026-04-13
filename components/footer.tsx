@@ -51,6 +51,11 @@ export function Footer() {
               <Link href="/our-story" className="text-tan/70 hover:text-tan transition-colors">Our Story</Link>
               <Link href="/contact" className="text-tan/70 hover:text-tan transition-colors">Contact</Link>
             </nav>
+            <div className="mt-8 pt-8 border-t border-tan/10">
+              <Link href="/login" className="text-tan/20 hover:text-tan transition-colors text-[10px] tracking-widest uppercase">
+                Staff Access
+              </Link>
+            </div>
           </div>
 
           {/* Contact Info */}
