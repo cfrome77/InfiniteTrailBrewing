@@ -75,10 +75,10 @@ export function Navbar() {
           <Image
             src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingWordmarkDeepForest-Transparent-mWmicyKGqRtwkNbzt0Qqv431s925IK.png"
             alt="Infinite Trail Brewing"
-            width={180}
-            height={60}
+            width={240}
+            height={80}
             className={`transition-all duration-300 ${
-              showSolidBg ? "h-10 w-auto brightness-0 invert" : "h-12 w-auto brightness-0 invert"
+              showSolidBg ? "h-12 w-auto brightness-0 invert" : "h-16 w-auto brightness-0 invert"
             }`}
           />
         </Link>

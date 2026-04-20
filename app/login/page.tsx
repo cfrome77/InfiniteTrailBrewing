@@ -106,9 +106,9 @@ function LoginContent() {
           <Image
             src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingWordmarkDeepForest-Transparent-mWmicyKGqRtwkNbzt0Qqv431s925IK.png"
             alt="Infinite Trail Brewing"
-            width={150}
-            height={50}
-            className="h-8 w-auto brightness-0 invert"
+            width={240}
+            height={80}
+            className="h-12 w-auto brightness-0 invert"
           />
         </div>
         <h1 className="font-serif text-3xl text-forest tracking-wide">
