@@ -45,8 +45,7 @@ export function Hero() {
           <Button
             asChild
             size="lg"
-            variant="outline"
-            className="border-tan text-tan hover:bg-tan/10 font-serif text-lg px-8 py-6 tracking-wide"
+            className="bg-tan text-forest hover:bg-tan/90 font-serif text-lg px-8 py-6 tracking-wide"
           >
             <Link href="/our-story">Our Story</Link>
           </Button>

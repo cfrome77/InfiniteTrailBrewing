@@ -72,7 +72,7 @@ export function NewsletterPopup() {
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-forest/60 hover:text-forest transition-colors z-10"
+          className="absolute top-2 right-2 p-2 text-tan/60 hover:text-tan transition-colors z-10"
           aria-label="Close popup"
         >
           <X className="w-6 h-6" />
@@ -122,6 +122,14 @@ export function NewsletterPopup() {
                 >
                   Subscribe
                 </Button>
+
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="w-full text-xs text-forest/40 hover:text-forest/60 transition-colors uppercase tracking-widest mt-2"
+                >
+                  No thanks, maybe later
+                </button>
               </form>
               
               <p className="text-center text-xs text-forest/50 mt-4">
