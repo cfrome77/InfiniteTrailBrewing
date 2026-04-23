@@ -9,9 +9,19 @@ ALTER TABLE public.currently_brewing
     ADD COLUMN IF NOT EXISTS is_flagship BOOLEAN DEFAULT FALSE,
     ADD COLUMN IF NOT EXISTS color TEXT;
 
+-- Ensure blog_posts has updated_at
+ALTER TABLE public.blog_posts
+    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+
 -- Update RLS policies for currently_brewing
+DROP POLICY IF EXISTS "Allow public select" ON currently_brewing;
 DROP POLICY IF EXISTS "Allow public insert" ON currently_brewing;
 DROP POLICY IF EXISTS "Allow public update" ON currently_brewing;
+DROP POLICY IF EXISTS "Allow admin manage" ON currently_brewing;
+
+CREATE POLICY "Allow public select" ON currently_brewing
+    FOR SELECT
+    USING (true);
 
 CREATE POLICY "Allow admin manage" ON currently_brewing
     FOR ALL
@@ -19,6 +29,13 @@ CREATE POLICY "Allow admin manage" ON currently_brewing
     WITH CHECK (auth.jwt() -> 'app_metadata' ->> 'role' = 'admin');
 
 -- Update RLS policies for blog_posts
+DROP POLICY IF EXISTS "Allow public select" ON blog_posts;
+DROP POLICY IF EXISTS "Allow admin manage" ON blog_posts;
+
+CREATE POLICY "Allow public select" ON blog_posts
+    FOR SELECT
+    USING (true);
+
 CREATE POLICY "Allow admin manage" ON blog_posts
     FOR ALL
     USING (auth.jwt() -> 'app_metadata' ->> 'role' = 'admin')

@@ -27,10 +27,12 @@ This ensures you have a private playground that doesn't touch your live site.
     ```bash
     npx supabase start
     ```
-    This will output your local credentials. Keep them handy.
+    After services start, the CLI will output your local credentials (API URL, Anon Key, Service Role Key). **Keep these handy.**
+
+    *Tip: If you ever miss them, run `npx supabase status` to see them again.*
 
 3.  **Configure `.env.local`:**
-    Copy the local credentials into your `.env.local` file:
+    Copy the `anon key` and `service_role key` from the terminal into your `.env.local` file:
     ```env
     NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
     NEXT_PUBLIC_SUPABASE_ANON_KEY=your_local_anon_key

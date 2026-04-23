@@ -8,6 +8,7 @@ export default function BeersAdminPage() {
   const [beers, setBeers] = useState<Beer[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   // --- New/Edit Beer Form ---
   const [formData, setFormData] = useState<Partial<Beer>>({
@@ -38,6 +39,11 @@ export default function BeersAdminPage() {
     fetchBeers();
   }, []);
 
+  const showStatus = (type: 'success' | 'error', text: string) => {
+    setStatusMsg({ type, text });
+    setTimeout(() => setStatusMsg(null), 3000);
+  };
+
   // --- Start Editing ---
   const startEditing = (beer: Beer) => {
     setEditingId(beer.id);
@@ -62,7 +68,7 @@ export default function BeersAdminPage() {
   // --- Save (Add or Update) Beer ---
   const saveBeer = async () => {
     if (!formData.beer_name || !formData.style) {
-      alert("Beer name and style are required.");
+      showStatus('error', "Beer name and style are required.");
       return;
     }
 
@@ -80,17 +86,19 @@ export default function BeersAdminPage() {
           abv: formData.abv || null,
           is_flagship: formData.is_flagship,
           color: formData.color || null,
+          updated_at: new Date().toISOString(),
         })
         .eq("id", editingId);
 
       if (error) {
-        console.error("Error updating beer:", error);
+        showStatus('error', "Failed to update beer.");
         return;
       }
 
       setBeers((prev) =>
         prev.map((b) => (b.id === editingId ? { ...b, ...formData } as Beer : b))
       );
+      showStatus('success', "Beer updated successfully!");
       cancelEditing();
     } else {
       // Add
@@ -111,11 +119,12 @@ export default function BeersAdminPage() {
         .select();
 
       if (error) {
-        console.error("Error adding beer:", error);
+        showStatus('error', "Failed to add beer.");
         return;
       }
 
       setBeers((prev) => [data![0], ...prev]);
+      showStatus('success', "Beer added successfully!");
       cancelEditing();
     }
   };
@@ -130,11 +139,12 @@ export default function BeersAdminPage() {
       .eq("id", id);
 
     if (error) {
-      console.error("Error deleting beer:", error);
+      showStatus('error', "Failed to delete beer.");
       return;
     }
 
     setBeers((prev) => prev.filter((b) => b.id !== id));
+    showStatus('success', "Beer deleted.");
   };
 
   const statusOptions: BeerStatus[] = [
@@ -164,9 +174,18 @@ export default function BeersAdminPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-serif text-forest mb-6">
-        Beers Admin Panel
-      </h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-4xl font-serif text-forest">
+          Beers Admin Panel
+        </h1>
+        {statusMsg && (
+          <div className={`px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-all duration-500 ${
+            statusMsg.type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'
+          }`}>
+            {statusMsg.text}
+          </div>
+        )}
+      </div>
 
       {/* --- New/Edit Beer Form --- */}
       <div className="bg-white border border-tan/20 rounded-xl p-6 mb-8 shadow-md">
