@@ -92,16 +92,20 @@ The Admin Panel is accessible at `/admin`.
 - **Access Control:** Only users with the `admin` role in their metadata can access these routes.
 - **Beers & Blog:** Use the "Admin" dropdown in the navbar after logging in to manage the "Currently Brewing" list and "Blog Posts".
 - **Local Dev:** Use the seeded admin user (`admin@local.test`).
-- **Production:** You can promote any existing user to an admin via the Supabase Dashboard's **SQL Editor**:
+- **Production Admin Setup:** Since this is a private home brewery site, the most secure way to add yourself as the admin is through the **Supabase Dashboard**:
+
+  1. Go to **Authentication > Users** and click **Add User**.
+  2. Create your account with your email and password.
+  3. Once created, go to the **SQL Editor** and run the following to promote yourself:
 
   ```sql
-  -- Promote a user by email
+  -- Promote your account to Admin
   UPDATE auth.users
   SET raw_app_meta_data = raw_app_meta_data || '{"role": "admin"}'::jsonb
-  WHERE email = 'user@example.com';
+  WHERE email = 'your-email@example.com';
   ```
 
-  Alternatively, you can manually edit the user in the **Authentication > Users** table in the dashboard, but using the SQL Editor ensures the JSON metadata is merged correctly.
+  4. **Security Tip:** For a single-admin site, go to **Authentication > Providers > Email** and **disable "Allow new users to sign up"**. This ensures nobody else can create an account on your site.
 
 ## Supabase Auto-Unpause & Retry Logic
 
