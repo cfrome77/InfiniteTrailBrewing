@@ -53,19 +53,3 @@ SELECT
     now()
 FROM auth.users
 WHERE email = 'admin@local.test';
-
--- Add sample beer data
-INSERT INTO public.currently_brewing (
-    beer_name,
-    style,
-    abv,
-    status,
-    started_at,
-    notes,
-    is_flagship,
-    color
-)
-VALUES
-    ('Summit Trail IPA', 'West Coast IPA', '6.8%', 'finished', '2024-01-15', 'Classic pine and citrus notes with a firm bitterness.', true, 'from-orange-400 to-orange-500'),
-    ('Midnight Creek Stout', 'Oatmeal Stout', '5.5%', 'conditioning', '2024-02-01', 'Smooth and velvety with notes of roasted coffee and dark chocolate.', false, 'from-stone-700 to-stone-800'),
-    ('Clear Water Lager', 'German Helles', '4.8%', 'fermenting', '2024-02-10', 'Crisp, clean, and refreshing with a subtle malt sweetness.', true, 'from-amber-400 to-amber-500');
