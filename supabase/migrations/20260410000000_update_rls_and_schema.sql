@@ -1,3 +1,7 @@
+-- Ensure RLS is enabled
+ALTER TABLE currently_brewing ENABLE ROW LEVEL SECURITY;
+ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
+
 -- Update currently_brewing table schema
 ALTER TABLE public.currently_brewing
     ALTER COLUMN abv TYPE TEXT,
