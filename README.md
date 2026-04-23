@@ -92,7 +92,16 @@ The Admin Panel is accessible at `/admin`.
 - **Access Control:** Only users with the `admin` role in their metadata can access these routes.
 - **Beers & Blog:** Use the "Admin" dropdown in the navbar after logging in to manage the "Currently Brewing" list and "Blog Posts".
 - **Local Dev:** Use the seeded admin user (`admin@local.test`).
-- **Production:** Create an admin user through the Supabase Dashboard by setting the `raw_app_meta_data` to `{"role": "admin"}` for your production user.
+- **Production:** You can promote any existing user to an admin via the Supabase Dashboard's **SQL Editor**:
+
+  ```sql
+  -- Promote a user by email
+  UPDATE auth.users
+  SET raw_app_meta_data = raw_app_meta_data || '{"role": "admin"}'::jsonb
+  WHERE email = 'user@example.com';
+  ```
+
+  Alternatively, you can manually edit the user in the **Authentication > Users** table in the dashboard, but using the SQL Editor ensures the JSON metadata is merged correctly.
 
 ## Supabase Auto-Unpause & Retry Logic
 
