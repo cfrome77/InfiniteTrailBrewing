@@ -111,4 +111,22 @@ The Admin Panel is accessible at `/admin`.
 
 ## Supabase Auto-Unpause & Retry Logic
 
-This project includes a mechanism to automatically unpause your Supabase project if it goes into hibernation and a cron job to prevent it from pausing. See `lib/supabase/retry.ts` for implementation details.
+This project includes a mechanism to automatically unpause your Supabase project if it goes into hibernation (common in free tier projects) and a cron job to prevent it from pausing.
+
+### How it works:
+1. **API Route**: `/api/unpause` uses the Supabase Management API to wake up your project.
+2. **Retry Helper**: `lib/supabase/retry.ts` provides a `fetchWithRetry` function that wraps your Supabase calls. If a call fails, it triggers the unpause API, waits a few seconds, and retries the original request.
+3. **Cron Job**: Configured in `vercel.json`, it calls `/api/unpause` every 3 days to keep the project active.
+
+### Usage:
+Import `fetchWithRetry` from `@/lib/supabase/retry` and use it to wrap your Supabase queries:
+
+```typescript
+import { fetchWithRetry } from '@/lib/supabase/retry';
+import { createClient } from '@/lib/supabase/client';
+
+const supabase = createClient();
+const { data, error } = await fetchWithRetry(() =>
+  supabase.from('your_table').select('*')
+);
+```
