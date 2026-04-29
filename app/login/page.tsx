@@ -28,13 +28,16 @@ function LoginContent() {
 
   // Redirect if already logged in
   useEffect(() => {
-  // wait until auth is stable
-  if (user === undefined) return;
+    // wait until auth is stable
+    if (user === undefined) return;
 
-  if (user) {
-    router.replace("/");
-  }
-}, [user, router]);
+    if (user) {
+      const isAdmin =
+        user.app_metadata?.role === "admin" ||
+        user.user_metadata?.role === "admin";
+      router.replace(isAdmin ? "/admin" : "/");
+    }
+  }, [user, router]);
 
   // Handle password reset view from URL
   useEffect(() => {
