@@ -1,65 +1,55 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Menu, X, Instagram, Facebook, ChevronDown } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Menu, X, Instagram, Facebook, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { createClient } from "@/lib/supabase/client"
+} from "@/components/ui/dropdown-menu";
+
+import { useAuth } from "@/components/auth-provider";
 
 const navLinks = [
   { href: "/beers", label: "Our Beers" },
   { href: "/blog", label: "Blog" },
   { href: "/our-story", label: "Our Story" },
   { href: "/contact", label: "Contact" },
-]
+];
 
 export function Navbar() {
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
-  const pathname = usePathname()
-  const isHomePage = pathname === "/"
-  const supabase = createClient()
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
+
+  // SINGLE SOURCE OF TRUTH FOR AUTH
+  const { user } = useAuth();
+
+  // admin check (derived, not stored state)
+  const isAdmin = user?.user_metadata?.role === "admin";
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+      setIsScrolled(window.scrollY > 50);
+    };
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAdmin(session?.user?.app_metadata?.role === "admin")
-    })
-
-    const checkInitialSession = async () => {
-      // Use getUser() instead of getSession() to ensure we have the latest metadata from the server
-      const { data: { user } } = await supabase.auth.getUser()
-      setIsAdmin(user?.app_metadata?.role === "admin")
-    }
-    checkInitialSession()
-
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [supabase])
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Close mobile menu on route change
   useEffect(() => {
-    setIsMobileMenuOpen(false)
-  }, [pathname])
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
 
-  const showSolidBg = isScrolled || !isHomePage
+  const showSolidBg = isScrolled || !isHomePage;
 
   return (
     <header
@@ -78,7 +68,9 @@ export function Navbar() {
             width={240}
             height={80}
             className={`transition-all duration-300 ${
-              showSolidBg ? "h-12 w-auto brightness-0 invert" : "h-16 w-auto brightness-0 invert"
+              showSolidBg
+                ? "h-12 w-auto brightness-0 invert"
+                : "h-16 w-auto brightness-0 invert"
             }`}
           />
         </Link>
@@ -99,6 +91,7 @@ export function Navbar() {
             </Link>
           ))}
 
+          {/* 🔥 ADMIN DROPDOWN (NOW FULLY REACTIVE) */}
           {isAdmin && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -106,55 +99,73 @@ export function Navbar() {
                   Admin <ChevronDown className="w-4 h-4" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-forest border-tan/20 text-tan">
+
+              <DropdownMenuContent
+                align="end"
+                className="bg-forest border-tan/20 text-tan"
+              >
                 <DropdownMenuItem asChild>
-                  <Link href="/admin/beers" className="cursor-pointer hover:bg-tan/10 focus:bg-tan/10 focus:text-tan">
+                  <Link
+                    href="/admin/beers"
+                    className="cursor-pointer hover:bg-tan/10"
+                  >
                     Beer Panel
                   </Link>
                 </DropdownMenuItem>
+
                 <DropdownMenuItem asChild>
-                  <Link href="/admin/blog" className="cursor-pointer hover:bg-tan/10 focus:bg-tan/10 focus:text-tan">
+                  <Link
+                    href="/admin/blog"
+                    className="cursor-pointer hover:bg-tan/10"
+                  >
                     Blog Panel
                   </Link>
                 </DropdownMenuItem>
+
                 <DropdownMenuItem asChild>
-                  <Link href="/logout" className="cursor-pointer text-red-400 hover:bg-red-400/10 focus:bg-red-400/10 focus:text-red-400">
+                  <Link
+                    href="/logout"
+                    className="cursor-pointer text-red-400 hover:bg-red-400/10"
+                  >
                     Logout
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+
+          {/* Social */}
           <div className="flex items-center gap-3 ml-2 pl-4 border-l border-tan/30">
-            <Link 
-              href="https://instagram.com" 
+            <Link
+              href="https://instagram.com"
               target="_blank"
-              rel="noopener noreferrer"
-              className="text-tan/70 hover:text-tan transition-colors"
-              aria-label="Follow us on Instagram"
+              className="text-tan/70 hover:text-tan"
             >
               <Instagram className="w-5 h-5" />
             </Link>
-            <Link 
-              href="https://facebook.com" 
+
+            <Link
+              href="https://facebook.com"
               target="_blank"
-              rel="noopener noreferrer"
-              className="text-tan/70 hover:text-tan transition-colors"
-              aria-label="Follow us on Facebook"
+              className="text-tan/70 hover:text-tan"
             >
               <Facebook className="w-5 h-5" />
             </Link>
           </div>
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Button */}
         <Button
           variant="ghost"
           size="icon"
           className="md:hidden text-tan hover:bg-tan/10"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
-          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {isMobileMenuOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
         </Button>
       </nav>
 
@@ -166,55 +177,51 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`font-sans text-lg tracking-wide uppercase py-2 transition-colors ${
-                  pathname === link.href
-                    ? "text-tan"
-                    : "text-tan/70 hover:text-tan"
-                }`}
+                className="font-sans text-lg uppercase py-2 text-tan/70 hover:text-tan"
               >
                 {link.label}
               </Link>
             ))}
 
+            {/* 🔥 ADMIN MOBILE MENU */}
             {isAdmin && (
               <>
                 <div className="h-px bg-tan/20 my-2" />
+
                 <Link
                   href="/admin/beers"
-                  className="font-sans text-lg tracking-wide uppercase py-2 text-tan/70 hover:text-tan"
+                  className="text-tan/70 hover:text-tan"
                 >
                   Admin: Beer Panel
                 </Link>
-                <Link
-                  href="/admin/blog"
-                  className="font-sans text-lg tracking-wide uppercase py-2 text-tan/70 hover:text-tan"
-                >
+
+                <Link href="/admin/blog" className="text-tan/70 hover:text-tan">
                   Admin: Blog Panel
                 </Link>
+
                 <Link
                   href="/logout"
-                  className="font-sans text-lg tracking-wide uppercase py-2 text-red-400 hover:text-red-300"
+                  className="text-red-400 hover:text-red-300"
                 >
                   Logout
                 </Link>
               </>
             )}
+
+            {/* Social */}
             <div className="flex items-center gap-4 mt-4 pt-4 border-t border-tan/20">
-              <Link 
-                href="https://instagram.com" 
+              <Link
+                href="https://instagram.com/infinitetrailbrewing"
                 target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-tan/10 rounded-full flex items-center justify-center hover:bg-tan/20 transition-colors"
-                aria-label="Follow us on Instagram"
+                className="w-10 h-10 bg-tan/10 rounded-full flex items-center justify-center"
               >
                 <Instagram className="w-5 h-5" />
               </Link>
-              <Link 
-                href="https://facebook.com" 
+
+              <Link
+                href="https://facebook.com"
                 target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-tan/10 rounded-full flex items-center justify-center hover:bg-tan/20 transition-colors"
-                aria-label="Follow us on Facebook"
+                className="w-10 h-10 bg-tan/10 rounded-full flex items-center justify-center"
               >
                 <Facebook className="w-5 h-5" />
               </Link>
@@ -223,5 +230,5 @@ export function Navbar() {
         </div>
       )}
     </header>
-  )
+  );
 }

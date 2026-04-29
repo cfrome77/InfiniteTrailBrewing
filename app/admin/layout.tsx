@@ -14,7 +14,7 @@ export default async function AdminLayout({
     error,
   } = await supabase.auth.getUser();
 
-  if (error || !user || user.app_metadata?.role !== "admin") {
+  if (error || !user || user.user_metadata?.role !== "admin") {
     redirect("/login");
   }
 

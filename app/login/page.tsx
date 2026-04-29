@@ -7,6 +7,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { useAuth } from "@/components/auth-provider";
 
 function LoginContent() {
   const [email, setEmail] = useState("");
@@ -15,12 +16,27 @@ function LoginContent() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [view, setView] = useState<"login" | "reset" | "update_password">("login");
+  const [view, setView] = useState<"login" | "reset" | "update_password">(
+    "login",
+  );
 
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
 
+  const { user } = useAuth();
+
+  // Redirect if already logged in
+  useEffect(() => {
+  // wait until auth is stable
+  if (user === undefined) return;
+
+  if (user) {
+    router.replace("/");
+  }
+}, [user, router]);
+
+  // Handle password reset view from URL
   useEffect(() => {
     const viewParam = searchParams.get("view");
     if (viewParam === "update_password") {
@@ -42,10 +58,12 @@ function LoginContent() {
     if (loginError) {
       setError(loginError.message);
       setLoading(false);
-    } else {
-      router.push("/");
-      router.refresh();
+      return;
     }
+
+    // 🔥 Let AuthProvider + proxy handle session state
+    router.push("/");
+    router.refresh();
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -54,20 +72,25 @@ function LoginContent() {
     setError("");
     setMessage("");
 
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login?view=update_password`,
-    });
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+      email,
+      {
+        redirectTo: `${window.location.origin}/login?view=update_password`,
+      },
+    );
 
     if (resetError) {
       setError(resetError.message);
     } else {
       setMessage("Check your email for the password reset link.");
     }
+
     setLoading(false);
   };
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -78,7 +101,7 @@ function LoginContent() {
     setMessage("");
 
     const { error: updateError } = await supabase.auth.updateUser({
-      password: password,
+      password,
     });
 
     if (updateError) {
@@ -87,14 +110,18 @@ function LoginContent() {
       setMessage("Password updated successfully. You can now log in.");
       setView("login");
     }
+
     setLoading(false);
   };
 
   const getTitle = () => {
     switch (view) {
-      case "login": return "Staff Login";
-      case "reset": return "Reset Password";
-      case "update_password": return "Create New Password";
+      case "login":
+        return "Staff Login";
+      case "reset":
+        return "Reset Password";
+      case "update_password":
+        return "Create New Password";
     }
   };
 
@@ -111,9 +138,11 @@ function LoginContent() {
             className="h-12 w-auto brightness-0 invert"
           />
         </div>
+
         <h1 className="font-serif text-3xl text-forest tracking-wide">
           {getTitle()}
         </h1>
+
         <p className="text-forest/60 mt-2 font-sans text-sm uppercase tracking-widest">
           Infinite Trail Brewing
         </p>
@@ -132,6 +161,7 @@ function LoginContent() {
           </div>
         )}
 
+        {/* LOGIN */}
         {view === "login" && (
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
@@ -143,114 +173,102 @@ function LoginContent() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full border-tan/30 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest transition-all"
-                placeholder="name@example.com"
                 required
               />
             </div>
+
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-forest/70">
                   Password
                 </label>
+
                 <button
                   type="button"
                   onClick={() => setView("reset")}
-                  className="text-xs text-forest/50 hover:text-forest transition-colors underline"
+                  className="text-xs text-forest/50 hover:text-forest underline"
                 >
                   Forgot?
                 </button>
               </div>
+
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full border-tan/30 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest transition-all"
-                placeholder="••••••••"
+                className="w-full border-tan/30 border rounded-lg px-4 py-3"
                 required
               />
             </div>
+
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-forest text-tan py-3 rounded-lg font-serif text-lg tracking-wide hover:bg-forest/90 disabled:opacity-50 transition-all shadow-md active:transform active:scale-[0.98]"
+              className="w-full bg-forest text-tan py-3 rounded-lg font-serif text-lg"
             >
               {loading ? "Authenticating..." : "Login"}
             </button>
           </form>
         )}
 
+        {/* RESET */}
         {view === "reset" && (
           <form onSubmit={handleResetPassword} className="space-y-5">
-            <p className="text-forest/70 text-sm leading-relaxed mb-4">
-              Enter your email address and we'll send you a link to reset your account password.
+            <p className="text-sm text-forest/70">
+              Enter your email to receive a reset link.
             </p>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-forest/70 mb-2">
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full border-tan/30 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest transition-all"
-                placeholder="name@example.com"
-                required
-              />
-            </div>
+
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full border rounded-lg px-4 py-3"
+              required
+            />
+
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-forest text-tan py-3 rounded-lg font-serif text-lg tracking-wide hover:bg-forest/90 disabled:opacity-50 transition-all shadow-md"
+              className="w-full bg-forest text-tan py-3 rounded-lg"
             >
               {loading ? "Sending..." : "Send Reset Link"}
             </button>
+
             <button
               type="button"
               onClick={() => setView("login")}
-              className="w-full text-sm text-forest/60 hover:text-forest transition-colors mt-2"
+              className="text-sm text-forest/60"
             >
-              Return to Login
+              Back to login
             </button>
           </form>
         )}
 
+        {/* UPDATE PASSWORD */}
         {view === "update_password" && (
           <form onSubmit={handleUpdatePassword} className="space-y-5">
-            <p className="text-forest/70 text-sm leading-relaxed mb-4">
-              Please enter a new secure password for your account.
-            </p>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-forest/70 mb-2">
-                New Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full border-tan/30 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest transition-all"
-                placeholder="••••••••"
-                required
-                minLength={6}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-forest/70 mb-2">
-                Confirm New Password
-              </label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full border-tan/30 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest transition-all"
-                placeholder="••••••••"
-                required
-                minLength={6}
-              />
-            </div>
+            <input
+              type="password"
+              placeholder="New Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full border rounded-lg px-4 py-3"
+              required
+            />
+
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full border rounded-lg px-4 py-3"
+              required
+            />
+
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-forest text-tan py-3 rounded-lg font-serif text-lg tracking-wide hover:bg-forest/90 disabled:opacity-50 transition-all shadow-md"
+              className="w-full bg-forest text-tan py-3 rounded-lg"
             >
               {loading ? "Updating..." : "Update Password"}
             </button>
@@ -259,7 +277,10 @@ function LoginContent() {
       </div>
 
       <div className="mt-8 text-center">
-        <Link href="/" className="text-forest/40 hover:text-forest transition-colors text-sm uppercase tracking-widest">
+        <Link
+          href="/"
+          className="text-forest/40 hover:text-forest text-sm uppercase"
+        >
           ← Back to Main Site
         </Link>
       </div>
@@ -273,7 +294,7 @@ export default function LoginPage() {
       <Navbar />
 
       <div className="flex-grow flex items-center justify-center px-4 pt-32 pb-20">
-        <Suspense fallback={<div className="text-forest">Loading...</div>}>
+        <Suspense fallback={<div>Loading...</div>}>
           <LoginContent />
         </Suspense>
       </div>

@@ -14,6 +14,12 @@ next.user-config.*
 # Supabase
 .supabase/
 supabase/.temp
+supabase/.branches
+supabase/.cache
+supabase/.logs
+supabase/.netrc
+supabase/.config
+supabase/.env
 
 # Common ignores
 node_modules

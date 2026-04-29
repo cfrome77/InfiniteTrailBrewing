@@ -9,12 +9,14 @@ export default function Logout() {
   const supabase = createClient();
 
   useEffect(() => {
-    const performSignOut = async () => {
+    const signOut = async () => {
       await supabase.auth.signOut();
-      router.push("/");
-      router.refresh();
+
+      // 🔥 let AuthProvider handle UI state reset
+      router.replace("/");
     };
-    performSignOut();
+
+    signOut();
   }, [router, supabase]);
 
   return (
