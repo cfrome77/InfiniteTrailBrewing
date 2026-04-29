@@ -25,4 +25,3 @@ supabase/.env
 node_modules
 .next/
 .DS_Store
-*.tsbuildinfo
