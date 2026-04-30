@@ -35,12 +35,13 @@ CREATE TABLE IF NOT EXISTS currently_brewing (
     beer_name TEXT NOT NULL,
     style TEXT NOT NULL,
     abv TEXT,
-    status TEXT NOT NULL DEFAULT 'fermenting',
+    status TEXT NOT NULL DEFAULT 'on_deck',
     started_at DATE NOT NULL,
     notes TEXT,
     is_active BOOLEAN DEFAULT TRUE,
     is_flagship BOOLEAN DEFAULT FALSE,
     color TEXT,
+    image_url TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

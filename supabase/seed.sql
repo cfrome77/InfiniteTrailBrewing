@@ -46,6 +46,9 @@ insert into public.currently_brewing (
   started_at,
   notes,
   is_active,
+  is_flagship,
+  color,
+  image_url,
   created_at,
   updated_at
 )
@@ -54,11 +57,14 @@ values
   gen_random_uuid(),
   'Trailhead IPA',
   'IPA',
-  6.5,
-  'fermenting',
+  '6.5',
+  'ready',
   current_date,
   'Hoppy citrus-forward profile',
   true,
+  false,
+  'from-orange-400 to-orange-500',
+  null,
   now(),
   now()
 );
