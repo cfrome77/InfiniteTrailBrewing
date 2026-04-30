@@ -1,15 +1,54 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Navbar } from "@/components/navbar"
-import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+"use client";
+
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+
+type BrewStats = {
+  total: number;
+  flagship: number;
+};
 
 export default function OurStoryPage() {
+  const [stats, setStats] = useState<BrewStats>({
+    total: 0,
+    flagship: 0,
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const client = createClient();
+
+      const [flagships, batches] = await Promise.all([
+        client
+          .from("currently_brewing")
+          .select("*", { count: "exact", head: true })
+          .eq("is_flagship", true),
+
+        client
+          .from("currently_brewing")
+          .select("*", { count: "exact", head: true })
+          .neq("status", "on_deck"),
+      ]);
+
+      setStats({
+        flagship: flagships.count ?? 0,
+        total: batches.count ?? 0,
+      });
+    };
+
+    fetchStats();
+  }, []);
+
   return (
     <main className="min-h-screen">
       <Navbar />
-      
+
       {/* Page Header */}
       <section className="pt-32 pb-16 bg-forest text-tan">
         <div className="container mx-auto px-4 text-center">
@@ -26,8 +65,8 @@ export default function OurStoryPage() {
       {/* Story Content */}
       <section className="py-20 bg-cream">
         <div className="container mx-auto px-4">
+          {/* Image + Story */}
           <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
-            {/* Image */}
             <div className="relative">
               <div className="relative aspect-square max-w-lg mx-auto">
                 <div className="absolute inset-4 border-2 border-forest/20 rounded-lg" />
@@ -43,23 +82,33 @@ export default function OurStoryPage() {
               </div>
             </div>
 
-            {/* Story Text */}
             <div>
               <h2 className="font-serif text-3xl md:text-4xl text-forest mb-6">
                 The Beginning
               </h2>
               <div className="space-y-6 text-lg text-forest/80 leading-relaxed">
                 <p>
-                  <span className="text-forest font-semibold">Infinite Trail Brewing</span> was born from a simple belief: the greatest rewards are found at the end of the hardest trails. What started as a passion for homebrewing in a small garage in Frederick, MD has grown into a dedication to crafting beers that capture the spirit of adventure.
+                  <span className="text-forest font-semibold">
+                    Infinite Trail Brewing
+                  </span>{" "}
+                  was born from a simple belief: the greatest rewards are found
+                  at the end of the hardest trails. What started as a passion
+                  for homebrewing in a small garage in Frederick, MD has grown
+                  into a dedication to crafting beers that capture the spirit of
+                  adventure.
                 </p>
                 <p>
-                  Every brew we create is inspired by the landscapes that surround us—the rolling Blue Ridge, the rugged Catoctin Mountains, and the iconic Sugarloaf peak. Each pint tells a story of exploration, perseverance, and the joy of reaching a summit.
+                  Every brew we create is inspired by the landscapes that
+                  surround us—the rolling Blue Ridge, the rugged Catoctin
+                  Mountains, and the iconic Sugarloaf peak. Each pint tells a
+                  story of exploration, perseverance, and the joy of reaching a
+                  summit.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Philosophy Section */}
+          {/* Philosophy */}
           <div className="bg-forest text-tan rounded-2xl p-8 md:p-12 lg:p-16 mb-20">
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="font-serif text-3xl md:text-4xl mb-6 tracking-wide">
@@ -67,10 +116,14 @@ export default function OurStoryPage() {
               </h2>
               <div className="w-16 h-1 bg-tan mx-auto mb-8" />
               <p className="text-xl text-tan/90 leading-relaxed mb-8">
-                We believe beer should be hand-forged with intention and endurance. Every batch is crafted to be the ultimate reward earned at the end of the trail—fueling the pursuit of the next summit.
+                We believe beer should be hand-forged with intention and
+                endurance. Every batch is crafted to be the ultimate reward
+                earned at the end of the trail—fueling the pursuit of the next
+                summit.
               </p>
               <p className="text-lg text-tan/70">
-                We&apos;re not just making beer—we&apos;re crafting experiences that connect you to the trail.
+                We&apos;re not just making beer—we&apos;re crafting experiences
+                that connect you to the trail.
               </p>
             </div>
           </div>
@@ -81,27 +134,38 @@ export default function OurStoryPage() {
               <div className="w-16 h-16 bg-forest/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="font-serif text-2xl text-forest">01</span>
               </div>
-              <h3 className="font-serif text-xl text-forest mb-4">Rugged Quality</h3>
+              <h3 className="font-serif text-xl text-forest mb-4">
+                Rugged Quality
+              </h3>
               <p className="text-forest/70">
-                Built tough, just like the trails we love. Every ingredient is chosen with care, every process refined through dedication.
+                Built tough, just like the trails we love. Every ingredient is
+                chosen with care, every process refined through dedication.
               </p>
             </div>
+
             <div className="text-center p-8">
               <div className="w-16 h-16 bg-forest/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="font-serif text-2xl text-forest">02</span>
               </div>
-              <h3 className="font-serif text-xl text-forest mb-4">Local Inspiration</h3>
+              <h3 className="font-serif text-xl text-forest mb-4">
+                Local Inspiration
+              </h3>
               <p className="text-forest/70">
-                Frederick, MD is our home. The mountains, trails, and community shape every beer we brew.
+                Frederick, MD is our home. The mountains, trails, and community
+                shape every beer we brew.
               </p>
             </div>
+
             <div className="text-center p-8">
               <div className="w-16 h-16 bg-forest/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="font-serif text-2xl text-forest">03</span>
               </div>
-              <h3 className="font-serif text-xl text-forest mb-4">Endless Exploration</h3>
+              <h3 className="font-serif text-xl text-forest mb-4">
+                Endless Exploration
+              </h3>
               <p className="text-forest/70">
-                The trail never truly ends. We&apos;re always experimenting, always pushing forward to discover new flavors and styles.
+                The trail never truly ends. We&apos;re always experimenting,
+                always pushing forward to discover new flavors and styles.
               </p>
             </div>
           </div>
@@ -110,28 +174,53 @@ export default function OurStoryPage() {
           <div className="bg-tan/50 rounded-2xl p-8 md:p-12">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               <div className="text-center">
-                <div className="font-serif text-5xl md:text-6xl text-forest mb-2">4</div>
-                <div className="text-sm text-forest/60 uppercase tracking-wider">Flagship Beers</div>
+                <div className="font-serif text-5xl md:text-6xl text-forest mb-2">
+                  {stats.flagship}
+                </div>
+                <div className="text-sm text-forest/60 uppercase tracking-wider">
+                  Flagship Beers
+                </div>
               </div>
+
               <div className="text-center">
-                <div className="font-serif text-5xl md:text-6xl text-forest mb-2">20+</div>
-                <div className="text-sm text-forest/60 uppercase tracking-wider">Batches Brewed</div>
+                <div className="font-serif text-5xl md:text-6xl text-forest mb-2">
+                  {stats.total}
+                </div>
+                <div className="text-sm text-forest/60 uppercase tracking-wider">
+                  Batches Brewed
+                </div>
               </div>
+
               <div className="text-center">
-                <div className="font-serif text-5xl md:text-6xl text-forest mb-2">1</div>
-                <div className="text-sm text-forest/60 uppercase tracking-wider">Garage Setup</div>
+                <div className="font-serif text-5xl md:text-6xl text-forest mb-2">
+                  1
+                </div>
+                <div className="text-sm text-forest/60 uppercase tracking-wider">
+                  Garage Setup
+                </div>
               </div>
+
               <div className="text-center">
-                <div className="font-serif text-5xl md:text-6xl text-forest mb-2">&#8734;</div>
-                <div className="text-sm text-forest/60 uppercase tracking-wider">Trails to Explore</div>
+                <div className="font-serif text-5xl md:text-6xl text-forest mb-2">
+                  &#8734;
+                </div>
+                <div className="text-sm text-forest/60 uppercase tracking-wider">
+                  Trails to Explore
+                </div>
               </div>
             </div>
           </div>
 
           {/* CTA */}
           <div className="text-center mt-16">
-            <h3 className="font-serif text-2xl text-forest mb-6">Want to try our beers?</h3>
-            <Button asChild size="lg" className="bg-forest text-tan hover:bg-forest/90 font-serif tracking-wide">
+            <h3 className="font-serif text-2xl text-forest mb-6">
+              Want to try our beers?
+            </h3>
+            <Button
+              asChild
+              size="lg"
+              className="bg-forest text-tan hover:bg-forest/90 font-serif tracking-wide"
+            >
               <Link href="/contact" className="inline-flex items-center gap-2">
                 Get in Touch
                 <ArrowRight className="w-5 h-5" />
@@ -143,5 +232,5 @@ export default function OurStoryPage() {
 
       <Footer />
     </main>
-  )
+  );
 }

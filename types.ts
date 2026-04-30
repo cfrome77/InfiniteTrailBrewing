@@ -1,9 +1,8 @@
 // types.ts
 export type BeerStatus =
   | "on_deck"
-  | "fermenting"
-  | "conditioning"
-  | "finished"
+  | "brewing"
+  | "ready"
   | "archived";
 
 export interface Beer {
@@ -16,6 +15,7 @@ export interface Beer {
   color?: string | null;
   is_flagship: boolean;
   started_at: string; // YYYY-MM-DD
+  image_url?: string | null;
 }
 
 export type BlogPost = {
