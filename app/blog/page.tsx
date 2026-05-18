@@ -1,45 +1,18 @@
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { Button } from "@/components/ui/button";
+import { getSubstackPosts } from "@/lib/substack";
 import Link from "next/link";
-import { getAllPosts } from "@/lib/blog";
 
-const categories = [
-  "All",
-  "Brew Day",
-  "Tasting Notes",
-  "Recipes",
-  "Tips & Learning",
-];
-
-function getCategoryColor(category: string) {
-  const colors: Record<string, string> = {
-    "Brew Day": "bg-sky/20 text-sky",
-    "Tasting Notes": "bg-tan text-forest",
-    Recipes: "bg-forest/10 text-forest",
-    "Tips & Learning": "bg-amber-100 text-amber-800",
-  };
-  return colors[category] || "bg-tan text-forest";
+function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 }
 
-// Next.js passes searchParams to page components automatically
-export default async function BlogPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ category?: string }>;
-}) {
-  const { category } = await searchParams;
-  const allPosts = await getAllPosts();
-
-  // 1. Filter posts based on the category in the URL
-  const filteredPosts =
-    !category || category === "All"
-      ? allPosts
-      : allPosts.filter((p: any) => p.category === category);
-
-  // 2. Separate featured vs recent from the FILTERED list
-  const featuredPost = filteredPosts.find((p: any) => p.featured);
-  const recentPosts = filteredPosts.filter((p: any) => !p.featured);
+export default async function BlogPage() {
+  const posts = await getSubstackPosts();
 
   return (
     <main className="min-h-screen bg-cream">
@@ -48,80 +21,71 @@ export default async function BlogPage({
       <section className="bg-forest pt-32 pb-16 text-center">
         <h1 className="font-serif text-5xl text-tan">The Brewhouse Blog</h1>
         <p className="text-tan/70 mt-2">
-          Brew day stories, tasting notes, recipes, and tips.
+          Brew day stories, tasting notes, and brewery updates via Substack.
         </p>
       </section>
 
-      <section className="py-4 bg-tan/30 border-b border-tan/50">
-        {/* Add a max-width container to match your other sections */}
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide justify-start">
-            {categories.map((cat) => (
-              <Link
-                key={cat}
-                href={`/blog${cat === "All" ? "" : `?category=${encodeURIComponent(cat)}`}`}
-                scroll={false}
-                className="shrink-0" // Prevents buttons from squishing
-              >
-                <Button
-                  variant={
-                    category === cat || (!category && cat === "All")
-                      ? "default"
-                      : "outline"
-                  }
-                  size="sm"
-                  className={getCategoryColor(cat)}
-                >
-                  {cat}
-                </Button>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="py-12 px-4 max-w-5xl mx-auto min-h-[400px]">
-        {/* If no posts match the category */}
-        {filteredPosts.length === 0 && (
+        {posts.length === 0 && (
           <p className="text-center text-forest/50 py-20">
-            No posts found in this category.
+            No posts found. Stay tuned for updates!
           </p>
         )}
 
-        {/* Featured Post (only show if it matches filter) */}
-        {featuredPost && (
-          <div className="mb-12">
-            <Link href={`/blog/${featuredPost.slug}`}>
-              <article className="bg-cream p-6 rounded-lg shadow hover:shadow-lg border border-tan/30">
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(featuredPost.category)}`}
-                >
-                  {featuredPost.category}
-                </span>
-                <h2 className="text-3xl font-serif mt-2">
-                  {featuredPost.title}
-                </h2>
-                <p className="text-forest/70 mt-1">{featuredPost.excerpt}</p>
-              </article>
-            </Link>
-          </div>
-        )}
+        <div className="grid md:grid-cols-2 gap-8">
+          {posts.map((post) => (
+            <a
+              key={post.id}
+              href={post.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group"
+            >
+              <article className="bg-white p-8 rounded-2xl shadow-sm group-hover:shadow-xl transition-all duration-300 border border-tan/20 h-full flex flex-col">
+                <div className="flex justify-between items-start mb-6">
+                  <time className="text-[10px] uppercase font-bold tracking-[0.2em] text-forest/30">
+                    {formatDate(post.pubDate)}
+                  </time>
+                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-sky bg-sky/5 px-2 py-1 rounded">
+                    Substack
+                  </span>
+                </div>
 
-        {/* Recent Posts Grid */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {recentPosts.map((post: any) => (
-            <Link key={post.slug} href={`/blog/${post.slug}`}>
-              <article className="bg-cream p-4 rounded-lg shadow hover:shadow-lg border border-tan/30 h-full">
-                <span
-                  className={`px-2 py-1 rounded-full text-sm font-medium ${getCategoryColor(post.category)}`}
-                >
-                  {post.category}
-                </span>
-                <h3 className="text-xl font-serif mt-2">{post.title}</h3>
-                <p className="text-forest/70 mt-1">{post.excerpt}</p>
+                <h3 className="text-2xl font-serif text-forest mb-4 group-hover:text-sky transition-colors">
+                  {post.title}
+                </h3>
+
+                <p className="text-forest/70 text-sm leading-relaxed line-clamp-4 flex-grow">
+                  {post.contentSnippet}
+                </p>
+
+                <div className="mt-8 pt-6 border-t border-tan/10 flex items-center text-xs font-bold uppercase tracking-widest text-forest/40 group-hover:text-forest transition-colors">
+                  Read Full Story
+                  <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </div>
               </article>
-            </Link>
+            </a>
           ))}
+        </div>
+      </section>
+
+      <section className="py-20 bg-tan/10 border-t border-tan/20">
+        <div className="container mx-auto px-4 text-center max-w-2xl">
+          <h2 className="text-3xl font-serif text-forest mb-4">Never Miss a Brew Day</h2>
+          <p className="text-forest/60 mb-8 leading-relaxed">
+            Get the full Infinite Trail experience delivered straight to your inbox.
+            Subscribe to our Substack for detailed recipes, process notes, and more.
+          </p>
+          <a
+            href={process.env.SUBSTACK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-forest text-tan px-10 py-4 rounded-full font-serif text-lg hover:bg-forest/90 transition-all shadow-lg hover:shadow-xl active:scale-95"
+          >
+            Join our Substack
+          </a>
         </div>
       </section>
 

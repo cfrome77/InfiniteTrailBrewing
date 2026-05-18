@@ -2,59 +2,37 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { X, Beer, Mail } from "lucide-react"
+import { X, Beer, Mail, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 
 export function NewsletterPopup() {
   const [isOpen, setIsOpen] = useState(false)
-  const [email, setEmail] = useState("")
-  const [isSubmitted, setIsSubmitted] = useState(false)
 
   useEffect(() => {
-    // Never show to subscribers
-    const isSubscribed = localStorage.getItem("itb-newsletter-subscribed")
-    if (isSubscribed) return
-    
     // Check if user has dismissed the popup recently (within 7 days)
-    const dismissedAt = localStorage.getItem("itb-newsletter-dismissed")
+    const dismissedAt = localStorage.getItem("itb-substack-dismissed")
     
     if (dismissedAt) {
       const dismissedDate = new Date(dismissedAt)
       const now = new Date()
       const daysSinceDismissed = (now.getTime() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24)
       
-      // Don't show if dismissed within the last 7 days
       if (daysSinceDismissed < 7) {
         return
       }
     }
     
-    // Show popup after 3 seconds
+    // Show popup after 5 seconds
     const timer = setTimeout(() => {
       setIsOpen(true)
-    }, 3000)
+    }, 5000)
     
     return () => clearTimeout(timer)
   }, [])
 
   const handleClose = () => {
     setIsOpen(false)
-    // Store the dismissal date so we can show again after 7 days
-    localStorage.setItem("itb-newsletter-dismissed", new Date().toISOString())
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Handle newsletter signup here
-    setIsSubmitted(true)
-    // Store a permanent flag for subscribers so they never see it again
-    localStorage.setItem("itb-newsletter-subscribed", "true")
-    
-    // Close popup after showing success message
-    setTimeout(() => {
-      setIsOpen(false)
-    }, 2000)
+    localStorage.setItem("itb-substack-dismissed", new Date().toISOString())
   }
 
   if (!isOpen) return null
@@ -79,72 +57,56 @@ export function NewsletterPopup() {
         </button>
         
         {/* Header with logo */}
-        <div className="bg-forest px-6 py-8 text-center">
+        <div className="bg-forest px-6 py-10 text-center">
           <Image
             src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingLogo-Transparent-v6FezPtqxZNb3SWQzDZTLQnNvIqEf6.png"
             alt="Infinite Trail Brewing"
-            width={120}
-            height={120}
-            className="w-24 h-24 mx-auto mb-4"
+            width={100}
+            height={100}
+            className="w-20 h-24 mx-auto mb-4"
           />
-          <h2 className="font-serif text-2xl text-tan">Join the Trail</h2>
+          <h2 className="font-serif text-3xl text-tan">Join the Trail</h2>
+          <p className="text-tan/60 text-xs uppercase tracking-[0.2em] mt-2 font-bold">Now on Substack</p>
         </div>
         
         {/* Content */}
-        <div className="px-6 py-8">
-          {!isSubmitted ? (
-            <>
-              <div className="flex items-center justify-center gap-2 mb-4 text-forest/70">
-                <Beer className="w-5 h-5" />
-                <span className="text-sm font-medium">Homebrew Updates</span>
-              </div>
-              
-              <p className="text-center text-forest/80 mb-6">
-                Get brew day recaps, new beer announcements, recipes, and homebrewing tips delivered to your inbox.
-              </p>
-              
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-forest/40" />
-                  <Input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="pl-10 bg-white border-forest/20 text-forest placeholder:text-forest/40 focus:border-forest focus:ring-forest"
-                  />
-                </div>
-                
-                <Button 
-                  type="submit"
-                  className="w-full bg-forest text-tan hover:bg-forest/90 font-serif tracking-wide"
-                >
-                  Subscribe
-                </Button>
+        <div className="px-8 py-10 text-center">
+          <div className="flex items-center justify-center gap-2 mb-6 text-forest/70">
+            <Mail className="w-5 h-5" />
+            <span className="text-sm font-bold uppercase tracking-widest">Weekly Field Notes</span>
+          </div>
 
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="w-full text-xs text-forest/40 hover:text-forest/60 transition-colors uppercase tracking-widest mt-2"
-                >
-                  No thanks, maybe later
-                </button>
-              </form>
-              
-              <p className="text-center text-xs text-forest/50 mt-4">
-                No spam, ever. Unsubscribe anytime.
-              </p>
-            </>
-          ) : (
-            <div className="text-center py-4">
-              <div className="w-16 h-16 bg-forest/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Beer className="w-8 h-8 text-forest" />
-              </div>
-              <h3 className="font-serif text-xl text-forest mb-2">Welcome to the Trail!</h3>
-              <p className="text-forest/70">Check your inbox for a confirmation email.</p>
-            </div>
-          )}
+          <p className="text-forest/80 mb-8 leading-relaxed">
+            Get our latest brew day recaps, exclusive recipes, and homebrewing tips delivered directly to your inbox via Substack.
+          </p>
+
+          <div className="space-y-4">
+            <Button
+              asChild
+              className="w-full bg-forest text-tan hover:bg-forest/90 font-serif text-lg py-6 rounded-full shadow-lg group"
+            >
+              <a
+                href="https://infinitetrail.substack.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleClose}
+              >
+                Subscribe on Substack
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </a>
+            </Button>
+
+            <button
+              onClick={handleClose}
+              className="text-xs text-forest/40 hover:text-forest/60 transition-colors uppercase tracking-widest font-bold"
+            >
+              No thanks, maybe later
+            </button>
+          </div>
+
+          <p className="text-[10px] text-forest/30 mt-8 uppercase tracking-widest">
+            Free forever • Unsubscribe anytime
+          </p>
         </div>
       </div>
     </div>
