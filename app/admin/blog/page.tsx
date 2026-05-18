@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BlogPost } from "@/types";
-import { createClient } from "@/lib/supabase/client";
+import { getPosts, savePost, deletePost } from "./actions";
 
 export default function BlogAdminPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -24,18 +24,14 @@ export default function BlogAdminPage() {
 
   // --- Fetch blog posts ---
   const fetchPosts = async () => {
-    const { data, error } = await createClient()
-      .from("blog_posts")
-      .select("*")
-      .order("date", { ascending: false });
-
-    if (error) {
-      console.error("Error fetching posts:", error);
-      return;
+    try {
+        const data = await getPosts();
+        setPosts(data as BlogPost[]);
+    } catch (error) {
+        console.error("Error fetching posts:", error);
+    } finally {
+        setLoadingPosts(false);
     }
-
-    setPosts(data ?? []);
-    setLoadingPosts(false);
   };
 
   useEffect(() => {
@@ -70,87 +66,33 @@ export default function BlogAdminPage() {
   };
 
   // --- Save (Add or Update) Post ---
-  const savePost = async () => {
+  const handleSave = async () => {
     if (!formData.title || !formData.content || !formData.slug) {
       showStatus('error', "Title, slug, and content are required.");
       return;
     }
 
-    const supabase = createClient();
-
-    if (editingId) {
-      // Update
-      const { error } = await supabase
-        .from("blog_posts")
-        .update({
-          slug: formData.slug,
-          title: formData.title,
-          excerpt: formData.excerpt ?? "",
-          content: formData.content,
-          author: formData.author ?? null,
-          category: formData.category ?? null,
-          featured: formData.featured ?? false,
-          is_published: formData.is_published ?? false,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", editingId);
-
-      if (error) {
-        showStatus('error', "Failed to update post.");
-        return;
-      }
-
-      setPosts((prev) =>
-        prev.map((p) => (p.id === editingId ? { ...p, ...formData } as BlogPost : p))
-      );
-      showStatus('success', "Post updated successfully!");
+    try {
+      await savePost(formData, editingId);
+      showStatus('success', editingId ? "Post updated successfully!" : "Post published successfully!");
       cancelEditing();
-    } else {
-      // Add
-      const { data, error } = await supabase
-        .from("blog_posts")
-        .insert([
-          {
-            slug: formData.slug,
-            title: formData.title,
-            excerpt: formData.excerpt ?? "",
-            content: formData.content,
-            author: formData.author ?? null,
-            category: formData.category ?? null,
-            featured: formData.featured ?? false,
-            is_published: formData.is_published ?? false,
-            date: new Date().toISOString().split("T")[0],
-          },
-        ])
-        .select();
-
-      if (error) {
-        showStatus('error', "Failed to add post.");
-        return;
-      }
-
-      setPosts((prev) => [data![0], ...prev]);
-      showStatus('success', "Post published successfully!");
-      cancelEditing();
+      fetchPosts();
+    } catch (error) {
+      showStatus('error', "Failed to save post.");
     }
   };
 
   // --- Delete Post ---
-  const deletePost = async (id: string) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this post?")) return;
 
-    const { error } = await createClient()
-      .from("blog_posts")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
+    try {
+      await deletePost(id);
+      showStatus('success', "Post deleted.");
+      fetchPosts();
+    } catch (error) {
       showStatus('error', "Failed to delete post.");
-      return;
     }
-
-    setPosts((prev) => prev.filter((p) => p.id !== id));
-    showStatus('success', "Post deleted.");
   };
 
   if (loadingPosts)
@@ -261,7 +203,7 @@ export default function BlogAdminPage() {
 
         <div className="flex gap-3">
           <button
-            onClick={savePost}
+            onClick={handleSave}
             className="bg-forest text-tan px-8 py-2 rounded-lg font-serif hover:bg-forest/90 transition-all shadow-md active:scale-95"
           >
             {editingId ? "Update Post" : "Publish Post"}
@@ -312,7 +254,7 @@ export default function BlogAdminPage() {
                 Edit
               </button>
               <button
-                onClick={() => deletePost(post.id)}
+                onClick={() => handleDelete(post.id)}
                 className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all"
               >
                 Delete

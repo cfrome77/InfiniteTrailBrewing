@@ -1,37 +1,24 @@
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
 
-  if (error || !user) {
+  if (!session) {
     redirect("/login");
   }
 
-  const isAdmin =
-    user.app_metadata?.role === "admin" || user.user_metadata?.role === "admin";
-
-  if (!isAdmin) {
+  const user = session.user as any;
+  if (user.role !== "admin") {
     redirect("/");
   }
 
-  return (
-    <div className="min-h-screen bg-cream flex flex-col">
-      <Navbar />
-      <main className="flex-grow pt-24 pb-12">
-        {children}
-      </main>
-      <Footer />
-    </div>
-  );
+  return <>{children}</>;
 }

@@ -32,10 +32,8 @@ export function Navbar() {
   // SINGLE SOURCE OF TRUTH FOR AUTH
   const { user } = useAuth();
 
-  // admin check (derived, not stored state)
-  const isAdmin =
-    user?.app_metadata?.role === "admin" ||
-    user?.user_metadata?.role === "admin";
+  // Better Auth role check
+  const isAdmin = (user as any)?.role === "admin";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -93,7 +91,7 @@ export function Navbar() {
             </Link>
           ))}
 
-          {/* 🔥 ADMIN NAVIGATION */}
+          {/* ADMIN NAVIGATION */}
           {isAdmin && (
             <div className="flex items-center gap-1">
               <Link
@@ -198,7 +196,7 @@ export function Navbar() {
               </Link>
             ))}
 
-            {/* 🔥 ADMIN MOBILE MENU */}
+            {/* ADMIN MOBILE MENU */}
             {isAdmin && (
               <>
                 <div className="h-px bg-tan/20 my-2" />

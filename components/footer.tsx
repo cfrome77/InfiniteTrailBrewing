@@ -7,9 +7,7 @@ import { useAuth } from "@/components/auth-provider";
 
 export function Footer() {
   const { user } = useAuth();
-  const isAdmin =
-    user?.app_metadata?.role === "admin" ||
-    user?.user_metadata?.role === "admin";
+  const isAdmin = (user as any)?.role === "admin";
 
   return (
     <footer className="bg-forest text-tan">

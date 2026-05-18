@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Beer, BeerStatus } from "@/types";
-import { createClient } from "@/lib/supabase/client";
+import { getBeers, saveBeer, deleteBeer } from "./actions";
 
 export default function BeersAdminPage() {
   const [beers, setBeers] = useState<Beer[]>([]);
@@ -27,18 +27,14 @@ export default function BeersAdminPage() {
 
   // --- Fetch ---
   const fetchBeers = async () => {
-    const { data, error } = await createClient()
-      .from("currently_brewing")
-      .select("*")
-      .order("started_at", { ascending: false });
-
-    if (error) {
-      console.error(error);
-      return;
+    try {
+        const data = await getBeers();
+        setBeers(data as Beer[]);
+    } catch (error) {
+        console.error(error);
+    } finally {
+        setLoading(false);
     }
-
-    setBeers(data ?? []);
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -50,34 +46,7 @@ export default function BeersAdminPage() {
     setTimeout(() => setStatusMsg(null), 3000);
   };
 
-  // --- Image Upload ---
-  const handleImageUpload = async (file: File) => {
-    const supabase = createClient();
-
-    const filePath = `beers/${Date.now()}-${file.name}`;
-
-    const { data, error } = await supabase.storage
-      .from("beer-images")
-      .upload(filePath, file);
-
-    if (error) {
-      showStatus("error", "Image upload failed.");
-      return;
-    }
-
-    const { data: publicUrl } = supabase.storage
-      .from("beer-images")
-      .getPublicUrl(data.path);
-
-    setFormData((prev) => ({
-      ...prev,
-      image_url: publicUrl.publicUrl,
-    }));
-
-    showStatus("success", "Image uploaded!");
-  };
-
-  // --- Edit Start (FIXED) ---
+  // --- Start Editing ---
   const startEditing = (beer: Beer) => {
     setEditingId(beer.id);
 
@@ -112,88 +81,33 @@ export default function BeersAdminPage() {
   };
 
   // --- Save ---
-  const saveBeer = async () => {
+  const handleSave = async () => {
     if (!formData.beer_name || !formData.style) {
       showStatus("error", "Beer name and style required.");
       return;
     }
 
-    const supabase = createClient();
-
-    if (editingId) {
-      const { error } = await supabase
-        .from("currently_brewing")
-        .update({
-          beer_name: formData.beer_name,
-          style: formData.style,
-          status: formData.status,
-          notes: formData.notes || null,
-          abv: formData.abv || null,
-          is_flagship: formData.is_flagship,
-          color: formData.color || null,
-          image_url: formData.image_url || null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", editingId);
-
-      if (error) {
-        showStatus("error", "Failed to update beer.");
-        return;
-      }
-
-      setBeers((prev) =>
-        prev.map((b) =>
-          b.id === editingId ? ({ ...b, ...formData } as Beer) : b,
-        ),
-      );
-
-      showStatus("success", "Beer updated!");
+    try {
+      await saveBeer(formData, editingId);
+      showStatus("success", editingId ? "Beer updated!" : "Beer added!");
       cancelEditing();
-    } else {
-      const { data, error } = await supabase
-        .from("currently_brewing")
-        .insert([
-          {
-            beer_name: formData.beer_name,
-            style: formData.style,
-            status: formData.status,
-            notes: formData.notes || null,
-            abv: formData.abv || null,
-            is_flagship: formData.is_flagship,
-            color: formData.color || null,
-            image_url: formData.image_url || null,
-            started_at: new Date().toISOString().split("T")[0],
-          },
-        ])
-        .select();
-
-      if (error) {
-        showStatus("error", "Failed to add beer.");
-        return;
-      }
-
-      setBeers((prev) => [data![0], ...prev]);
-      showStatus("success", "Beer added!");
-      cancelEditing();
+      fetchBeers();
+    } catch (error) {
+      showStatus("error", "Failed to save beer.");
     }
   };
 
   // --- Delete ---
-  const deleteBeer = async (id: string) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("Delete this beer?")) return;
 
-    const { error } = await createClient()
-      .from("currently_brewing")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
+    try {
+      await deleteBeer(id);
+      showStatus("success", "Beer deleted.");
+      fetchBeers();
+    } catch (error) {
       showStatus("error", "Delete failed.");
-      return;
     }
-
-    setBeers((prev) => prev.filter((b) => b.id !== id));
-    showStatus("success", "Beer deleted.");
   };
 
   const statusOptions: BeerStatus[] = [
@@ -271,20 +185,16 @@ export default function BeersAdminPage() {
           />
         </div>
 
-        {/* IMAGE UPLOAD */}
+        {/* IMAGE URL (Simplified for Neon) */}
         <div className="mb-4">
-          <label className="block text-sm font-semibold mb-1">Beer Image</label>
-
+          <label className="block text-sm font-semibold mb-1">Beer Image URL</label>
           <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleImageUpload(file);
-            }}
-            className="border p-2 w-full"
+            type="text"
+            placeholder="https://example.com/image.jpg"
+            value={formData.image_url ?? ""}
+            onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+            className="border p-2 w-full rounded"
           />
-
           {formData.image_url && (
             <img
               src={formData.image_url}
@@ -338,7 +248,7 @@ export default function BeersAdminPage() {
         {/* ACTIONS */}
         <div className="flex gap-3">
           <button
-            onClick={saveBeer}
+            onClick={handleSave}
             className="bg-forest text-tan px-6 py-2 rounded"
           >
             {editingId ? "Update" : "Add"}
@@ -369,7 +279,7 @@ export default function BeersAdminPage() {
 
             <div className="flex gap-2 mt-3">
               <button onClick={() => startEditing(beer)}>Edit</button>
-              <button onClick={() => deleteBeer(beer.id)}>Delete</button>
+              <button onClick={() => handleDelete(beer.id)}>Delete</button>
             </div>
           </div>
         ))}

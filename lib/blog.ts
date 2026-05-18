@@ -1,78 +1,56 @@
-import { createClient as createPublicClient } from "./supabase/client"; // browser/static
-import { createClient as createServerClient } from "./supabase/server"; // runtime/auth
-
-// Helper to get a Supabase client instance for static generation (no auth)
-function getPublicSupabase() {
-  return createPublicClient();
-}
+import { sql } from "./db";
+import { auth } from "./auth";
+import { headers } from "next/headers";
 
 // ==============================
 // Build-time: get all posts
 // ==============================
 export async function getAllPosts() {
-  const supabase = getPublicSupabase();
-  const { data, error } = await supabase
-    .from("blog_posts")
-    .select("*")
-    .eq("is_published", true)
-    .order("date", { ascending: false });
-
-  if (error) throw error;
-  return data;
+  return await sql`SELECT * FROM blog_posts WHERE is_published = true ORDER BY date DESC`;
 }
 
 // ==============================
 // Build-time: get post by slug
 // ==============================
 export async function getPostBySlug(slug: string) {
-  const supabase = getPublicSupabase();
-  const { data, error } = await supabase
-    .from("blog_posts")
-    .select("*")
-    .eq("slug", slug)
-    .eq("is_published", true)
-    .single();
-
-  if (error || !data) return null;
-  return data;
+  const posts = await sql`SELECT * FROM blog_posts WHERE slug = ${slug} AND is_published = true LIMIT 1`;
+  return posts[0] || null;
 }
 
 // ==============================
 // Build-time: get all slugs
 // ==============================
 export async function getAllSlugs() {
-  const supabase = getPublicSupabase();
-  const { data, error } = await supabase
-    .from("blog_posts")
-    .select("slug")
-    .eq("is_published", true);
-
-  if (error || !data) return [];
-  return data.map((p: { slug: string }) => p.slug);
+  const posts = await sql`SELECT slug FROM blog_posts WHERE is_published = true`;
+  return posts.map((p: any) => p.slug);
 }
 
 // ==============================
 // Runtime / server-side with auth
 // ==============================
 export async function getAllPostsWithAuth() {
-  const supabase = await createServerClient(); // async server client
-  const { data, error } = await supabase
-    .from("blog_posts")
-    .select("*")
-    .order("date", { ascending: false }); // include drafts if user has access
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
 
-  if (error) throw error;
-  return data;
+  // If admin, show all posts (including drafts)
+  if (session?.user && (session.user as any).role === 'admin') {
+    return await sql`SELECT * FROM blog_posts ORDER BY date DESC`;
+  }
+
+  return getAllPosts();
 }
 
 export async function getPostBySlugWithAuth(slug: string) {
-  const supabase = await createServerClient();
-  const { data, error } = await supabase
-    .from("blog_posts")
-    .select("*")
-    .eq("slug", slug)
-    .single();
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
 
-  if (error || !data) return null;
-  return data;
+  // If admin, can see unpublished posts
+  if (session?.user && (session.user as any).role === 'admin') {
+    const posts = await sql`SELECT * FROM blog_posts WHERE slug = ${slug} LIMIT 1`;
+    return posts[0] || null;
+  }
+
+  return getPostBySlug(slug);
 }
