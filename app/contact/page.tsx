@@ -9,20 +9,28 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Mail, MapPin, Instagram, Facebook, Send, CheckCircle } from "lucide-react"
+import { submitContactForm } from "./actions"
 
 export default function ContactPage() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setError(null)
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const formData = new FormData(e.currentTarget)
     
-    setIsSubmitting(false)
-    setIsSubmitted(true)
+    try {
+      await submitContactForm(formData)
+      setIsSubmitted(true)
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -131,6 +139,12 @@ export default function ContactPage() {
                           className="w-full px-3 py-2 rounded-md border border-forest/20 bg-background text-forest focus:outline-none focus:ring-2 focus:ring-forest focus:border-forest resize-none"
                         />
                       </div>
+
+                      {error && (
+                        <p className="text-sm text-red-600 bg-red-50 p-3 rounded border border-red-100">
+                          {error}
+                        </p>
+                      )}
                       
                       <Button
                         type="submit"
