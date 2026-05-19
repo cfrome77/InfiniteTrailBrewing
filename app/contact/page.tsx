@@ -22,14 +22,15 @@ export default function ContactPage() {
     setError(null)
     
     const formData = new FormData(e.currentTarget)
+
+    const result = await submitContactForm(formData)
     
-    try {
-      await submitContactForm(formData)
+    setIsSubmitting(false)
+
+    if (result.success) {
       setIsSubmitted(true)
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setIsSubmitting(false)
+    } else {
+      setError(result.error || "An error occurred")
     }
   }
 

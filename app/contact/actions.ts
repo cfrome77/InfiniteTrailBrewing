@@ -1,6 +1,8 @@
 "use server"
 
-import { sql } from "@/lib/db";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function submitContactForm(formData: FormData) {
   const name = formData.get("name") as string;
@@ -9,17 +11,25 @@ export async function submitContactForm(formData: FormData) {
   const message = formData.get("message") as string;
 
   if (!name || !email || !subject || !message) {
-    throw new Error("All fields are required.");
+    return { error: "All fields are required." };
   }
 
   try {
-    await sql`
-      INSERT INTO contact_submissions (name, email, subject, message)
-      VALUES (${name}, ${email}, ${subject}, ${message})
-    `;
+    const data = await resend.emails.send({
+      from: "Infinite Trail Brewing <onboarding@resend.dev>",
+      to: [process.env.CONTACT_RECEIVING_EMAIL!],
+      subject: `Contact Form: ${subject}`,
+      replyTo: email,
+      text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\n\nMessage:\n${message}`,
+    });
+
+    if (data.error) {
+      return { error: "Failed to send message. Please try again later." };
+    }
+
     return { success: true };
   } catch (error) {
-    console.error("Error submitting contact form:", error);
-    throw new Error("Failed to send message. Please try again later.");
+    console.error("Resend error:", error);
+    return { error: "An unexpected error occurred." };
   }
 }

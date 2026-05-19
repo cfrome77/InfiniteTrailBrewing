@@ -1,6 +1,6 @@
 "use server"
 
-import { sql } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import { Beer } from "@/types";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -16,31 +16,53 @@ async function checkAdmin() {
 }
 
 export async function getBeers() {
-    return await sql`SELECT * FROM currently_brewing ORDER BY started_at DESC`;
+    const beers = await prisma.currentlyBrewing.findMany({
+        orderBy: {
+            startedAt: 'desc'
+        }
+    });
+    return beers.map(b => ({
+        id: b.id,
+        beer_name: b.beerName,
+        style: b.style,
+        status: b.status as any,
+        notes: b.notes,
+        abv: b.abv,
+        is_flagship: b.isFlagship,
+        color: b.color,
+        image_url: b.imageUrl,
+        started_at: b.startedAt.toISOString().split('T')[0],
+        is_active: b.isActive
+    }));
 }
 
 export async function saveBeer(formData: Partial<Beer>, editingId: string | null) {
     await checkAdmin();
 
+    const data = {
+        beerName: formData.beer_name!,
+        style: formData.style!,
+        status: formData.status!,
+        notes: formData.notes || null,
+        abv: formData.abv || null,
+        isFlagship: formData.is_flagship!,
+        color: formData.color || null,
+        imageUrl: formData.image_url || null,
+        isActive: formData.is_active ?? true,
+    };
+
     if (editingId) {
-        await sql`
-            UPDATE currently_brewing
-            SET beer_name = ${formData.beer_name},
-                style = ${formData.style},
-                status = ${formData.status},
-                notes = ${formData.notes || null},
-                abv = ${formData.abv || null},
-                is_flagship = ${formData.is_flagship},
-                color = ${formData.color || null},
-                image_url = ${formData.image_url || null},
-                updated_at = NOW()
-            WHERE id = ${editingId}
-        `;
+        await prisma.currentlyBrewing.update({
+            where: { id: editingId },
+            data
+        });
     } else {
-        await sql`
-            INSERT INTO currently_brewing (beer_name, style, status, notes, abv, is_flagship, color, image_url, started_at)
-            VALUES (${formData.beer_name}, ${formData.style}, ${formData.status}, ${formData.notes || null}, ${formData.abv || null}, ${formData.is_flagship}, ${formData.color || null}, ${formData.image_url || null}, CURRENT_DATE)
-        `;
+        await prisma.currentlyBrewing.create({
+            data: {
+                ...data,
+                startedAt: new Date()
+            }
+        });
     }
     revalidatePath("/admin/beers");
     revalidatePath("/beers");
@@ -48,7 +70,9 @@ export async function saveBeer(formData: Partial<Beer>, editingId: string | null
 
 export async function deleteBeer(id: string) {
     await checkAdmin();
-    await sql`DELETE FROM currently_brewing WHERE id = ${id}`;
+    await prisma.currentlyBrewing.delete({
+        where: { id }
+    });
     revalidatePath("/admin/beers");
     revalidatePath("/beers");
 }

@@ -125,14 +125,6 @@ export function Navbar() {
                     </Link>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/admin/blog"
-                      className="cursor-pointer hover:bg-tan/10"
-                    >
-                      Blog Panel
-                    </Link>
-                  </DropdownMenuItem>
 
                   <DropdownMenuItem asChild>
                     <Link
@@ -219,12 +211,6 @@ export function Navbar() {
                   Beer Panel
                 </Link>
 
-                <Link
-                  href="/admin/blog"
-                  className="text-tan/70 hover:text-tan pl-4"
-                >
-                  Blog Panel
-                </Link>
 
                 <Link
                   href="/logout"

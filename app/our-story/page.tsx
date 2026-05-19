@@ -1,8 +1,13 @@
-import { sql } from "@/lib/db";
-import { Beer } from "@/types";
+export const dynamic = "force-dynamic";
+import { prisma } from "@/lib/prisma";
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 async function FlagshipBrews() {
-    const flagshipBeers = await sql`SELECT * FROM currently_brewing WHERE is_flagship = true LIMIT 3`;
+    const flagshipBeers = await prisma.currentlyBrewing.findMany({
+        where: { isFlagship: true },
+        take: 3
+    });
 
     if (flagshipBeers.length === 0) return null;
 
@@ -11,9 +16,9 @@ async function FlagshipBrews() {
             <div className="container mx-auto px-4 text-center">
                 <h2 className="text-4xl font-serif mb-12 italic">The Foundation of Our Craft</h2>
                 <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                    {(flagshipBeers as Beer[]).map(beer => (
+                    {flagshipBeers.map(beer => (
                         <div key={beer.id} className="p-8 border border-tan/20 rounded-2xl bg-white/5 backdrop-blur-sm">
-                            <h3 className="text-2xl font-serif mb-2">{beer.beer_name}</h3>
+                            <h3 className="text-2xl font-serif mb-2">{beer.beerName}</h3>
                             <p className="text-tan/60 text-sm italic mb-4">{beer.style}</p>
                             <p className="text-tan/80 leading-relaxed text-sm">{beer.notes}</p>
                         </div>
@@ -27,6 +32,7 @@ async function FlagshipBrews() {
 export default function OurStory() {
   return (
     <div className="min-h-screen bg-cream">
+      <Navbar />
       {/* Story Hero */}
       <section className="relative h-[70vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-black/40 z-10" />
@@ -103,6 +109,7 @@ export default function OurStory() {
           </div>
         </div>
       </section>
+      <Footer />
     </div>
   );
 }

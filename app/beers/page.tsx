@@ -1,27 +1,33 @@
+export const dynamic = "force-dynamic";
 import { Beer } from "@/types";
-import { sql } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import { Suspense } from "react";
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 async function BeerList() {
-    const beers = await sql`SELECT * FROM currently_brewing WHERE is_active = true ORDER BY started_at DESC`;
+    const beers = await prisma.currentlyBrewing.findMany({
+        where: { isActive: true },
+        orderBy: { startedAt: 'desc' }
+    });
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {(beers as Beer[]).map((beer) => (
+            {beers.map((beer) => (
                 <div key={beer.id} className="bg-white rounded-2xl overflow-hidden shadow-lg border border-tan/20 flex flex-col">
-                    {beer.image_url && (
+                    {beer.imageUrl && (
                         <div className="h-64 relative overflow-hidden">
                             <img
-                                src={beer.image_url}
-                                alt={beer.beer_name}
+                                src={beer.imageUrl}
+                                alt={beer.beerName}
                                 className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
                             />
                         </div>
                     )}
                     <div className="p-6 flex flex-col flex-grow">
                         <div className="flex justify-between items-start mb-2">
-                            <h2 className="text-2xl font-serif text-forest">{beer.beer_name}</h2>
-                            {beer.is_flagship && (
+                            <h2 className="text-2xl font-serif text-forest">{beer.beerName}</h2>
+                            {beer.isFlagship && (
                                 <span className="bg-sky/20 text-sky text-[10px] uppercase px-2 py-1 rounded-full font-bold tracking-wider">Flagship</span>
                             )}
                         </div>
@@ -44,8 +50,9 @@ async function BeerList() {
 
 export default function BeersPage() {
   return (
-    <div className="min-h-screen bg-cream pt-24 pb-20">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-cream">
+      <Navbar />
+      <div className="container mx-auto px-4 pt-32 pb-20">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h1 className="text-5xl md:text-6xl font-serif text-forest mb-6">Our Current Brews</h1>
           <p className="text-xl text-forest/70 leading-relaxed">
@@ -58,6 +65,7 @@ export default function BeersPage() {
             <BeerList />
         </Suspense>
       </div>
+      <Footer />
     </div>
   );
 }

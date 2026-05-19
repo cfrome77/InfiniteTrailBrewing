@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -40,7 +42,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-cream px-4">
+    <div className="min-h-screen bg-cream">
+      <Navbar />
+      <div className="flex items-center justify-center min-h-[calc(100vh-160px)] px-4 pt-20">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
@@ -87,6 +91,8 @@ export default function LoginPage() {
           </form>
         </CardContent>
       </Card>
+      </div>
+      <Footer />
     </div>
   );
 }

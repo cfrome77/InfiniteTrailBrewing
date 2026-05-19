@@ -1,33 +1,36 @@
-# Documentation
-Migrated to Neon and Better Auth.
+# Infinite Trail Brewing
 
-## 📋 Manual Transition Checklist
+Welcome to the Infinite Trail Brewing web application.
 
-To complete the migration and ensure everything works correctly, please follow these manual steps:
+### 🚀 Neon, Resend, & Substack Migration Guide
 
-### 1. Configure Substack RSS
-- Ensure your Substack is public.
-- The RSS feed will be at `https://yourname.substack.com/feed`.
-- Set the `SUBSTACK_URL` environment variable to `https://yourname.substack.com`.
+To complete the transition to the new architecture, please follow these manual steps:
 
-### 2. Vercel Environment Variables
-Add these to your Vercel Project Settings:
-- `DATABASE_URL`: Your Neon connection string.
-- `BETTER_AUTH_SECRET`: Generate with `openssl rand -base64 32`.
+#### 1. Configure Environment Variables
+Add the following variables to your **Vercel Dashboard**:
+- `DATABASE_URL`: Your Neon Postgres connection string.
+- `SUBSTACK_FEED_URL`: The public RSS feed URL for your Substack (e.g., `https://yourname.substack.com/feed`).
+- `RESEND_API_KEY`: Your API key from Resend.
+- `CONTACT_RECEIVING_EMAIL`: The email address where you want to receive contact form submissions.
+- `BETTER_AUTH_SECRET`: A random 32-character string (generate with `openssl rand -base64 32`).
 - `BETTER_AUTH_URL`: Your production URL (e.g., `https://infinitetrail.vercel.app`).
-- `NEXT_PUBLIC_APP_URL`: Same as `BETTER_AUTH_URL`.
-- `SUBSTACK_URL`: Your Substack URL.
 
-### 3. Setup First Admin User
-1. Register a new account on your deployed site at `/login` (if you implement a signup) or use the Better Auth API.
-2. In the Neon Console SQL Editor, run:
-   ```sql
-   UPDATE "user" SET role = 'admin' WHERE email = 'your-email@example.com';
-   ```
-3. This grants you access to the Beer Management panel at `/admin`.
+#### 2. Local Setup & Database Push
+Run these commands in your local terminal to sync your environment and push the schema to Neon:
+```bash
+# Pull the latest environment variables from Vercel
+vercel env pull .env.local
 
-### 4. Database Schema
-Ensure the following tables exist in your Neon `public` schema:
-- `currently_brewing`
-- `contact_submissions`
-- `user`, `session`, `account`, `verification` (Better Auth tables)
+# Push the Prisma schema (including Better Auth tables) to your Neon database
+npx prisma db push
+```
+
+#### 3. Testing Note (Resend)
+If you are using a Resend free tier account, remember that by default you can only send emails to the email address you signed up with. To send to other domains, you must verify your custom domain in the Resend dashboard.
+
+### 🔑 Authentication & Admin
+- After pushing the schema, register your first user through the UI.
+- Manually set the `role` to `admin` in your database to access the Beer management panel:
+  ```sql
+  UPDATE "user" SET role = 'admin' WHERE email = 'your-email@example.com';
+  ```

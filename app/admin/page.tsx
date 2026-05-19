@@ -37,26 +37,6 @@ export default function AdminPage() {
             </div>
           </Link>
 
-          {/* Blog Management Card */}
-          <Link
-            href="/admin/blog"
-            className="group bg-white p-8 rounded-xl border border-tan/20 shadow-sm hover:shadow-md hover:border-forest/20 transition-all"
-          >
-            <div className="flex items-start gap-4">
-              <div className="bg-forest/10 p-3 rounded-lg group-hover:bg-forest group-hover:text-tan transition-colors text-forest">
-                <FileText className="w-6 h-6" />
-              </div>
-              <div>
-                <h2 className="font-serif text-xl text-forest mb-2">
-                  Blog Posts
-                </h2>
-                <p className="text-forest/60 text-sm">
-                  Write new stories, share updates, and manage your brewery's
-                  news feed.
-                </p>
-              </div>
-            </div>
-          </Link>
         </div>
 
         <div className="border-t border-tan/20 pt-8">
