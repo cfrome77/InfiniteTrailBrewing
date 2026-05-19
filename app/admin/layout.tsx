@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 export default async function AdminLayout({
   children,
@@ -20,5 +22,13 @@ export default async function AdminLayout({
     redirect("/");
   }
 
-  return <>{children}</>;
+  return (
+    <div className="min-h-screen bg-cream">
+      <Navbar />
+      <div className="pt-24 min-h-[calc(100vh-160px)]">
+        {children}
+      </div>
+      <Footer />
+    </div>
+  );
 }

@@ -86,7 +86,7 @@ export function NewsletterPopup() {
               className="w-full bg-forest text-tan hover:bg-forest/90 font-serif text-lg py-6 rounded-full shadow-lg group"
             >
               <a
-                href="https://infinitetrail.substack.com"
+                href={process.env.NEXT_PUBLIC_SUBSTACK_URL || "https://infinitetrail.substack.com"}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleClose}
