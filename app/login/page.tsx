@@ -51,12 +51,13 @@ export default function LoginPage() {
 
               <form onSubmit={handleLogin} className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-forest">
+                  <label htmlFor="password" className="text-sm font-medium text-forest">
                     Password
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 w-4 h-4 text-forest/40" />
                     <Input
+                      id="password"
                       type="password"
                       placeholder="••••••••"
                       value={password}

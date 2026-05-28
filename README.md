@@ -99,5 +99,24 @@ npm run dev
 ```
 
 The site will be available at `http://localhost:3000`.
+
+---
+
+## 🧪 Testing
+
+This project includes unit and component tests with **Jest** and end-to-end tests with **Playwright**.
+
+### Unit & Component Tests
+Run tests with Jest:
+```bash
+npm run test
+```
+
+### End-to-End Tests
+Run E2E tests with Playwright:
+```bash
+npm run test:e2e
+```
+*Note: The E2E tests will automatically start the development server if it's not already running.*
 - **Public Site**: Home, Beers, Blog, Our Story, Contact.
 - **Staff Access**: `/login` (enter your `ADMIN_PASSWORD`).
