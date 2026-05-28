@@ -64,6 +64,19 @@ export default function BeersAdminPage() {
     setTimeout(() => setStatusMsg(null), 3000);
   };
 
+  const sanitizeImageSrc = (value: string | null): string | null => {
+    if (!value) return null;
+    try {
+      const parsed = new URL(value, window.location.origin);
+      if (parsed.protocol === "blob:" || parsed.protocol === "https:") {
+        return parsed.toString();
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -262,9 +275,9 @@ export default function BeersAdminPage() {
             disabled={uploading}
           />
           {uploading && <p className="text-xs text-forest mt-1 italic">Uploading...</p>}
-          {previewUrl && (
+          {sanitizeImageSrc(previewUrl) && (
             <div className="mt-2 relative w-32 h-32 border rounded overflow-hidden">
-                <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                <img src={sanitizeImageSrc(previewUrl) ?? ""} alt="Preview" className="w-full h-full object-cover" />
             </div>
           )}
         </div>
