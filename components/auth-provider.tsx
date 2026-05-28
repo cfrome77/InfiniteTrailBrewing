@@ -1,36 +1,25 @@
-"use client";
+"use client"
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import type { User } from "@supabase/supabase-js";
+import { createContext, useContext, useEffect, useState } from "react"
 
-const AuthContext = createContext<{ user: User | null }>({
-  user: null,
-});
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const supabase = createClient();
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    // initial session load
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-    });
-
-    // live auth updates (THIS is what fixes navbar/admin dropdown)
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  return (
-    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
-  );
+type AuthContextType = {
+  user: any | null
+  loading: boolean
 }
 
-export const useAuth = () => useContext(AuthContext);
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  loading: false,
+})
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  // Simplified AuthProvider that doesn't do anything for now since Supabase is gone
+  // In a real scenario, you'd integrate Sanity auth or another provider here
+  return (
+    <AuthContext.Provider value={{ user: null, loading: false }}>
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
+export const useAuth = () => useContext(AuthContext)

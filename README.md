@@ -1,132 +1,47 @@
-# My Next.js Project
+# Infinite Trail Brewing
 
-A modern web application built with Next.js, Supabase, and Tailwind CSS.
+A modern web application built with Next.js, Sanity.io, and Tailwind CSS.
 
 ## Features
 
-- **Next.js 15+ (App Router)**: Fast, server-side rendered, and optimized.
-- **Supabase Auth & Database**: Seamless authentication and real-time database capabilities.
+- **Next.js 15 (App Router)**: Fast, server-side rendered, and optimized.
+- **Sanity.io Content Management**: Backend management for beers and blog posts.
+- **Server Actions Architecture**: Secure data mutations using Next.js Server Actions.
+- **Resend**: Transactional email delivery for the contact form.
 - **Tailwind CSS**: Utility-first styling for a beautiful and responsive UI.
-- **Admin Panel**: Secure interface for managing beers and blog posts.
+- **Admin Panel**: Secure interface for managing content, including an embedded Sanity Studio.
 
-## Supabase Workflow
+## Sanity.io Setup
 
-This project is designed to use a local Docker-based Supabase environment for development and the official Supabase Cloud for production.
+This project uses Sanity.io for backend content management.
 
-### Phase 1: Local Environment Setup
+1.  **Create a Sanity Project:**
+    Go to [sanity.io/manage](https://sanity.io/manage) and create a new project.
 
-This ensures you have a private playground that doesn't touch your live site.
-
-1.  **Install Supabase CLI:**
-    If you haven't already, install the Supabase CLI:
-    ```bash
-    npm install supabase --save-dev
-    ```
-
-2.  **Start Supabase (Requires Docker):**
-    ```bash
-    npx supabase start
-    ```
-    After services start, the CLI will output your local credentials (API URL, Anon Key, Service Role Key). **Keep these handy.**
-
-    *Tip: If you ever miss them, run `npx supabase status` to see them again.*
-
-3.  **Configure `.env.local`:**
-    Copy the `anon key` and `service_role key` from the terminal into your `.env.local` file:
+2.  **Configure Environment Variables:**
+    Update your `.env.local` (and Vercel environment variables) with your Sanity credentials:
     ```env
-    NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
-    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_local_anon_key
-    SUPABASE_SERVICE_ROLE_KEY=your_local_service_role_key
+    NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
+    NEXT_PUBLIC_SANITY_DATASET=production
+    SANITY_API_TOKEN=your_token_with_write_access
     ```
 
-4.  **Initialize Database & Seed Data:**
-    Apply migrations and seed the database with a test admin user:
-    ```bash
-    npx supabase db reset
-    ```
-    - **Local Admin Login:** `admin@local.test` / `password123`
-
-### Phase 2: Production Setup
-
-Connect your local code to the real Supabase Cloud project.
-
-1.  **Link to the Cloud:**
-    Get your Project ID from the Supabase Dashboard and run:
-    ```bash
-    npx supabase link --project-ref your_project_id
-    ```
-
-2.  **Configure Vercel Environment Variables:**
-    Add your production keys to Vercel:
-    - `NEXT_PUBLIC_SUPABASE_URL`
-    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-    - `SUPABASE_SERVICE_ROLE_KEY`
-    - `SUPABASE_PROJECT_ID`
-    - `SUPABASE_ACCESS_TOKEN`
-
-3.  **Push the Schema:**
-    Sync your local table structures and RLS policies to the live database:
-    ```bash
-    npx supabase db push
-    ```
-    *Note: This does not push your `seed.sql`. Your live DB remains clean of test data.*
-
-### Phase 3: The Development Cycle
-
-1.  **Develop Locally:**
-    Run `npm run dev` to work on the UI. Use the local Admin UI (`/login`) to manage beers and blog posts in your local database.
-
-2.  **Schema Updates:**
-    If you need a new table or column:
-    ```bash
-    npx supabase migration new your_feature_name
-    ```
-    Edit the generated file in `supabase/migrations`, then run `npx supabase db reset` to test.
-
-3.  **Deploy:**
-    - Push code to GitHub/Vercel for frontend updates.
-    - Run `npx supabase db push` to apply database changes to production.
+3.  **Deploy Schema:**
+    The schema is defined in the `sanity/` directory and integrated into the Next.js app. You can manage content directly via the embedded Sanity Studio at `/admin/studio`.
 
 ## Admin Management
 
-The Admin Panel is accessible at `/admin`.
+The Admin Dashboard is accessible at `/admin`.
 
-- **Access Control:** Only users with the `admin` role in their metadata can access these routes.
-- **Beers & Blog:** Use the "Admin" dropdown in the navbar after logging in to manage the "Currently Brewing" list and "Blog Posts".
-- **Local Dev:** Use the seeded admin user (`admin@local.test`).
-- **Production Admin Setup:** Since this is a private home brewery site, the most secure way to add yourself as the admin is through the **Supabase Dashboard**:
+- **Security**: Access is protected by a password defined in the `ADMIN_PASSWORD` environment variable.
+- **Beer Management**: Manage your tap list and archive.
+- **Blog Posts**: Write and publish stories.
+- **Sanity Studio**: Access the full Sanity Studio interface at `/admin/studio`.
 
-  1. Go to **Authentication > Users** and click **Add User**.
-  2. Create your account with your email and password.
-  3. Once created, go to the **SQL Editor** and run the following to promote yourself:
+## Contact Form
 
-  ```sql
-  -- Promote your account to Admin
-  UPDATE auth.users
-  SET raw_app_meta_data = raw_app_meta_data || '{"role": "admin"}'::jsonb
-  WHERE email = 'your-email@example.com';
-  ```
+The contact form uses **Resend** for email delivery. While Sanity handles the content for the rest of the site, Resend is still required to ensure you receive notifications when someone reaches out via the contact form.
 
-  4. **Security Tip:** For a single-admin site, go to **Authentication > Providers > Email** and **disable "Allow new users to sign up"**. This ensures nobody else can create an account on your site.
-
-## Supabase Auto-Unpause & Retry Logic
-
-This project includes a mechanism to automatically unpause your Supabase project if it goes into hibernation (common in free tier projects) and a cron job to prevent it from pausing.
-
-### How it works:
-1. **API Route**: `/api/unpause` uses the Supabase Management API to wake up your project.
-2. **Retry Helper**: `lib/supabase/retry.ts` provides a `fetchWithRetry` function that wraps your Supabase calls. If a call fails, it triggers the unpause API, waits a few seconds, and retries the original request.
-3. **Cron Job**: Configured in `vercel.json`, it calls `/api/unpause` every 3 days to keep the project active.
-
-### Usage:
-Import `fetchWithRetry` from `@/lib/supabase/retry` and use it to wrap your Supabase queries:
-
-```typescript
-import { fetchWithRetry } from '@/lib/supabase/retry';
-import { createClient } from '@/lib/supabase/client';
-
-const supabase = createClient();
-const { data, error } = await fetchWithRetry(() =>
-  supabase.from('your_table').select('*')
-);
-```
+Configure your Resend API key and the receiving email address in your environment variables:
+- `RESEND_API_KEY`
+- `CONTACT_RECEIVING_EMAIL`

@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { BlogPost } from "@/types";
-import { createClient } from "@/lib/supabase/client";
+import { client } from "@/lib/sanity";
+import { savePostAction, deletePostAction } from "../actions";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default function BlogAdminPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -10,7 +13,6 @@ export default function BlogAdminPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-  // --- New/Edit Post Form ---
   const [formData, setFormData] = useState<Partial<BlogPost>>({
     slug: "",
     title: "",
@@ -22,20 +24,29 @@ export default function BlogAdminPage() {
     is_published: false,
   });
 
-  // --- Fetch blog posts ---
   const fetchPosts = async () => {
-    const { data, error } = await createClient()
-      .from("blog_posts")
-      .select("*")
-      .order("date", { ascending: false });
-
-    if (error) {
+    try {
+      const data = await client.fetch(`
+        *[_type == "post"] | order(date desc) {
+          _id,
+          "id": _id,
+          title,
+          "slug": slug.current,
+          excerpt,
+          content,
+          author,
+          date,
+          category,
+          featured,
+          is_published
+        }
+      `);
+      setPosts(data ?? []);
+    } catch (error) {
       console.error("Error fetching posts:", error);
-      return;
+    } finally {
+      setLoadingPosts(false);
     }
-
-    setPosts(data ?? []);
-    setLoadingPosts(false);
   };
 
   useEffect(() => {
@@ -47,14 +58,15 @@ export default function BlogAdminPage() {
     setTimeout(() => setStatusMsg(null), 3000);
   };
 
-  // --- Start Editing ---
   const startEditing = (post: BlogPost) => {
     setEditingId(post.id);
-    setFormData(post);
+    setFormData({
+        ...post,
+        content: Array.isArray(post.content) ? JSON.stringify(post.content, null, 2) : post.content
+    });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // --- Cancel Editing ---
   const cancelEditing = () => {
     setEditingId(null);
     setFormData({
@@ -69,88 +81,33 @@ export default function BlogAdminPage() {
     });
   };
 
-  // --- Save (Add or Update) Post ---
   const savePost = async () => {
     if (!formData.title || !formData.content || !formData.slug) {
       showStatus('error', "Title, slug, and content are required.");
       return;
     }
 
-    const supabase = createClient();
+    const result = await savePostAction(formData, editingId);
 
-    if (editingId) {
-      // Update
-      const { error } = await supabase
-        .from("blog_posts")
-        .update({
-          slug: formData.slug,
-          title: formData.title,
-          excerpt: formData.excerpt ?? "",
-          content: formData.content,
-          author: formData.author ?? null,
-          category: formData.category ?? null,
-          featured: formData.featured ?? false,
-          is_published: formData.is_published ?? false,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", editingId);
-
-      if (error) {
-        showStatus('error', "Failed to update post.");
-        return;
-      }
-
-      setPosts((prev) =>
-        prev.map((p) => (p.id === editingId ? { ...p, ...formData } as BlogPost : p))
-      );
-      showStatus('success', "Post updated successfully!");
+    if (result.success) {
+      showStatus('success', editingId ? "Post updated!" : "Post published!");
       cancelEditing();
+      fetchPosts();
     } else {
-      // Add
-      const { data, error } = await supabase
-        .from("blog_posts")
-        .insert([
-          {
-            slug: formData.slug,
-            title: formData.title,
-            excerpt: formData.excerpt ?? "",
-            content: formData.content,
-            author: formData.author ?? null,
-            category: formData.category ?? null,
-            featured: formData.featured ?? false,
-            is_published: formData.is_published ?? false,
-            date: new Date().toISOString().split("T")[0],
-          },
-        ])
-        .select();
-
-      if (error) {
-        showStatus('error', "Failed to add post.");
-        return;
-      }
-
-      setPosts((prev) => [data![0], ...prev]);
-      showStatus('success', "Post published successfully!");
-      cancelEditing();
+      showStatus('error', result.error || "Failed to save post.");
     }
   };
 
-  // --- Delete Post ---
   const deletePost = async (id: string) => {
     if (!confirm("Are you sure you want to delete this post?")) return;
 
-    const { error } = await createClient()
-      .from("blog_posts")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      showStatus('error', "Failed to delete post.");
-      return;
+    const result = await deletePostAction(id);
+    if (result.success) {
+      setPosts((prev) => prev.filter((p) => p.id !== id));
+      showStatus('success', "Post deleted.");
+    } else {
+      showStatus('error', result.error || "Failed to delete post.");
     }
-
-    setPosts((prev) => prev.filter((p) => p.id !== id));
-    showStatus('success', "Post deleted.");
   };
 
   if (loadingPosts)
@@ -158,18 +115,27 @@ export default function BlogAdminPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-4xl font-serif text-forest">Blog Admin Panel</h1>
-        {statusMsg && (
-          <div className={`px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-all duration-500 ${
-            statusMsg.type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'
-          }`}>
-            {statusMsg.text}
-          </div>
-        )}
+      <div className="mb-6">
+        <Link
+          href="/admin"
+          className="inline-flex items-center gap-2 text-forest/60 hover:text-forest transition-colors mb-4 text-sm uppercase tracking-widest"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Dashboard
+        </Link>
+        <div className="flex justify-between items-center">
+          <h1 className="text-4xl font-serif text-forest">Blog Admin Panel</h1>
+          {statusMsg && (
+            <div className={`px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-all duration-500 ${
+              statusMsg.type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'
+            }`}>
+              {statusMsg.text}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* --- New/Edit Post Form --- */}
+      {/* FORM */}
       <div className="bg-white border border-tan/20 rounded-xl p-6 mb-8 shadow-md">
         <h2 className="font-serif text-2xl text-forest mb-4">
           {editingId ? "Edit Post" : "Add New Post"}
@@ -229,12 +195,12 @@ export default function BlogAdminPage() {
         </div>
 
         <div className="mb-4">
-          <label className="block text-xs font-semibold uppercase text-forest/70 mb-1">Content (Markdown)</label>
+          <label className="block text-xs font-semibold uppercase text-forest/70 mb-1">Content (Markdown/JSON)</label>
           <textarea
             placeholder="The full story goes here..."
-            value={formData.content ?? ""}
+            value={typeof formData.content === 'string' ? formData.content : JSON.stringify(formData.content, null, 2)}
             onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-            className="w-full border border-tan/30 rounded-lg px-3 py-2 h-60 focus:outline-none focus:ring-2 focus:ring-forest/20"
+            className="w-full border border-tan/30 rounded-lg px-3 py-2 h-60 focus:outline-none focus:ring-2 focus:ring-forest/20 font-mono text-sm"
           />
         </div>
 
@@ -277,7 +243,7 @@ export default function BlogAdminPage() {
         </div>
       </div>
 
-      {/* --- Existing Posts List --- */}
+      {/* LIST */}
       <div className="space-y-4">
         {posts.map((post) => (
           <div
@@ -295,13 +261,6 @@ export default function BlogAdminPage() {
                 )}
               </div>
               <p className="text-forest/50 text-sm mb-1">{post.excerpt}</p>
-              <div className="flex items-center gap-3 text-[10px] uppercase font-bold tracking-widest text-forest/30">
-                <span>{post.date}</span>
-                <span>•</span>
-                <span>By {post.author || "Admin"}</span>
-                <span>•</span>
-                <span>{post.category || "General"}</span>
-              </div>
             </div>
 
             <div className="flex items-center gap-2 shrink-0">

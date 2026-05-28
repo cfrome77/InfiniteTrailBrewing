@@ -1,5 +1,5 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 
@@ -8,29 +8,21 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+  const cookieStore = await cookies();
+  const authCookie = cookieStore.get("admin_auth")?.value;
+  const adminPassword = process.env.ADMIN_PASSWORD;
 
-  if (error || !user) {
+  // STRICT PROTECTION: If password is not set or cookie is missing/invalid, redirect to login.
+  if (!adminPassword || authCookie !== adminPassword) {
     redirect("/login");
   }
 
-  const isAdmin =
-    user.app_metadata?.role === "admin" || user.user_metadata?.role === "admin";
-
-  if (!isAdmin) {
-    redirect("/");
-  }
-
   return (
-    <div className="min-h-screen bg-cream flex flex-col">
+    <div className="min-h-screen flex flex-col bg-cream">
       <Navbar />
-      <main className="flex-grow pt-24 pb-12">
+      <div className="flex-grow pt-24">
         {children}
-      </main>
+      </div>
       <Footer />
     </div>
   );

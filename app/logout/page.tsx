@@ -2,26 +2,20 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { logoutAction } from "../login/actions";
 
-export default function Logout() {
+export default function LogoutPage() {
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
-    const signOut = async () => {
-      await supabase.auth.signOut();
-
-      // 🔥 let AuthProvider handle UI state reset
-      router.replace("/");
-    };
-
-    signOut();
-  }, [router, supabase]);
+    logoutAction().then(() => {
+        router.push("/");
+    });
+  }, [router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-cream">
-      <div className="text-forest text-xl font-serif">Logging out...</div>
+      <p className="text-forest font-serif text-xl">Logging out...</p>
     </div>
   );
 }

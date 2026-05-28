@@ -6,6 +6,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Calendar, Clock, ArrowLeft } from "lucide-react";
 import { getPostBySlug, getAllSlugs } from "@/lib/blog";
+import { PortableText } from '@portabletext/react';
 
 function getCategoryColor(category: string) {
   const colors: Record<string, string> = {
@@ -28,7 +29,7 @@ function formatDate(dateString: string) {
 // Generate static paths
 export async function generateStaticParams() {
   const slugs = await getAllSlugs();
-  return slugs.map((slug) => ({ slug }));
+  return slugs.map((slug: string) => ({ slug }));
 }
 
 export default async function BlogPostPage({
@@ -75,10 +76,12 @@ export default async function BlogPostPage({
               <Calendar className="w-4 h-4" />
               {formatDate(post.date)}
             </span>
-            <span className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              {post.read_time}
-            </span>
+            {post.read_time && (
+              <span className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                {post.read_time}
+              </span>
+            )}
           </div>
         </div>
       </section>
@@ -98,8 +101,13 @@ export default async function BlogPostPage({
               prose-blockquote:border-forest/30 prose-blockquote:text-forest/70
               prose-code:bg-tan/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-forest
               prose-pre:bg-forest prose-pre:text-tan/90"
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
+          >
+            {Array.isArray(post.content) ? (
+              <PortableText value={post.content} />
+            ) : (
+              <div dangerouslySetInnerHTML={{ __html: post.content }} />
+            )}
+          </div>
         </div>
       </article>
 

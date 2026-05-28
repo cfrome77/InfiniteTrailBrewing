@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Beer, BeerStatus } from "@/types";
-import { createClient } from "@/lib/supabase/client";
+import { client, urlFor } from "@/lib/sanity";
+import { saveBeerAction, deleteBeerAction, uploadImageAction } from "../actions";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default function BeersAdminPage() {
   const [beers, setBeers] = useState<Beer[]>([]);
@@ -13,7 +16,6 @@ export default function BeersAdminPage() {
     text: string;
   } | null>(null);
 
-  // --- Form state ---
   const [formData, setFormData] = useState<Partial<Beer>>({
     beer_name: "",
     style: "",
@@ -22,23 +24,35 @@ export default function BeersAdminPage() {
     abv: "",
     is_flagship: false,
     color: "",
-    image_url: "",
   });
 
-  // --- Fetch ---
+  const [imageAssetId, setImageAssetId] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
   const fetchBeers = async () => {
-    const { data, error } = await createClient()
-      .from("currently_brewing")
-      .select("*")
-      .order("started_at", { ascending: false });
-
-    if (error) {
+    try {
+      const data = await client.fetch(`
+        *[_type == "beer"] | order(started_at desc) {
+          _id,
+          "id": _id,
+          beer_name,
+          style,
+          status,
+          notes,
+          abv,
+          color,
+          is_flagship,
+          started_at,
+          image
+        }
+      `);
+      setBeers(data ?? []);
+    } catch (error) {
       console.error(error);
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    setBeers(data ?? []);
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -50,37 +64,39 @@ export default function BeersAdminPage() {
     setTimeout(() => setStatusMsg(null), 3000);
   };
 
-  // --- Image Upload ---
-  const handleImageUpload = async (file: File) => {
-    const supabase = createClient();
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    const filePath = `beers/${Date.now()}-${file.name}`;
+    setUploading(true);
+    setPreviewUrl(URL.createObjectURL(file));
 
-    const { data, error } = await supabase.storage
-      .from("beer-images")
-      .upload(filePath, file);
+    try {
+        const reader = new FileReader();
+        const bufferPromise = new Promise<Buffer>((resolve, reject) => {
+            reader.onload = () => resolve(Buffer.from(reader.result as ArrayBuffer));
+            reader.onerror = reject;
+        });
+        reader.readAsArrayBuffer(file);
+        const buffer = await bufferPromise;
 
-    if (error) {
-      showStatus("error", "Image upload failed.");
-      return;
+        const result = await uploadImageAction(buffer, file.name, file.type);
+        if (result.success && result.assetId) {
+            setImageAssetId(result.assetId);
+            showStatus("success", "Image uploaded!");
+        } else {
+            showStatus("error", result.error || "Upload failed");
+        }
+    } catch (error) {
+        console.error(error);
+        showStatus("error", "Upload failed");
+    } finally {
+        setUploading(false);
     }
-
-    const { data: publicUrl } = supabase.storage
-      .from("beer-images")
-      .getPublicUrl(data.path);
-
-    setFormData((prev) => ({
-      ...prev,
-      image_url: publicUrl.publicUrl,
-    }));
-
-    showStatus("success", "Image uploaded!");
   };
 
-  // --- Edit Start (FIXED) ---
   const startEditing = (beer: Beer) => {
     setEditingId(beer.id);
-
     setFormData({
       beer_name: beer.beer_name || "",
       style: beer.style || "",
@@ -89,16 +105,21 @@ export default function BeersAdminPage() {
       abv: beer.abv || "",
       is_flagship: beer.is_flagship || false,
       color: beer.color || "",
-      image_url: beer.image_url || "",
     });
+
+    if (beer.image) {
+        setPreviewUrl(urlFor(beer.image).url());
+        setImageAssetId(null); // Keep original unless changed
+    } else {
+        setPreviewUrl(null);
+        setImageAssetId(null);
+    }
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // --- Cancel ---
   const cancelEditing = () => {
     setEditingId(null);
-
     setFormData({
       beer_name: "",
       style: "",
@@ -107,93 +128,43 @@ export default function BeersAdminPage() {
       abv: "",
       is_flagship: false,
       color: "",
-      image_url: "",
     });
+    setPreviewUrl(null);
+    setImageAssetId(null);
   };
 
-  // --- Save ---
   const saveBeer = async () => {
     if (!formData.beer_name || !formData.style) {
       showStatus("error", "Beer name and style required.");
       return;
     }
 
-    const supabase = createClient();
+    const dataToSend = {
+        ...formData,
+        imageAssetId
+    };
 
-    if (editingId) {
-      const { error } = await supabase
-        .from("currently_brewing")
-        .update({
-          beer_name: formData.beer_name,
-          style: formData.style,
-          status: formData.status,
-          notes: formData.notes || null,
-          abv: formData.abv || null,
-          is_flagship: formData.is_flagship,
-          color: formData.color || null,
-          image_url: formData.image_url || null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", editingId);
+    const result = await saveBeerAction(dataToSend, editingId);
 
-      if (error) {
-        showStatus("error", "Failed to update beer.");
-        return;
-      }
-
-      setBeers((prev) =>
-        prev.map((b) =>
-          b.id === editingId ? ({ ...b, ...formData } as Beer) : b,
-        ),
-      );
-
-      showStatus("success", "Beer updated!");
+    if (result.success) {
+      showStatus("success", editingId ? "Beer updated!" : "Beer added!");
       cancelEditing();
+      fetchBeers();
     } else {
-      const { data, error } = await supabase
-        .from("currently_brewing")
-        .insert([
-          {
-            beer_name: formData.beer_name,
-            style: formData.style,
-            status: formData.status,
-            notes: formData.notes || null,
-            abv: formData.abv || null,
-            is_flagship: formData.is_flagship,
-            color: formData.color || null,
-            image_url: formData.image_url || null,
-            started_at: new Date().toISOString().split("T")[0],
-          },
-        ])
-        .select();
-
-      if (error) {
-        showStatus("error", "Failed to add beer.");
-        return;
-      }
-
-      setBeers((prev) => [data![0], ...prev]);
-      showStatus("success", "Beer added!");
-      cancelEditing();
+      showStatus("error", result.error || "Failed to save beer.");
     }
   };
 
-  // --- Delete ---
   const deleteBeer = async (id: string) => {
     if (!confirm("Delete this beer?")) return;
 
-    const { error } = await createClient()
-      .from("currently_brewing")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      showStatus("error", "Delete failed.");
-      return;
+    const result = await deleteBeerAction(id);
+    if (result.success) {
+      setBeers((prev) => prev.filter((b) => b.id !== id));
+      showStatus("success", "Beer deleted.");
+    } else {
+      showStatus("error", result.error || "Delete failed.");
     }
-
-    setBeers((prev) => prev.filter((b) => b.id !== id));
-    showStatus("success", "Beer deleted.");
   };
 
   const statusOptions: BeerStatus[] = [
@@ -212,20 +183,29 @@ export default function BeersAdminPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex justify-between mb-6">
-        <h1 className="text-4xl font-serif text-forest">Beers Admin</h1>
+      <div className="mb-6">
+        <Link
+          href="/admin"
+          className="inline-flex items-center gap-2 text-forest/60 hover:text-forest transition-colors mb-4 text-sm uppercase tracking-widest"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Dashboard
+        </Link>
+        <div className="flex justify-between items-center">
+          <h1 className="text-4xl font-serif text-forest">Beers Admin</h1>
 
-        {statusMsg && (
-          <div
-            className={`px-4 py-2 rounded ${
-              statusMsg.type === "success"
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }`}
-          >
-            {statusMsg.text}
-          </div>
-        )}
+          {statusMsg && (
+            <div
+              className={`px-4 py-2 rounded ${
+                statusMsg.type === "success"
+                  ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
+              }`}
+            >
+              {statusMsg.text}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* FORM */}
@@ -274,22 +254,18 @@ export default function BeersAdminPage() {
         {/* IMAGE UPLOAD */}
         <div className="mb-4">
           <label className="block text-sm font-semibold mb-1">Beer Image</label>
-
           <input
             type="file"
             accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleImageUpload(file);
-            }}
+            onChange={handleImageUpload}
             className="border p-2 w-full"
+            disabled={uploading}
           />
-
-          {formData.image_url && (
-            <img
-              src={formData.image_url}
-              className="mt-2 h-24 rounded object-cover border"
-            />
+          {uploading && <p className="text-xs text-forest mt-1 italic">Uploading...</p>}
+          {previewUrl && (
+            <div className="mt-2 relative w-32 h-32 border rounded overflow-hidden">
+                <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+            </div>
           )}
         </div>
 
@@ -339,7 +315,8 @@ export default function BeersAdminPage() {
         <div className="flex gap-3">
           <button
             onClick={saveBeer}
-            className="bg-forest text-tan px-6 py-2 rounded"
+            disabled={uploading}
+            className="bg-forest text-tan px-6 py-2 rounded disabled:opacity-50"
           >
             {editingId ? "Update" : "Add"}
           </button>
@@ -357,16 +334,7 @@ export default function BeersAdminPage() {
         {beers.map((beer) => (
           <div key={beer.id} className="border p-4 rounded bg-white">
             <h2 className="font-serif text-xl">{beer.beer_name}</h2>
-
-            {beer.image_url && (
-              <img
-                src={beer.image_url}
-                className="h-32 w-full object-cover rounded mt-2"
-              />
-            )}
-
             <p className="text-sm text-gray-600">{beer.style}</p>
-
             <div className="flex gap-2 mt-3">
               <button onClick={() => startEditing(beer)}>Edit</button>
               <button onClick={() => deleteBeer(beer.id)}>Delete</button>

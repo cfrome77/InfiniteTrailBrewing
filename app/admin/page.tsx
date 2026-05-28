@@ -57,6 +57,26 @@ export default function AdminPage() {
               </div>
             </div>
           </Link>
+
+          {/* Sanity Studio Card */}
+          <Link
+            href="/admin/studio"
+            className="group bg-white p-8 rounded-xl border border-tan/20 shadow-sm hover:shadow-md hover:border-forest/20 transition-all"
+          >
+            <div className="flex items-start gap-4">
+              <div className="bg-forest/10 p-3 rounded-lg group-hover:bg-forest group-hover:text-tan transition-colors text-forest">
+                <LayoutDashboard className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="font-serif text-xl text-forest mb-2">
+                  Sanity Studio
+                </h2>
+                <p className="text-forest/60 text-sm">
+                  Advanced content management via the official Sanity Studio interface.
+                </p>
+              </div>
+            </div>
+          </Link>
         </div>
 
         <div className="border-t border-tan/20 pt-8">
