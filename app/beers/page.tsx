@@ -7,6 +7,7 @@ import { Footer } from "@/components/footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { client, urlFor } from "@/lib/sanity";
 import { Beer, BeerStatus } from "@/types";
+import Image from "next/image";
 
 // ---------------- UI Helpers ----------------
 function SectionTitle({ title, count }: { title: string; count: number }) {
@@ -76,7 +77,7 @@ function BeerGrid({
                 className={`h-48 bg-gradient-to-b ${color} flex items-center justify-center relative overflow-hidden`}
               >
                 {imageUrl ? (
-                  <img src={imageUrl} alt={beer.beer_name} className="w-full h-full object-cover" />
+                  <Image src={imageUrl} alt={beer.beer_name} fill className="object-cover" unoptimized />
                 ) : (
                   <div className="w-20 h-32 bg-white/30 backdrop-blur-sm rounded-lg border-2 border-white/50" />
                 )}

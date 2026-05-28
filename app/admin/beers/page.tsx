@@ -6,6 +6,7 @@ import { client, urlFor } from "@/lib/sanity";
 import { saveBeerAction, deleteBeerAction, uploadImageAction } from "../actions";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import Image from "next/image";
 
 export default function BeersAdminPage() {
   const [beers, setBeers] = useState<Beer[]>([]);
@@ -64,19 +65,6 @@ export default function BeersAdminPage() {
     setTimeout(() => setStatusMsg(null), 3000);
   };
 
-  const sanitizeImageSrc = (value: string | null): string | null => {
-    if (!value) return null;
-    try {
-      const parsed = new URL(value, window.location.origin);
-      if (parsed.protocol === "blob:" || parsed.protocol === "https:") {
-        return parsed.toString();
-      }
-      return null;
-    } catch {
-      return null;
-    }
-  };
-
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -86,14 +74,18 @@ export default function BeersAdminPage() {
 
     try {
         const reader = new FileReader();
-        const bufferPromise = new Promise<Buffer>((resolve, reject) => {
-            reader.onload = () => resolve(Buffer.from(reader.result as ArrayBuffer));
+        const base64Promise = new Promise<string>((resolve, reject) => {
+            reader.onload = () => {
+                const result = reader.result as string;
+                const base64 = result.split(',')[1];
+                resolve(base64);
+            };
             reader.onerror = reject;
         });
-        reader.readAsArrayBuffer(file);
-        const buffer = await bufferPromise;
+        reader.readAsDataURL(file);
+        const base64 = await base64Promise;
 
-        const result = await uploadImageAction(buffer, file.name, file.type);
+        const result = await uploadImageAction(base64, file.name, file.type);
         if (result.success && result.assetId) {
             setImageAssetId(result.assetId);
             showStatus("success", "Image uploaded!");
@@ -122,7 +114,7 @@ export default function BeersAdminPage() {
 
     if (beer.image) {
         setPreviewUrl(urlFor(beer.image).url());
-        setImageAssetId(null); // Keep original unless changed
+        setImageAssetId(null);
     } else {
         setPreviewUrl(null);
         setImageAssetId(null);
@@ -152,12 +144,7 @@ export default function BeersAdminPage() {
       return;
     }
 
-    const dataToSend = {
-        ...formData,
-        imageAssetId
-    };
-
-    const result = await saveBeerAction(dataToSend, editingId);
+    const result = await saveBeerAction({...formData, imageAssetId}, editingId);
 
     if (result.success) {
       showStatus("success", editingId ? "Beer updated!" : "Beer added!");
@@ -195,7 +182,6 @@ export default function BeersAdminPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Header */}
       <div className="mb-6">
         <Link
           href="/admin"
@@ -275,9 +261,9 @@ export default function BeersAdminPage() {
             disabled={uploading}
           />
           {uploading && <p className="text-xs text-forest mt-1 italic">Uploading...</p>}
-          {sanitizeImageSrc(previewUrl) && (
+          {previewUrl && (
             <div className="mt-2 relative w-32 h-32 border rounded overflow-hidden">
-                <img src={sanitizeImageSrc(previewUrl) ?? ""} alt="Preview" className="w-full h-full object-cover" />
+                <Image src={previewUrl} alt="Preview" fill className="object-cover" unoptimized />
             </div>
           )}
         </div>

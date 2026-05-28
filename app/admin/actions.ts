@@ -130,9 +130,10 @@ export async function deletePostAction(id: string) {
 }
 
 // --- Image Asset Upload ---
-export async function uploadImageAction(buffer: Buffer, filename: string, contentType: string) {
+export async function uploadImageAction(base64: string, filename: string, contentType: string) {
     try {
         await verifyAdmin();
+        const buffer = Buffer.from(base64, 'base64');
         const asset = await serverClient.assets.upload('image', buffer, {
             filename,
             contentType

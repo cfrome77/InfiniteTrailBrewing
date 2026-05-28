@@ -26,7 +26,7 @@ function formatDate(dateString: string) {
   });
 }
 
-// Generate static paths
+// Generate static params for SSG
 export async function generateStaticParams() {
   const slugs = await getAllSlugs();
   return slugs.map((slug: string) => ({ slug }));
@@ -60,10 +60,10 @@ export default async function BlogPostPage({
           <div className="flex items-center gap-4 mb-6">
             <span
               className={`px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(
-                post.category,
+                post.category || "General",
               )}`}
             >
-              {post.category}
+              {post.category || "General"}
             </span>
           </div>
 
@@ -105,7 +105,7 @@ export default async function BlogPostPage({
             {Array.isArray(post.content) ? (
               <PortableText value={post.content} />
             ) : (
-              <div dangerouslySetInnerHTML={{ __html: post.content }} />
+              <p className="whitespace-pre-wrap">{post.content}</p>
             )}
           </div>
         </div>
