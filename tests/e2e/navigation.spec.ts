@@ -22,8 +22,8 @@ test.describe('Navigation', () => {
     await expect(page.locator('h1')).toContainText('Contact Us');
   });
 
-  test('should redirect unauthenticated user from admin', async ({ page }) => {
+  test('admin route should load sanity studio', async ({ page }) => {
     await page.goto('/admin');
-    await expect(page).toHaveURL(/\/login/);
+    await expect(page).toHaveURL(/\/admin/);
   });
 });

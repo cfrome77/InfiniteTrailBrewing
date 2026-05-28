@@ -3,14 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Instagram, Facebook } from "lucide-react";
-import { useAuth } from "@/components/auth-provider";
 
 export function Footer() {
-  const { user } = useAuth();
-  const isAdmin =
-    user?.app_metadata?.role === "admin" ||
-    user?.user_metadata?.role === "admin";
-
   return (
     <footer className="bg-forest text-tan">
       <div className="container mx-auto px-4 py-16">
@@ -87,23 +81,12 @@ export function Footer() {
               </Link>
             </nav>
             <div className="mt-8 pt-8 border-t border-tan/10">
-              {!user ? (
-                <Link
-                  href="/login"
-                  className="text-tan/20 hover:text-tan transition-colors text-[10px] tracking-widest uppercase"
-                >
-                  Staff Access
-                </Link>
-              ) : (
-                isAdmin && (
-                  <Link
-                    href="/admin"
-                    className="text-tan/20 hover:text-tan transition-colors text-[10px] tracking-widest uppercase"
-                  >
-                    Admin Dashboard
-                  </Link>
-                )
-              )}
+              <Link
+                href="/admin"
+                className="text-tan/20 hover:text-tan transition-colors text-[10px] tracking-widest uppercase"
+              >
+                Staff Access
+              </Link>
             </div>
           </div>
 
