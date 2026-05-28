@@ -1,0 +1,32 @@
+
+> my-project@0.1.0 dev
+> next dev
+
+▲ Next.js 16.3.0-canary.32 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+✓ Ready in 541ms
+
+○ Compiling / ...
+ GET / 200 in 4.8s (next.js: 4.3s, application-code: 486ms)
+The default export of @sanity/image-url has been deprecated. Use the named export `createImageUrlBuilder` instead.
+ GET /beers 200 in 1938ms (next.js: 1734ms, application-code: 205ms)
+[browser] The default export of @sanity/image-url has been deprecated. Use the named export `createImageUrlBuilder` instead. (lib/sanity.ts:17:32)
+The default export of @sanity/image-url has been deprecated. Use the named export `createImageUrlBuilder` instead.
+NEXT_PUBLIC_SANITY_PROJECT_ID is not set. Returning empty posts.
+ GET /blog 200 in 1466ms (next.js: 1233ms, application-code: 234ms)
+ GET /admin 307 in 834ms (next.js: 701ms, application-code: 133ms)
+ GET /login 200 in 750ms (next.js: 618ms, application-code: 132ms)
+ GET /admin/beers 307 in 1236ms (next.js: 1091ms, application-code: 145ms)
+ GET /login 200 in 97ms (next.js: 7ms, application-code: 90ms)
+ GET / 200 in 217ms (next.js: 127ms, application-code: 90ms)
+ GET / 200 in 85ms (next.js: 4ms, application-code: 80ms)
+ GET /admin 307 in 375ms (next.js: 3ms, application-code: 372ms)
+ GET /login 200 in 217ms (next.js: 10ms, application-code: 207ms)
+ GET / 200 in 335ms (next.js: 6ms, application-code: 328ms)
+ GET /beers 200 in 122ms (next.js: 84ms, application-code: 39ms)
+[browser] The default export of @sanity/image-url has been deprecated. Use the named export `createImageUrlBuilder` instead. (lib/sanity.ts:17:32)
+NEXT_PUBLIC_SANITY_PROJECT_ID is not set. Returning empty posts.
+ GET /blog 200 in 39ms (next.js: 4ms, application-code: 35ms)
+ GET /our-story 200 in 907ms (next.js: 870ms, application-code: 36ms)
+ GET /contact 200 in 641ms (next.js: 610ms, application-code: 31ms)
