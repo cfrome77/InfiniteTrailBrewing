@@ -5,22 +5,9 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { createClient } from "@/lib/supabase/client";
-
-// ---------------- Types ----------------
-type BeerStatus = "on_deck" | "brewing" | "ready" | "archived";
-
-type Beer = {
-  id: string;
-  beer_name: string;
-  style: string;
-  status: BeerStatus;
-  is_flagship?: boolean;
-  notes: string | null;
-  abv?: string | null;
-  color?: string | null;
-  started_at: string;
-};
+import { client, urlFor } from "@/lib/sanity";
+import { Beer, BeerStatus } from "@/types";
+import Image from "next/image";
 
 // ---------------- UI Helpers ----------------
 function SectionTitle({ title, count }: { title: string; count: number }) {
@@ -78,6 +65,7 @@ function BeerGrid({
     <div className="grid md:grid-cols-2 gap-8">
       {beers.map((beer) => {
         const color = beer.color || getColor(beer.style);
+        const imageUrl = beer.image ? urlFor(beer.image).url() : beer.image_url;
 
         return (
           <Card
@@ -86,9 +74,13 @@ function BeerGrid({
           >
             <CardContent className="p-0">
               <div
-                className={`h-48 bg-gradient-to-b ${color} flex items-center justify-center`}
+                className={`h-48 bg-gradient-to-b ${color} flex items-center justify-center relative overflow-hidden`}
               >
-                <div className="w-20 h-32 bg-white/30 backdrop-blur-sm rounded-lg border-2 border-white/50" />
+                {imageUrl ? (
+                  <Image src={imageUrl} alt={beer.beer_name} fill className="object-cover" unoptimized />
+                ) : (
+                  <div className="w-20 h-32 bg-white/30 backdrop-blur-sm rounded-lg border-2 border-white/50" />
+                )}
               </div>
 
               <div className="p-6">
@@ -224,7 +216,7 @@ function BeersContent({ beers }: { beers: Beer[] }) {
                     <p className="text-sm text-forest/60">{beer.style}</p>
 
                     <p className="text-xs text-forest/50 uppercase">
-                      Brewed: {new Date(beer.started_at).toLocaleDateString()}
+                      Brewed: {beer.started_at ? new Date(beer.started_at).toLocaleDateString() : 'N/A'}
                     </p>
 
                     {beer.is_flagship && (
@@ -249,15 +241,21 @@ export default function BeersPage() {
 
   useEffect(() => {
     const fetchBeers = async () => {
-      const { data, error } = await createClient()
-        .from("currently_brewing")
-        .select("*")
-        .order("started_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching beers:", error);
-        return;
-      }
+      const data = await client.fetch(`
+        *[_type == "beer"] | order(started_at desc) {
+          _id,
+          "id": _id,
+          beer_name,
+          style,
+          status,
+          notes,
+          abv,
+          color,
+          is_flagship,
+          started_at,
+          image
+        }
+      `);
 
       setBeers((data as Beer[]) ?? []);
     };

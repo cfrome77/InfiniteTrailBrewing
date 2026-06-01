@@ -3,8 +3,6 @@ import { Oswald, Montserrat } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
-import { AuthProvider } from "@/components/auth-provider";
-
 const oswald = Oswald({
   subsets: ["latin"],
   variable: "--font-oswald",
@@ -44,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${oswald.variable} ${montserrat.variable}`}>
       <body className="font-sans antialiased">
-        <AuthProvider>{children}</AuthProvider>
+        {children}
 
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
