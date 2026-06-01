@@ -60,6 +60,34 @@ Ensure your application can communicate with Sanity:
 
 ---
 
+## 💻 Local Development vs. Production
+
+Sanity.io allows you to separate your data between environments using **Datasets**.
+
+### 1. Create a Development Dataset
+To avoid "messing up" your live data during testing:
+1.  In the Sanity Dashboard, go to **Datasets**.
+2.  Click **Create dataset**.
+3.  Name it `development` (or similar) and choose **Public** or **Private** as per your needs.
+
+### 2. Switching Datasets Locally
+In your `.env.local` file, change the `NEXT_PUBLIC_SANITY_DATASET` variable:
+```env
+# For local testing:
+NEXT_PUBLIC_SANITY_DATASET="development"
+
+# For live data:
+NEXT_PUBLIC_SANITY_DATASET="production"
+```
+
+### 3. How it Works
+- The **Embedded Studio** at `/admin` is just a user interface.
+- It will load and save data to whichever dataset is specified in your environment variables.
+- If you are running the app locally on `localhost:3000` with `development` dataset configured, any changes you make in the Studio will **only** affect the `development` dataset.
+- The **Sanity.io Web Interface** (sanity.io/manage) allows you to browse all your datasets in one place.
+
+---
+
 ## 🧪 Testing
 
 ### Unit & Component Tests (Jest)

@@ -9,7 +9,6 @@ export const config = {
   dataset,
   apiVersion: '2023-05-03',
   useCdn: process.env.NODE_ENV === 'production',
-  token: process.env.SANITY_API_TOKEN, // Needed for mutations
 };
 
 export const client = createClient(config);
