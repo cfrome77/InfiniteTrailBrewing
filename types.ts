@@ -7,6 +7,7 @@ export type BeerStatus =
 
 export interface Beer {
   id: string;
+  _id?: string; // Sanity ID
   beer_name: string;
   style: string;
   status: BeerStatus;
@@ -16,14 +17,16 @@ export interface Beer {
   is_flagship: boolean;
   started_at: string; // YYYY-MM-DD
   image_url?: string | null;
+  image?: any; // Sanity image object
 }
 
 export type BlogPost = {
   id: string;
+  _id?: string; // Sanity ID
   slug: string;
   title: string;
   excerpt: string;
-  content: string;
+  content: string | any[]; // Markdown string or Sanity Portable Text
   author?: string;
   date: string;
   read_time?: string;

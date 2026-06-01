@@ -1,132 +1,111 @@
-# My Next.js Project
+# Infinite Trail Brewing
 
-A modern web application built with Next.js, Supabase, and Tailwind CSS.
+A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind CSS**.
 
 ## Features
 
-- **Next.js 15+ (App Router)**: Fast, server-side rendered, and optimized.
-- **Supabase Auth & Database**: Seamless authentication and real-time database capabilities.
-- **Tailwind CSS**: Utility-first styling for a beautiful and responsive UI.
-- **Admin Panel**: Secure interface for managing beers and blog posts.
+- **Next.js (App Router)**: Fast, server-side rendered, and optimized.
+- **Sanity.io Content Management**: Headless CMS for managing beers, blog posts, and site stats.
+- **Sanity Auth**: Secure, project-based authentication handled natively by Sanity.
+- **Transactional Email**: Integrated with **Resend** for reliable contact form notifications.
+- **Embedded Sanity Studio**: CMS interface accessible directly at `/admin`.
+- **Testing**: Comprehensive suite with **Jest** and **Playwright**.
 
-## Supabase Workflow
+---
 
-This project is designed to use a local Docker-based Supabase environment for development and the official Supabase Cloud for production.
+## 🚀 Getting Started
 
-### Phase 1: Local Environment Setup
+### 1. Project Initialization
 
-This ensures you have a private playground that doesn't touch your live site.
-
-1.  **Install Supabase CLI:**
-    If you haven't already, install the Supabase CLI:
+1.  **Clone and Install:**
     ```bash
-    npm install supabase --save-dev
+    git clone <repository-url>
+    cd InfiniteTrailBrewing
+    npm install
     ```
 
-2.  **Start Supabase (Requires Docker):**
-    ```bash
-    npx supabase start
-    ```
-    After services start, the CLI will output your local credentials (API URL, Anon Key, Service Role Key). **Keep these handy.**
-
-    *Tip: If you ever miss them, run `npx supabase status` to see them again.*
-
-3.  **Configure `.env.local`:**
-    Copy the `anon key` and `service_role key` from the terminal into your `.env.local` file:
+2.  **Configure Environment Variables:**
+    Create a `.env.local` file in the root directory and add the following:
     ```env
-    NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
-    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_local_anon_key
-    SUPABASE_SERVICE_ROLE_KEY=your_local_service_role_key
+    # Sanity.io
+    NEXT_PUBLIC_SANITY_PROJECT_ID="your_project_id"
+    NEXT_PUBLIC_SANITY_DATASET="production"
+    SANITY_API_TOKEN="your_token" # Used for server-side fetching if needed
     ```
 
-4.  **Initialize Database & Seed Data:**
-    Apply migrations and seed the database with a test admin user:
-    ```bash
-    npx supabase db reset
-    ```
-    - **Local Admin Login:** `admin@local.test` / `password123`
+---
 
-### Phase 2: Production Setup
+## 🛠 Sanity.io Setup & Auth
 
-Connect your local code to the real Supabase Cloud project.
+This project uses **Sanity Auth** for content management. No custom password logic is required.
 
-1.  **Link to the Cloud:**
-    Get your Project ID from the Supabase Dashboard and run:
-    ```bash
-    npx supabase link --project-ref your_project_id
-    ```
+### 1. Invite Users
+To give someone access to manage the site:
+1.  Go to the [Sanity Manage](https://www.sanity.io/manage) dashboard.
+2.  Select your project.
+3.  Go to **Team** (or **Members**) and click **Invite**.
+4.  Assign a role (e.g., **Administrator**, **Editor**, or **Viewer**).
 
-2.  **Configure Vercel Environment Variables:**
-    Add your production keys to Vercel:
-    - `NEXT_PUBLIC_SUPABASE_URL`
-    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-    - `SUPABASE_SERVICE_ROLE_KEY`
-    - `SUPABASE_PROJECT_ID`
-    - `SUPABASE_ACCESS_TOKEN`
+### 2. Accessing the Admin Area
+- Visit `http://localhost:3000/admin`.
+- You will be prompted to log in with your Sanity account.
+- Once authenticated, you can manage Beers, Blog Posts, and other content directly within the embedded Studio.
 
-3.  **Push the Schema:**
-    Sync your local table structures and RLS policies to the live database:
-    ```bash
-    npx supabase db push
-    ```
-    *Note: This does not push your `seed.sql`. Your live DB remains clean of test data.*
+### 3. Configure CORS Settings
+Ensure your application can communicate with Sanity:
+1.  Go to **Settings > API settings** in the Sanity dashboard.
+2.  Under **CORS origins**, click **Add CORS origin**.
+3.  Add `http://localhost:3000` (and your production URL later).
+4.  Check **Allow credentials**.
 
-### Phase 3: The Development Cycle
+---
 
-1.  **Develop Locally:**
-    Run `npm run dev` to work on the UI. Use the local Admin UI (`/login`) to manage beers and blog posts in your local database.
+## 💻 Local Development vs. Production
 
-2.  **Schema Updates:**
-    If you need a new table or column:
-    ```bash
-    npx supabase migration new your_feature_name
-    ```
-    Edit the generated file in `supabase/migrations`, then run `npx supabase db reset` to test.
+Sanity.io allows you to separate your data between environments using **Datasets**.
 
-3.  **Deploy:**
-    - Push code to GitHub/Vercel for frontend updates.
-    - Run `npx supabase db push` to apply database changes to production.
+### 1. Create a Development Dataset
+To avoid "messing up" your live data during testing:
+1.  In the Sanity Dashboard, go to **Datasets**.
+2.  Click **Create dataset**.
+3.  Name it `development` (or similar) and choose **Public** or **Private** as per your needs.
 
-## Admin Management
+### 2. Switching Datasets Locally
+In your `.env.local` file, change the `NEXT_PUBLIC_SANITY_DATASET` variable:
+```env
+# For local testing:
+NEXT_PUBLIC_SANITY_DATASET="development"
 
-The Admin Panel is accessible at `/admin`.
-
-- **Access Control:** Only users with the `admin` role in their metadata can access these routes.
-- **Beers & Blog:** Use the "Admin" dropdown in the navbar after logging in to manage the "Currently Brewing" list and "Blog Posts".
-- **Local Dev:** Use the seeded admin user (`admin@local.test`).
-- **Production Admin Setup:** Since this is a private home brewery site, the most secure way to add yourself as the admin is through the **Supabase Dashboard**:
-
-  1. Go to **Authentication > Users** and click **Add User**.
-  2. Create your account with your email and password.
-  3. Once created, go to the **SQL Editor** and run the following to promote yourself:
-
-  ```sql
-  -- Promote your account to Admin
-  UPDATE auth.users
-  SET raw_app_meta_data = raw_app_meta_data || '{"role": "admin"}'::jsonb
-  WHERE email = 'your-email@example.com';
-  ```
-
-  4. **Security Tip:** For a single-admin site, go to **Authentication > Providers > Email** and **disable "Allow new users to sign up"**. This ensures nobody else can create an account on your site.
-
-## Supabase Auto-Unpause & Retry Logic
-
-This project includes a mechanism to automatically unpause your Supabase project if it goes into hibernation (common in free tier projects) and a cron job to prevent it from pausing.
-
-### How it works:
-1. **API Route**: `/api/unpause` uses the Supabase Management API to wake up your project.
-2. **Retry Helper**: `lib/supabase/retry.ts` provides a `fetchWithRetry` function that wraps your Supabase calls. If a call fails, it triggers the unpause API, waits a few seconds, and retries the original request.
-3. **Cron Job**: Configured in `vercel.json`, it calls `/api/unpause` every 3 days to keep the project active.
-
-### Usage:
-Import `fetchWithRetry` from `@/lib/supabase/retry` and use it to wrap your Supabase queries:
-
-```typescript
-import { fetchWithRetry } from '@/lib/supabase/retry';
-import { createClient } from '@/lib/supabase/client';
-
-const supabase = createClient();
-const { data, error } = await fetchWithRetry(() =>
-  supabase.from('your_table').select('*')
-);
+# For live data:
+NEXT_PUBLIC_SANITY_DATASET="production"
 ```
+
+### 3. How it Works
+- The **Embedded Studio** at `/admin` is just a user interface.
+- It will load and save data to whichever dataset is specified in your environment variables.
+- If you are running the app locally on `localhost:3000` with `development` dataset configured, any changes you make in the Studio will **only** affect the `development` dataset.
+- The **Sanity.io Web Interface** (sanity.io/manage) allows you to browse all your datasets in one place.
+
+---
+
+## 🧪 Testing
+
+### Unit & Component Tests (Jest)
+```bash
+npm run test
+```
+
+### End-to-End Tests (Playwright)
+```bash
+npm run test:e2e
+```
+
+---
+
+## 📧 Contact Form & Resend
+
+**Resend** is used exclusively for the contact form.
+1. Get an API key from [resend.com](https://resend.com).
+2. Add it to your environment variables:
+   - `RESEND_API_KEY`
+   - `CONTACT_RECEIVING_EMAIL`

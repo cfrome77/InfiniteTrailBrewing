@@ -7,7 +7,7 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { client } from "@/lib/sanity";
 
 type BrewStats = {
   total: number;
@@ -22,24 +22,19 @@ export default function OurStoryPage() {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const client = createClient();
+      try {
+        const [flagshipsCount, totalCount] = await Promise.all([
+          client.fetch(`count(*[_type == "beer" && is_flagship == true])`),
+          client.fetch(`count(*[_type == "beer" && status != "on_deck"])`),
+        ]);
 
-      const [flagships, batches] = await Promise.all([
-        client
-          .from("currently_brewing")
-          .select("*", { count: "exact", head: true })
-          .eq("is_flagship", true),
-
-        client
-          .from("currently_brewing")
-          .select("*", { count: "exact", head: true })
-          .neq("status", "on_deck"),
-      ]);
-
-      setStats({
-        flagship: flagships.count ?? 0,
-        total: batches.count ?? 0,
-      });
+        setStats({
+          flagship: flagshipsCount ?? 0,
+          total: totalCount ?? 0,
+        });
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
     };
 
     fetchStats();
