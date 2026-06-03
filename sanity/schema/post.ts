@@ -58,5 +58,13 @@ export default {
       type: 'boolean',
       initialValue: false,
     },
+    {
+      name: 'image',
+      title: 'Post Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+    },
   ],
 };

@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getAllPosts } from "@/lib/blog";
 import type { BlogPost } from "@/types";
+import { urlFor } from "@/lib/sanity";
+import Image from "next/image";
 
 const categories = [
   "All",
@@ -99,20 +101,32 @@ export default async function BlogPage({
         {featuredPost && (
           <div className="mb-12">
             <Link href={`/blog/${featuredPost.slug}`}>
-              <article className="bg-cream p-6 rounded-lg shadow hover:shadow-lg border border-tan/30">
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(
-                    featuredPost.category,
-                  )}`}
-                >
-                  {featuredPost.category ?? "Uncategorized"}
-                </span>
+              <article className="bg-cream rounded-lg shadow hover:shadow-lg border border-tan/30 overflow-hidden">
+                {featuredPost.image && (
+                  <div className="relative h-64 md:h-96 w-full">
+                    <Image
+                      src={urlFor(featuredPost.image).width(1200).height(800).url()}
+                      alt={featuredPost.title}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+                <div className="p-6">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(
+                      featuredPost.category,
+                    )}`}
+                  >
+                    {featuredPost.category ?? "Uncategorized"}
+                  </span>
 
-                <h2 className="text-3xl font-serif mt-2">
-                  {featuredPost.title}
-                </h2>
+                  <h2 className="text-3xl font-serif mt-2">
+                    {featuredPost.title}
+                  </h2>
 
-                <p className="text-forest/70 mt-1">{featuredPost.excerpt}</p>
+                  <p className="text-forest/70 mt-1">{featuredPost.excerpt}</p>
+                </div>
               </article>
             </Link>
           </div>
@@ -122,18 +136,30 @@ export default async function BlogPage({
         <div className="grid md:grid-cols-2 gap-6">
           {recentPosts.map((post) => (
             <Link key={post.slug} href={`/blog/${post.slug}`}>
-              <article className="bg-cream p-4 rounded-lg shadow hover:shadow-lg border border-tan/30 h-full">
-                <span
-                  className={`px-2 py-1 rounded-full text-sm font-medium ${getCategoryColor(
-                    post.category,
-                  )}`}
-                >
-                  {post.category ?? "Uncategorized"}
-                </span>
+              <article className="bg-cream rounded-lg shadow hover:shadow-lg border border-tan/30 h-full overflow-hidden">
+                {post.image && (
+                  <div className="relative h-48 w-full">
+                    <Image
+                      src={urlFor(post.image).width(600).height(400).url()}
+                      alt={post.title}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+                <div className="p-4">
+                  <span
+                    className={`px-2 py-1 rounded-full text-sm font-medium ${getCategoryColor(
+                      post.category,
+                    )}`}
+                  >
+                    {post.category ?? "Uncategorized"}
+                  </span>
 
-                <h3 className="text-xl font-serif mt-2">{post.title}</h3>
+                  <h3 className="text-xl font-serif mt-2">{post.title}</h3>
 
-                <p className="text-forest/70 mt-1">{post.excerpt}</p>
+                  <p className="text-forest/70 mt-1">{post.excerpt}</p>
+                </div>
               </article>
             </Link>
           ))}

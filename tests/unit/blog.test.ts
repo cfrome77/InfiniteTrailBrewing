@@ -4,6 +4,22 @@ import { client } from '@/lib/sanity';
 jest.mock('@/lib/sanity', () => ({
   client: {
     fetch: jest.fn(),
+    config: jest.fn(() => ({
+      projectId: 'test-project',
+      dataset: 'production',
+      useCdn: false
+    })),
+  },
+}));
+
+jest.mock('@/lib/sanity.server', () => ({
+  serverClient: {
+    fetch: jest.fn(),
+    config: jest.fn(() => ({
+      projectId: 'test-project',
+      dataset: 'production',
+      useCdn: false
+    })),
   },
 }));
 
@@ -25,10 +41,13 @@ describe('lib/blog', () => {
     expect(posts).toEqual(mockPosts);
   });
 
-  it('returns empty array if project ID is missing', async () => {
+  it('returns posts even if project ID environment variable is missing (uses fallback)', async () => {
     delete process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+    const mockPosts = [{ id: '1', title: 'Test Post' }];
+    (client.fetch as jest.Mock).mockResolvedValue(mockPosts);
+
     const posts = await getAllPosts();
-    expect(posts).toEqual([]);
-    expect(client.fetch).not.toHaveBeenCalled();
+    expect(posts).toEqual(mockPosts);
+    expect(client.fetch).toHaveBeenCalled();
   });
 });

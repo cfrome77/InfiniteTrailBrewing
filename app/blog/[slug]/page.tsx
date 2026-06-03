@@ -7,6 +7,8 @@ import { notFound } from "next/navigation";
 import { Calendar, Clock, ArrowLeft } from "lucide-react";
 import { getPostBySlug, getAllSlugs } from "@/lib/blog";
 import { PortableText } from '@portabletext/react';
+import { urlFor } from "@/lib/sanity";
+import Image from "next/image";
 
 function getCategoryColor(category: string) {
   const colors: Record<string, string> = {
@@ -89,6 +91,17 @@ export default async function BlogPostPage({
       {/* Content */}
       <article className="py-12">
         <div className="container mx-auto px-4 max-w-3xl">
+          {post.image && (
+            <div className="relative h-64 md:h-[400px] w-full mb-10 rounded-xl overflow-hidden shadow-lg border border-tan/30">
+              <Image
+                src={urlFor(post.image).width(1200).height(800).url()}
+                alt={post.title}
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
+
           <div
             className="prose prose-lg prose-forest max-w-none
               prose-headings:font-serif prose-headings:text-forest
