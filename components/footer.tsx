@@ -25,22 +25,13 @@ export function Footer() {
             </p>
             <div className="flex gap-4">
               <Link
-                href="https://instagram.com"
+                href="https://instagram.com/infinitetrailbrewing"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-tan/10 rounded-full flex items-center justify-center hover:bg-tan/20 transition-colors"
                 aria-label="Follow us on Instagram"
               >
                 <Instagram className="w-5 h-5" />
-              </Link>
-              <Link
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-tan/10 rounded-full flex items-center justify-center hover:bg-tan/20 transition-colors"
-                aria-label="Follow us on Facebook"
-              >
-                <Facebook className="w-5 h-5" />
               </Link>
             </div>
           </div>

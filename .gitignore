@@ -11,16 +11,6 @@ next.user-config.*
 .env
 .env*.local
 
-# Supabase
-.supabase/
-supabase/.temp
-supabase/.branches
-supabase/.cache
-supabase/.logs
-supabase/.netrc
-supabase/.config
-supabase/.env
-
 # Common ignores
 node_modules
 .next/

@@ -80,19 +80,11 @@ export function Navbar() {
           {/* Social */}
           <div className="flex items-center gap-3 ml-2 pl-4 border-l border-tan/30">
             <Link
-              href="https://instagram.com"
+              href="https://instagram.com/infinitetrailbrewing"
               target="_blank"
               className="text-tan/70 hover:text-tan"
             >
               <Instagram className="w-5 h-5" />
-            </Link>
-
-            <Link
-              href="https://facebook.com"
-              target="_blank"
-              className="text-tan/70 hover:text-tan"
-            >
-              <Facebook className="w-5 h-5" />
             </Link>
           </div>
         </div>

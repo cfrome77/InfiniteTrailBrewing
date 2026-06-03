@@ -13,10 +13,8 @@ export interface Beer {
   status: BeerStatus;
   notes?: string | null;
   abv?: string | null;
-  color?: string | null;
+  color?: string | null; 
   is_flagship: boolean;
-  started_at: string; // YYYY-MM-DD
-  image_url?: string | null;
   image?: any; // Sanity image object
 }
 

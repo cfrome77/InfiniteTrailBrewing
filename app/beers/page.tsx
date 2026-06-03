@@ -5,8 +5,10 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { client, urlFor } from "@/lib/sanity";
+import { client } from "@/lib/sanity";
 import { Beer, BeerStatus } from "@/types";
+import { getBeerImage } from "@/lib/images";
+import { getBeerStyleGradient } from "@/lib/beerStyleTheme";
 import Image from "next/image";
 
 // ---------------- UI Helpers ----------------
@@ -14,7 +16,6 @@ function SectionTitle({ title, count }: { title: string; count: number }) {
   return (
     <div className="flex items-center gap-3 mt-10 mb-4">
       <h2 className="font-serif text-3xl text-forest">{title}</h2>
-
       <span className="text-xs bg-forest/10 text-forest px-2 py-1 rounded-full">
         {count}
       </span>
@@ -54,18 +55,13 @@ function StatusPill({ status }: { status: BeerStatus }) {
   );
 }
 
-function BeerGrid({
-  beers,
-  getColor,
-}: {
-  beers: Beer[];
-  getColor: (style: string) => string;
-}) {
+// ---------------- Beer Grid ----------------
+function BeerGrid({ beers }: { beers: Beer[] }) {
   return (
     <div className="grid md:grid-cols-2 gap-8">
       {beers.map((beer) => {
-        const color = beer.color || getColor(beer.style);
-        const imageUrl = beer.image ? urlFor(beer.image).url() : beer.image_url;
+        const color = getBeerStyleGradient(beer.style);
+        const imageUrl = getBeerImage(beer, "card");
 
         return (
           <Card
@@ -73,16 +69,24 @@ function BeerGrid({
             className="bg-white border-none shadow-lg hover:shadow-xl transition-all overflow-hidden"
           >
             <CardContent className="p-0">
+              {/* IMAGE AREA */}
               <div
                 className={`h-48 bg-gradient-to-b ${color} flex items-center justify-center relative overflow-hidden`}
               >
                 {imageUrl ? (
-                  <Image src={imageUrl} alt={beer.beer_name} fill className="object-cover" unoptimized />
+                  <Image
+                    src={imageUrl}
+                    alt={beer.beer_name}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
                 ) : (
                   <div className="w-20 h-32 bg-white/30 backdrop-blur-sm rounded-lg border-2 border-white/50" />
                 )}
               </div>
 
+              {/* CONTENT */}
               <div className="p-6">
                 <div className="flex justify-between mb-2">
                   <span className="text-xs uppercase text-forest/60">
@@ -120,7 +124,7 @@ function BeerGrid({
   );
 }
 
-// ---------------- Page ----------------
+// ---------------- Content ----------------
 function BeersContent({ beers }: { beers: Beer[] }) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -135,18 +139,9 @@ function BeersContent({ beers }: { beers: Beer[] }) {
   const ready = beers.filter((b) => b.status === "ready");
   const archived = beers.filter((b) => b.status === "archived");
 
-  const getColor = (style: string) => {
-    const s = style.toLowerCase();
-    if (s.includes("stout") || s.includes("porter"))
-      return "from-stone-700 to-stone-800";
-    if (s.includes("lager")) return "from-amber-400 to-amber-500";
-    if (s.includes("ipa")) return "from-orange-400 to-orange-500";
-    return "from-amber-200 to-amber-300";
-  };
-
   return (
     <>
-      {/* Tabs */}
+      {/* TABS */}
       <div className="flex justify-center gap-4 mb-12">
         <button
           onClick={() => handleTabChange("current")}
@@ -178,21 +173,21 @@ function BeersContent({ beers }: { beers: Beer[] }) {
           {onDeck.length === 0 ? (
             <EmptyState text="No beers on deck." />
           ) : (
-            <BeerGrid beers={onDeck} getColor={getColor} />
+            <BeerGrid beers={onDeck} />
           )}
 
           <SectionTitle title="Brewing" count={brewing.length} />
           {brewing.length === 0 ? (
             <EmptyState text="Nothing brewing right now." />
           ) : (
-            <BeerGrid beers={brewing} getColor={getColor} />
+            <BeerGrid beers={brewing} />
           )}
 
           <SectionTitle title="On Tap" count={ready.length} />
           {ready.length === 0 ? (
             <EmptyState text="No beers currently on tap." />
           ) : (
-            <BeerGrid beers={ready} getColor={getColor} />
+            <BeerGrid beers={ready} />
           )}
         </>
       )}
@@ -206,27 +201,41 @@ function BeersContent({ beers }: { beers: Beer[] }) {
             <EmptyState text="No archived beers yet." />
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {archived.map((beer) => (
-                <Card key={beer.id} className="bg-white shadow-md">
-                  <CardContent className="p-5">
-                    <h3 className="font-serif text-lg text-forest">
-                      {beer.beer_name}
-                    </h3>
+              {archived.map((beer) => {
+                const imageUrl = getBeerImage(beer, "thumb");
 
-                    <p className="text-sm text-forest/60">{beer.style}</p>
+                return (
+                  <Card key={beer.id} className="bg-white shadow-md">
+                    <CardContent className="p-0">
+                      <div className="h-32 relative overflow-hidden bg-gradient-to-b from-amber-200 to-amber-300">
+                        {imageUrl && (
+                          <Image
+                            src={imageUrl}
+                            alt={beer.beer_name}
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
+                        )}
+                      </div>
 
-                    <p className="text-xs text-forest/50 uppercase">
-                      Brewed: {beer.started_at ? new Date(beer.started_at).toLocaleDateString() : 'N/A'}
-                    </p>
+                      <div className="p-5">
+                        <h3 className="font-serif text-lg text-forest">
+                          {beer.beer_name}
+                        </h3>
 
-                    {beer.is_flagship && (
-                      <span className="inline-block mt-2 px-2 py-1 text-xs uppercase rounded-full font-semibold bg-forest text-tan">
-                        Flagship
-                      </span>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+                        <p className="text-sm text-forest/60">{beer.style}</p>
+
+                        {beer.is_flagship && (
+                          <span className="inline-block mt-2 px-2 py-1 text-xs uppercase rounded-full font-semibold bg-forest text-tan">
+                            Flagship
+                          </span>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
         </>
@@ -235,28 +244,26 @@ function BeersContent({ beers }: { beers: Beer[] }) {
   );
 }
 
-// ---------------- Main Page ----------------
+// ---------------- PAGE ----------------
 export default function BeersPage() {
   const [beers, setBeers] = useState<Beer[]>([]);
 
   useEffect(() => {
     const fetchBeers = async () => {
       const data = await client.fetch(`
-        *[_type == "beer"] | order(started_at desc) {
-          _id,
-          "id": _id,
-          beer_name,
-          style,
-          status,
-          notes,
-          abv,
-          color,
-          is_flagship,
-          started_at,
-          image
-        }
+      *[_type == "beer"] | order(_createdAt desc) {
+        _id,
+        "id": _id,
+        beer_name,
+        style,
+        status,
+        notes,
+        abv,
+        is_flagship,
+        _createdAt,
+        image
+      }
       `);
-
       setBeers((data as Beer[]) ?? []);
     };
 
