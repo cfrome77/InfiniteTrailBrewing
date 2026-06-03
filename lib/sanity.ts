@@ -1,8 +1,12 @@
 import { createClient } from 'next-sanity';
 import imageUrlBuilder from '@sanity/image-url';
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'pzzfhnzk';
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'development';
+
+if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
+  console.warn("NEXT_PUBLIC_SANITY_PROJECT_ID is not set, using fallback: pzzfhnzk");
+}
 
 export const config = {
   projectId,
