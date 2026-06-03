@@ -4,11 +4,14 @@ import { client } from "./sanity";
 // Build-time: get all posts
 // ==============================
 export async function getAllPosts() {
-  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
-    console.warn("NEXT_PUBLIC_SANITY_PROJECT_ID is not set. Returning empty posts.");
-    return [];
-  }
   try {
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Fetching posts with config:', {
+        projectId: client.config().projectId,
+        dataset: client.config().dataset,
+        useCdn: client.config().useCdn
+      });
+    }
     const posts = await client.fetch(`
       *[_type == "post" && is_published == true] | order(date desc) {
         _id,
@@ -25,7 +28,10 @@ export async function getAllPosts() {
       }
     `);
 
-    return posts;
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('POSTS QUERY RESULT:', posts);
+    }
+    return posts || [];
   } catch (e) {
     console.error("Error fetching posts from Sanity:", e);
     return [];

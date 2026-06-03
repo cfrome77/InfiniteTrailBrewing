@@ -250,21 +250,35 @@ export default function BeersPage() {
 
   useEffect(() => {
     const fetchBeers = async () => {
-      const data = await client.fetch(`
-      *[_type == "beer"] | order(_createdAt desc) {
-        _id,
-        "id": _id,
-        beer_name,
-        style,
-        status,
-        notes,
-        abv,
-        is_flagship,
-        _createdAt,
-        image
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Fetching beers with config:', {
+          projectId: client.config().projectId,
+          dataset: client.config().dataset,
+          useCdn: client.config().useCdn
+        });
       }
-      `);
-      setBeers((data as Beer[]) ?? []);
+      try {
+        const data = await client.fetch(`
+        *[_type == "beer"] | order(_createdAt desc) {
+          _id,
+          "id": _id,
+          beer_name,
+          style,
+          status,
+          notes,
+          abv,
+          is_flagship,
+          _createdAt,
+          image
+        }
+        `);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('BEERS QUERY RESULT:', data);
+        }
+        setBeers((data as Beer[]) ?? []);
+      } catch (err) {
+        console.error('Error fetching beers:', err);
+      }
     };
 
     fetchBeers();
@@ -288,7 +302,7 @@ export default function BeersPage() {
 
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <Suspense fallback={<div>Loading beers...</div>}>
+          <Suspense fallback={<div className="text-center py-20 text-forest/50">Loading beers...</div>}>
             <BeersContent beers={beers} />
           </Suspense>
         </div>
