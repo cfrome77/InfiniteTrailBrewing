@@ -21,8 +21,7 @@ export function getBeerImage(beer: any, size: "card" | "thumb" = "card") {
   return base
     .width(isArchive ? 400 : 900)
     .height(isArchive ? 400 : 600)
-    .fit("crop")
-    .crop("center")
+    .fit("max") // Use "max" to avoid aggressive cropping of the artwork
     .auto("format")
     .url();
 }

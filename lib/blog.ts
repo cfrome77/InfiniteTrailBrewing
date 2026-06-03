@@ -27,7 +27,8 @@ export async function getAllPosts() {
         date,
         category,
         featured,
-        is_published
+        is_published,
+        image
       }
     `);
 
@@ -59,7 +60,8 @@ export async function getPostBySlug(slug: string) {
         date,
         category,
         featured,
-        is_published
+        is_published,
+        image
       }`,
       { slug }
     );
@@ -103,7 +105,8 @@ export async function getAllPostsWithAuth() {
         date,
         category,
         featured,
-        is_published
+        is_published,
+        image
       }
     `);
 
@@ -129,7 +132,8 @@ export async function getPostBySlugWithAuth(slug: string) {
         date,
         category,
         featured,
-        is_published
+        is_published,
+        image
       }`,
       { slug }
     );

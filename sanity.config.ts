@@ -8,7 +8,7 @@ export default defineConfig({
   title: 'Infinite Trail Brewing',
 
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'pzzfhnzk',
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'development',
 
   basePath: '/admin',
 

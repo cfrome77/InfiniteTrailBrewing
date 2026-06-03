@@ -6,6 +6,7 @@ import { Beer, BeerStatus } from "@/types";
 import { getBeerImage } from "@/lib/images";
 import { getBeerStyleGradient } from "@/lib/beerStyleTheme";
 import Image from "next/image";
+import { beerStyles } from "@/sanity/constants/beerStyles";
 
 // ---------------- UI Helpers ----------------
 function SectionTitle({ title, count }: { title: string; count: number }) {
@@ -86,7 +87,7 @@ function BeerGrid({ beers }: { beers: Beer[] }) {
               <div className="p-6">
                 <div className="flex justify-between mb-2">
                   <span className="text-xs uppercase text-forest/60">
-                    {beer.style}
+                    {beerStyles.find(s => s.value === beer.style)?.title || beer.style}
                   </span>
 
                   {beer.abv && (
@@ -220,7 +221,9 @@ export function BeersContent({ initialBeers }: { initialBeers: Beer[] }) {
                           {beer.beer_name}
                         </h3>
 
-                        <p className="text-sm text-forest/60">{beer.style}</p>
+                        <p className="text-sm text-forest/60">
+                          {beerStyles.find(s => s.value === beer.style)?.title || beer.style}
+                        </p>
 
                         {beer.is_flagship && (
                           <span className="inline-block mt-2 px-2 py-1 text-xs uppercase rounded-full font-semibold bg-forest text-tan">
