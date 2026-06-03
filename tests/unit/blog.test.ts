@@ -12,6 +12,17 @@ jest.mock('@/lib/sanity', () => ({
   },
 }));
 
+jest.mock('@/lib/sanity.server', () => ({
+  serverClient: {
+    fetch: jest.fn(),
+    config: jest.fn(() => ({
+      projectId: 'test-project',
+      dataset: 'production',
+      useCdn: false
+    })),
+  },
+}));
+
 describe('lib/blog', () => {
   beforeEach(() => {
     jest.clearAllMocks();

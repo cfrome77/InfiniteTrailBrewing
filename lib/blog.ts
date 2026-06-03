@@ -1,18 +1,21 @@
 import { client } from "./sanity";
+import { serverClient } from "./sanity.server";
 
 // ==============================
 // Build-time: get all posts
 // ==============================
 export async function getAllPosts() {
   try {
+    const activeClient = process.env.SANITY_API_TOKEN ? serverClient : client;
     if (process.env.NODE_ENV !== 'production') {
       console.log('Fetching posts with config:', {
-        projectId: client.config().projectId,
-        dataset: client.config().dataset,
-        useCdn: client.config().useCdn
+        projectId: activeClient.config().projectId,
+        dataset: activeClient.config().dataset,
+        useCdn: activeClient.config().useCdn,
+        usingToken: !!process.env.SANITY_API_TOKEN
       });
     }
-    const posts = await client.fetch(`
+    const posts = await activeClient.fetch(`
       *[_type == "post" && is_published == true] | order(date desc) {
         _id,
         "id": _id,
@@ -42,9 +45,9 @@ export async function getAllPosts() {
 // Build-time: get post by slug
 // ==============================
 export async function getPostBySlug(slug: string) {
-  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return null;
   try {
-    const post = await client.fetch(
+    const activeClient = process.env.SANITY_API_TOKEN ? serverClient : client;
+    const post = await activeClient.fetch(
       `*[_type == "post" && slug.current == $slug && is_published == true][0] {
         _id,
         "id": _id,
@@ -72,9 +75,9 @@ export async function getPostBySlug(slug: string) {
 // Build-time: get all slugs
 // ==============================
 export async function getAllSlugs() {
-  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
   try {
-    const slugs = await client.fetch(`*[_type == "post" && is_published == true].slug.current`);
+    const activeClient = process.env.SANITY_API_TOKEN ? serverClient : client;
+    const slugs = await activeClient.fetch(`*[_type == "post" && is_published == true].slug.current`);
     return slugs || [];
   } catch (e) {
     console.error("Error fetching slugs from Sanity:", e);

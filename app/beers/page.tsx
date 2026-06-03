@@ -1,288 +1,48 @@
-"use client";
-
-import { useEffect, useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { Card, CardContent } from "@/components/ui/card";
 import { client } from "@/lib/sanity";
-import { Beer, BeerStatus } from "@/types";
-import { getBeerImage } from "@/lib/images";
-import { getBeerStyleGradient } from "@/lib/beerStyleTheme";
-import Image from "next/image";
+import { serverClient } from "@/lib/sanity.server";
+import { Beer } from "@/types";
+import { BeersContent } from "./beers-content";
 
-// ---------------- UI Helpers ----------------
-function SectionTitle({ title, count }: { title: string; count: number }) {
-  return (
-    <div className="flex items-center gap-3 mt-10 mb-4">
-      <h2 className="font-serif text-3xl text-forest">{title}</h2>
-      <span className="text-xs bg-forest/10 text-forest px-2 py-1 rounded-full">
-        {count}
-      </span>
-    </div>
-  );
-}
-
-function EmptyState({ text }: { text: string }) {
-  return (
-    <div className="text-center text-forest/50 py-6 text-sm italic">{text}</div>
-  );
-}
-
-function StatusPill({ status }: { status: BeerStatus }) {
-  const map: Record<BeerStatus, string> = {
-    on_deck: "bg-gray-200 text-gray-800",
-    brewing: "bg-blue-200 text-blue-800",
-    ready: "bg-green-200 text-green-800",
-    archived: "bg-gray-400 text-white",
-  };
-
-  const label =
-    status === "on_deck"
-      ? "on deck"
-      : status === "brewing"
-        ? "brewing"
-        : status === "ready"
-          ? "on tap"
-          : "archived";
-
-  return (
-    <span
-      className={`px-2 py-1 text-xs uppercase rounded-full font-semibold ${map[status]}`}
-    >
-      {label}
-    </span>
-  );
-}
-
-// ---------------- Beer Grid ----------------
-function BeerGrid({ beers }: { beers: Beer[] }) {
-  return (
-    <div className="grid md:grid-cols-2 gap-8">
-      {beers.map((beer) => {
-        const color = getBeerStyleGradient(beer.style);
-        const imageUrl = getBeerImage(beer, "card");
-
-        return (
-          <Card
-            key={beer.id}
-            className="bg-white border-none shadow-lg hover:shadow-xl transition-all overflow-hidden"
-          >
-            <CardContent className="p-0">
-              {/* IMAGE AREA */}
-              <div
-                className={`h-48 bg-gradient-to-b ${color} flex items-center justify-center relative overflow-hidden`}
-              >
-                {imageUrl ? (
-                  <Image
-                    src={imageUrl}
-                    alt={beer.beer_name}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                ) : (
-                  <div className="w-20 h-32 bg-white/30 backdrop-blur-sm rounded-lg border-2 border-white/50" />
-                )}
-              </div>
-
-              {/* CONTENT */}
-              <div className="p-6">
-                <div className="flex justify-between mb-2">
-                  <span className="text-xs uppercase text-forest/60">
-                    {beer.style}
-                  </span>
-
-                  {beer.abv && (
-                    <span className="text-xs font-semibold text-forest bg-tan/50 px-2 py-1 rounded">
-                      {beer.abv} ABV
-                    </span>
-                  )}
-                </div>
-
-                <h3 className="font-serif text-2xl text-forest mb-3">
-                  {beer.beer_name}
-                </h3>
-
-                <p className="text-forest/70">{beer.notes}</p>
-
-                <div className="flex gap-2 mt-3 flex-wrap">
-                  <StatusPill status={beer.status} />
-
-                  {beer.is_flagship && (
-                    <span className="px-2 py-1 text-xs uppercase rounded-full font-semibold bg-forest text-tan">
-                      Flagship
-                    </span>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
-    </div>
-  );
-}
-
-// ---------------- Content ----------------
-function BeersContent({ beers }: { beers: Beer[] }) {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const activeTab = searchParams.get("tab") || "current";
-
-  const handleTabChange = (tab: string) => {
-    router.push(`/beers?tab=${tab}`, { scroll: false });
-  };
-
-  const onDeck = beers.filter((b) => b.status === "on_deck");
-  const brewing = beers.filter((b) => b.status === "brewing");
-  const ready = beers.filter((b) => b.status === "ready");
-  const archived = beers.filter((b) => b.status === "archived");
-
-  return (
-    <>
-      {/* TABS */}
-      <div className="flex justify-center gap-4 mb-12">
-        <button
-          onClick={() => handleTabChange("current")}
-          className={`px-8 py-3 font-serif text-lg rounded-lg ${
-            activeTab === "current"
-              ? "bg-forest text-tan"
-              : "bg-tan/50 text-forest"
-          }`}
-        >
-          Current Brews
-        </button>
-
-        <button
-          onClick={() => handleTabChange("archive")}
-          className={`px-8 py-3 font-serif text-lg rounded-lg ${
-            activeTab === "archive"
-              ? "bg-forest text-tan"
-              : "bg-tan/50 text-forest"
-          }`}
-        >
-          Beer Archive
-        </button>
-      </div>
-
-      {/* CURRENT */}
-      {activeTab === "current" && (
-        <>
-          <SectionTitle title="On Deck" count={onDeck.length} />
-          {onDeck.length === 0 ? (
-            <EmptyState text="No beers on deck." />
-          ) : (
-            <BeerGrid beers={onDeck} />
-          )}
-
-          <SectionTitle title="Brewing" count={brewing.length} />
-          {brewing.length === 0 ? (
-            <EmptyState text="Nothing brewing right now." />
-          ) : (
-            <BeerGrid beers={brewing} />
-          )}
-
-          <SectionTitle title="On Tap" count={ready.length} />
-          {ready.length === 0 ? (
-            <EmptyState text="No beers currently on tap." />
-          ) : (
-            <BeerGrid beers={ready} />
-          )}
-        </>
-      )}
-
-      {/* ARCHIVE */}
-      {activeTab === "archive" && (
-        <>
-          <SectionTitle title="Archived Beers" count={archived.length} />
-
-          {archived.length === 0 ? (
-            <EmptyState text="No archived beers yet." />
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {archived.map((beer) => {
-                const imageUrl = getBeerImage(beer, "thumb");
-
-                return (
-                  <Card key={beer.id} className="bg-white shadow-md">
-                    <CardContent className="p-0">
-                      <div className="h-32 relative overflow-hidden bg-gradient-to-b from-amber-200 to-amber-300">
-                        {imageUrl && (
-                          <Image
-                            src={imageUrl}
-                            alt={beer.beer_name}
-                            fill
-                            className="object-cover"
-                            unoptimized
-                          />
-                        )}
-                      </div>
-
-                      <div className="p-5">
-                        <h3 className="font-serif text-lg text-forest">
-                          {beer.beer_name}
-                        </h3>
-
-                        <p className="text-sm text-forest/60">{beer.style}</p>
-
-                        {beer.is_flagship && (
-                          <span className="inline-block mt-2 px-2 py-1 text-xs uppercase rounded-full font-semibold bg-forest text-tan">
-                            Flagship
-                          </span>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
-        </>
-      )}
-    </>
-  );
-}
+export const dynamic = 'force-dynamic';
 
 // ---------------- PAGE ----------------
-export default function BeersPage() {
-  const [beers, setBeers] = useState<Beer[]>([]);
+export default async function BeersPage() {
+  const activeClient = process.env.SANITY_API_TOKEN ? serverClient : client;
 
-  useEffect(() => {
-    const fetchBeers = async () => {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('Fetching beers with config:', {
-          projectId: client.config().projectId,
-          dataset: client.config().dataset,
-          useCdn: client.config().useCdn
-        });
-      }
-      try {
-        const data = await client.fetch(`
-        *[_type == "beer"] | order(_createdAt desc) {
-          _id,
-          "id": _id,
-          beer_name,
-          style,
-          status,
-          notes,
-          abv,
-          is_flagship,
-          _createdAt,
-          image
-        }
-        `);
-        if (process.env.NODE_ENV !== 'production') {
-          console.log('BEERS QUERY RESULT:', data);
-        }
-        setBeers((data as Beer[]) ?? []);
-      } catch (err) {
-        console.error('Error fetching beers:', err);
-      }
-    };
+  if (process.env.NODE_ENV !== "production") {
+    console.log("Fetching beers with config:", {
+      projectId: activeClient.config().projectId,
+      dataset: activeClient.config().dataset,
+      useCdn: activeClient.config().useCdn,
+      usingToken: !!process.env.SANITY_API_TOKEN,
+    });
+  }
 
-    fetchBeers();
-  }, []);
+  let beers: Beer[] = [];
+  try {
+    beers = await activeClient.fetch(`
+      *[_type == "beer"] | order(_createdAt desc) {
+        _id,
+        "id": _id,
+        beer_name,
+        style,
+        status,
+        notes,
+        abv,
+        is_flagship,
+        _createdAt,
+        image
+      }
+    `);
+    if (process.env.NODE_ENV !== "production") {
+      console.log("BEERS QUERY RESULT COUNT:", beers.length);
+    }
+  } catch (err) {
+    console.error("Error fetching beers:", err);
+  }
 
   return (
     <main className="min-h-screen bg-cream">
@@ -302,8 +62,14 @@ export default function BeersPage() {
 
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <Suspense fallback={<div className="text-center py-20 text-forest/50">Loading beers...</div>}>
-            <BeersContent beers={beers} />
+          <Suspense
+            fallback={
+              <div className="text-center py-20 text-forest/50">
+                Loading beers...
+              </div>
+            }
+          >
+            <BeersContent initialBeers={beers} />
           </Suspense>
         </div>
       </section>
