@@ -2,6 +2,7 @@
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Calendar, Clock, ArrowLeft } from "lucide-react";
@@ -9,16 +10,7 @@ import { getPostBySlug, getAllSlugs } from "@/lib/blog";
 import { PortableText } from '@portabletext/react';
 import { urlFor } from "@/lib/sanity";
 import Image from "next/image";
-
-function getCategoryColor(category: string) {
-  const colors: Record<string, string> = {
-    "Brew Day": "bg-sky/20 text-sky",
-    "Tasting Notes": "bg-tan text-forest",
-    Recipes: "bg-forest/10 text-forest",
-    "Tips & Learning": "bg-amber-100 text-amber-800",
-  };
-  return colors[category] || "bg-tan text-forest";
-}
+import { getCategoryColor } from "@/lib/blog-utils";
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString("en-US", {
@@ -60,13 +52,14 @@ export default async function BlogPostPage({
           </Link>
 
           <div className="flex items-center gap-4 mb-6">
-            <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(
+            <Badge
+              variant="outline"
+              className={`px-3 py-1 rounded-full text-sm font-medium border ${getCategoryColor(
                 post.category || "General",
               )}`}
             >
               {post.category || "General"}
-            </span>
+            </Badge>
           </div>
 
           <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-tan mb-6 text-balance">

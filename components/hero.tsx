@@ -28,8 +28,14 @@ export function Hero() {
         </p>
 
         {/* Location */}
-        <p className="text-lg md:text-xl text-tan/70 mb-10 animate-fade-in [animation-delay:400ms] opacity-0 [animation-fill-mode:forwards]">
+        <p className="text-lg md:text-xl text-tan/70 mb-6 animate-fade-in [animation-delay:400ms] opacity-0 [animation-fill-mode:forwards]">
           Hand-forged craft beers in Frederick, MD
+        </p>
+
+        {/* Description */}
+        <p className="text-lg md:text-xl text-tan/80 max-w-2xl mb-12 animate-fade-in [animation-delay:500ms] opacity-0 [animation-fill-mode:forwards] leading-relaxed">
+          Inspired by the rugged beauty of the Blue Ridge and built with the endurance of an adventurer.
+          We craft small-batch beers for those who know the best reward is found at the end of the trail.
         </p>
 
         {/* PRIMARY NAV CTA BUTTONS */}
