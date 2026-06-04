@@ -63,7 +63,7 @@ function BeerGrid({ beers }: { beers: Beer[] }) {
         return (
           <Card
             key={beer.id}
-            className="bg-white border-none shadow-lg hover:shadow-xl transition-all overflow-hidden"
+            className="group bg-white border-none shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden"
           >
             <CardContent className="p-0">
               {/* IMAGE AREA */}
@@ -75,16 +75,16 @@ function BeerGrid({ beers }: { beers: Beer[] }) {
                     src={imageUrl}
                     alt={beer.beer_name}
                     fill
-                    className="object-cover"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
                     unoptimized
                   />
                 ) : (
-                  <div className="w-20 h-32 bg-white/30 backdrop-blur-sm rounded-lg border-2 border-white/50" />
+                  <div className="w-20 h-32 bg-white/30 backdrop-blur-sm rounded-lg border-2 border-white/50 group-hover:scale-110 transition-transform duration-500" />
                 )}
               </div>
 
               {/* CONTENT */}
-              <div className="p-6">
+              <div className="p-5 md:p-6">
                 <div className="flex justify-between mb-2">
                   <span className="text-xs uppercase text-forest/60">
                     {beerStyles.find(s => s.value === beer.style)?.title || beer.style}

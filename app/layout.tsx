@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Oswald, Montserrat } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { BackToTop } from "@/components/back-to-top";
 import "./globals.css";
 
 const oswald = Oswald({
@@ -43,6 +44,7 @@ export default function RootLayout({
     <html lang="en" className={`${oswald.variable} ${montserrat.variable}`}>
       <body className="font-sans antialiased">
         {children}
+        <BackToTop />
 
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
