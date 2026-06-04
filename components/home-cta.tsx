@@ -3,7 +3,7 @@ import { Beer, BookOpen, Mail } from "lucide-react"
 
 export function HomeCTA() {
   return (
-    <section id="explore" className="bg-tan py-20 px-4 scroll-mt-24">
+    <section id="explore" className="bg-tan py-20 md:py-32 px-4 scroll-mt-24">
       <div className="container mx-auto max-w-5xl">
         <h2 className="font-serif text-3xl md:text-4xl text-forest text-center mb-4">
           Explore the Trail

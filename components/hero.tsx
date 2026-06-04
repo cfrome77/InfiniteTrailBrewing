@@ -23,21 +23,21 @@ export function Hero() {
         </div>
 
         {/* Tagline */}
-        <p className="font-serif text-2xl md:text-3xl lg:text-4xl tracking-wide mb-4 text-tan/90">
+        <p className="font-serif text-2xl md:text-3xl lg:text-4xl tracking-wide mb-4 text-tan/90 animate-fade-in [animation-delay:200ms] opacity-0 [animation-fill-mode:forwards]">
           Brewed for the Next Adventure.
         </p>
 
         {/* Location */}
-        <p className="text-lg md:text-xl text-tan/70 mb-10">
+        <p className="text-lg md:text-xl text-tan/70 mb-10 animate-fade-in [animation-delay:400ms] opacity-0 [animation-fill-mode:forwards]">
           Hand-forged craft beers in Frederick, MD
         </p>
 
         {/* PRIMARY NAV CTA BUTTONS */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4 mb-6 animate-slide-up [animation-delay:600ms] opacity-0 [animation-fill-mode:forwards]">
           <Button
             asChild
             size="lg"
-            className="bg-tan text-forest hover:bg-tan/90 font-serif text-lg px-8 py-6 tracking-wide"
+            className="bg-tan text-forest hover:bg-tan/90 font-serif text-lg px-8 py-6 tracking-wide shadow-xl hover:scale-105 transition-all duration-300"
           >
             <Link href="/beers">Explore Our Beers</Link>
           </Button>
@@ -45,7 +45,7 @@ export function Hero() {
           <Button
             asChild
             size="lg"
-            className="bg-tan text-forest hover:bg-tan/90 font-serif text-lg px-8 py-6 tracking-wide"
+            className="bg-tan text-forest hover:bg-tan/90 font-serif text-lg px-8 py-6 tracking-wide shadow-xl hover:scale-105 transition-all duration-300"
           >
             <Link href="/our-story">Our Story</Link>
           </Button>
