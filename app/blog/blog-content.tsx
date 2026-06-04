@@ -50,6 +50,16 @@ export function BlogContent({ allPosts, initialCategory = "All" }: BlogContentPr
 
   return (
     <>
+      {/* Hero Title */}
+      <section className="bg-forest pt-32 pb-16 px-4 text-center">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-tan mb-4 animate-fade-in">
+          The Trail Report
+        </h1>
+        <p className="text-tan/70 text-lg md:text-xl max-w-2xl mx-auto animate-fade-in [animation-delay:200ms] opacity-0 [animation-fill-mode:forwards]">
+          Brew day stories, tasting notes, recipes, and tips from the brewery.
+        </p>
+      </section>
+
       {/* Search & Categories Bar */}
       <section className="sticky top-16 z-30 bg-cream/80 backdrop-blur-md border-b border-tan/30 py-4 px-4 shadow-sm">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-6 items-center justify-between">

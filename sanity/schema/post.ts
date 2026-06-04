@@ -1,6 +1,6 @@
 export default {
   name: 'post',
-  title: 'Blog Post',
+  title: 'The Trail Report (Blog)',
   type: 'document',
   fields: [
     {

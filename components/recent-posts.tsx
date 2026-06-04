@@ -18,7 +18,7 @@ export async function RecentPosts() {
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
           <div className="max-w-2xl">
             <h2 className="font-serif text-4xl md:text-5xl text-forest mb-4">
-              Latest from the Trail
+              The Trail Report
             </h2>
             <p className="text-forest/70 text-lg">
               Follow our brewing journey, from recipe development to tasting notes and everything in between.

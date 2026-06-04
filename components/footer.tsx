@@ -3,21 +3,33 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Instagram, Facebook, Send, Beer } from "lucide-react";
+import { Instagram, Facebook, Send, Beer, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { subscribeToNewsletter } from "@/app/actions/newsletter";
 
 export function Footer() {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    // Newsletter signup logic
-    setIsSubmitted(true);
-    setEmail("");
-    setTimeout(() => setIsSubmitted(false), 5000);
+
+    setIsLoading(true);
+    const result = await subscribeToNewsletter(email);
+    setIsLoading(false);
+
+    if (result.success) {
+      setIsSubmitted(true);
+      setMessage(result.message);
+      setEmail("");
+      setTimeout(() => setIsSubmitted(false), 5000);
+    } else {
+      alert(result.message);
+    }
   };
 
   return (
@@ -74,7 +86,7 @@ export function Footer() {
                 href="/blog"
                 className="text-tan/70 hover:text-tan transition-colors"
               >
-                Blog
+                The Trail Report
               </Link>
               <Link
                 href="/our-story"
@@ -121,16 +133,21 @@ export function Footer() {
                 <Button
                   type="submit"
                   size="sm"
+                  disabled={isLoading}
                   className="bg-tan text-forest hover:bg-tan/90 font-serif tracking-wide"
                 >
-                  <Send className="w-4 h-4 mr-2" />
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4 mr-2" />
+                  )}
                   Subscribe
                 </Button>
               </form>
             ) : (
               <div className="bg-tan/10 border border-tan/20 rounded-lg p-4 text-center animate-fade-in">
                 <Beer className="w-6 h-6 text-tan mx-auto mb-2" />
-                <p className="text-tan font-serif text-sm">Welcome to the trail!</p>
+                <p className="text-tan font-serif text-sm">{message || "Welcome to the trail!"}</p>
               </div>
             )}
 
