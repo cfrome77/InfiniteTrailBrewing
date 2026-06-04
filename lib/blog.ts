@@ -1,6 +1,8 @@
 import { client } from "./sanity";
 import { serverClient } from "./sanity.server";
 
+const WEBSITE_VISIBILITY_FILTER = `(visibility == "website" || visibility == "both" || !defined(visibility))`;
+
 // ==============================
 // Build-time: get all posts
 // ==============================
@@ -16,7 +18,7 @@ export async function getAllPosts() {
       });
     }
     const posts = await activeClient.fetch(`
-      *[_type == "post" && is_published == true] | order(date desc) {
+      *[_type == "post" && is_published == true && ${WEBSITE_VISIBILITY_FILTER}] | order(date desc) {
         _id,
         "id": _id,
         title,
@@ -28,7 +30,8 @@ export async function getAllPosts() {
         category,
         featured,
         is_published,
-        image
+        image,
+        visibility
       }
     `);
 
@@ -49,7 +52,7 @@ export async function getPostBySlug(slug: string) {
   try {
     const activeClient = process.env.SANITY_API_TOKEN ? serverClient : client;
     const post = await activeClient.fetch(
-      `*[_type == "post" && slug.current == $slug && is_published == true][0] {
+      `*[_type == "post" && slug.current == $slug && is_published == true && ${WEBSITE_VISIBILITY_FILTER}][0] {
         _id,
         "id": _id,
         title,
@@ -61,7 +64,8 @@ export async function getPostBySlug(slug: string) {
         category,
         featured,
         is_published,
-        image
+        image,
+        visibility
       }`,
       { slug }
     );
@@ -79,7 +83,7 @@ export async function getPostBySlug(slug: string) {
 export async function getAllSlugs() {
   try {
     const activeClient = process.env.SANITY_API_TOKEN ? serverClient : client;
-    const slugs = await activeClient.fetch(`*[_type == "post" && is_published == true].slug.current`);
+    const slugs = await activeClient.fetch(`*[_type == "post" && is_published == true && ${WEBSITE_VISIBILITY_FILTER}].slug.current`);
     return slugs || [];
   } catch (e) {
     console.error("Error fetching slugs from Sanity:", e);
@@ -106,7 +110,8 @@ export async function getAllPostsWithAuth() {
         category,
         featured,
         is_published,
-        image
+        image,
+        visibility
       }
     `);
 
@@ -133,7 +138,8 @@ export async function getPostBySlugWithAuth(slug: string) {
         category,
         featured,
         is_published,
-        image
+        image,
+        visibility
       }`,
       { slug }
     );

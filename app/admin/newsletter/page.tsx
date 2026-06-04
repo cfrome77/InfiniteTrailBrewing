@@ -2,17 +2,8 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { getAllPosts } from "@/lib/blog";
 import { NewsletterManager } from "../newsletter-manager";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
 export default async function AdminNewsletterPage() {
-  const cookieStore = await cookies();
-  const auth = cookieStore.get("admin_auth");
-
-  if (auth?.value !== process.env.ADMIN_PASSWORD) {
-    redirect("/login");
-  }
-
   const allPosts = await getAllPosts();
 
   return (

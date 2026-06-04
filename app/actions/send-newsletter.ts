@@ -2,6 +2,7 @@
 
 import { serverClient as client } from "@/lib/sanity.server";
 import { Resend } from "resend";
+import { transformPortableTextToEmailHtml } from "@/lib/newsletter-utils";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -10,6 +11,8 @@ export async function sendNewsletter(postId: string) {
     // 1. Fetch the post
     const post = await client.fetch(`*[_id == $postId][0]`, { postId });
     if (!post) return { success: false, message: "Post not found" };
+
+    const contentHtml = post.content ? transformPortableTextToEmailHtml(post.content) : `<p>${post.excerpt}</p>`;
 
     // 2. Fetch all active subscribers
     const subscribers = await client.fetch(`*[_type == "subscriber" && status == "subscribed"]`);
@@ -34,10 +37,14 @@ export async function sendNewsletter(postId: string) {
           </div>
           <div style="padding: 40px 30px; background-color: #F5F0E6;">
             <h2 style="font-size: 28px; margin-bottom: 20px;">${post.title}</h2>
-            <p style="font-size: 16px; line-height: 1.6; color: rgba(26, 65, 50, 0.8);">${post.excerpt}</p>
-            <div style="margin-top: 40px; text-align: center;">
-              <a href="https://infinitetrailbrewing.com/blog/${post.slug.current}" style="background-color: #1A4132; color: #E8D7B5; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Read the Full Story</a>
+            <div style="font-family: sans-serif; font-serif: inherit;">
+              ${contentHtml}
             </div>
+            ${post.visibility !== 'newsletter' ? `
+            <div style="margin-top: 40px; text-align: center;">
+              <a href="https://infinitetrailbrewing.com/blog/${post.slug.current}" style="background-color: #1A4132; color: #E8D7B5; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Read on Website</a>
+            </div>
+            ` : ''}
           </div>
           <div style="background-color: #E8D7B5; padding: 20px; text-align: center; font-size: 12px; color: #1A4132;">
             <p>© ${new Date().getFullYear()} Infinite Trail Brewing. All rights reserved.</p>
@@ -65,5 +72,27 @@ export async function getSubscriberCount() {
         return count;
     } catch (e) {
         return 0;
+    }
+}
+
+export async function getResendStats() {
+    try {
+        // Resend doesn't have a direct "stats" endpoint for global metrics easily via SDK like this
+        // But we can fetch the audiences or domains to show it's connected.
+        // Actually, let's fetch the list of sent emails to show recent history.
+        const { data, error } = await resend.emails.list();
+        if (error) throw error;
+
+        return {
+            recentEmails: data.slice(0, 5).map(e => ({
+                id: e.id,
+                subject: e.subject,
+                createdAt: e.created_at,
+                to: e.to
+            }))
+        };
+    } catch (e) {
+        console.error("Error fetching Resend stats:", e);
+        return null;
     }
 }

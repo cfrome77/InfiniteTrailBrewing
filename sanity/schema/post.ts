@@ -34,7 +34,33 @@ export default {
       name: 'content',
       title: 'Content',
       type: 'array',
-      of: [{ type: 'block' }],
+      of: [
+        { type: 'block' },
+        {
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            {
+              name: 'alt',
+              type: 'string',
+              title: 'Alternative Text',
+            }
+          ]
+        }
+      ],
+    },
+    {
+      name: 'visibility',
+      title: 'Visibility',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Website Only', value: 'website' },
+          { title: 'Newsletter Only', value: 'newsletter' },
+          { title: 'Website and Newsletter', value: 'both' },
+        ],
+      },
+      initialValue: 'both',
     },
     {
       name: 'category',
