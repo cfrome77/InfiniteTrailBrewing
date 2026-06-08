@@ -1,5 +1,6 @@
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
+import { serverClient as client } from "@/lib/sanity.server"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -9,22 +10,39 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user
-      const isOnDashboard = nextUrl.pathname.startsWith("/admin")
+    async signIn({ user, account, profile }) {
+      if (!user.email) return false;
 
-      if (isOnDashboard) {
-        if (isLoggedIn) {
-          // Check if the user is in the allowed admin list
-          const allowedEmails = (process.env.ALLOWED_ADMIN_EMAILS || "").split(",").map(e => e.trim());
-          return allowedEmails.includes(auth.user?.email || "");
-        }
-        return false // Redirect to login
+      const email = user.email.toLowerCase();
+
+      try {
+        // Query Sanity to check if user is an authorized admin
+        const appUser = await client.fetch(
+          `*[_type == "appUser" && email == $email && isAdmin == true][0]`,
+          { email }
+        );
+
+        return !!appUser;
+      } catch (error) {
+        console.error("Auth sign-in check error:", error);
+        return false;
       }
-      return true
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = "admin";
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).role = token.role;
+      }
+      return session;
     },
   },
   pages: {
     signIn: "/login",
+    error: "/login", // Redirect back to login on failure
   },
 })
