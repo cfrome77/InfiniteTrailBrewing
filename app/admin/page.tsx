@@ -43,20 +43,8 @@ export default async function AdminOverview() {
             <p className="text-forest/60 text-sm mb-4">Send broadcasts to your subscribers.</p>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-forest/5 rounded-full text-xs font-medium text-forest/70">
                 <Users className="w-3 h-3" />
-                {subscriberCount} Active
+                {subscriberCount} Active Subscribers
             </div>
-          </Link>
-
-          {/* Subscriber Management Link */}
-          <Link
-            href="/admin/subscribers"
-            className="group bg-white p-8 rounded-2xl border border-tan/30 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1"
-          >
-            <div className="w-12 h-12 bg-forest/10 rounded-xl flex items-center justify-center mb-6 text-forest group-hover:bg-forest group-hover:text-tan transition-colors">
-              <Users className="w-6 h-6" />
-            </div>
-            <h2 className="text-2xl font-serif text-forest mb-2">Subscribers</h2>
-            <p className="text-forest/60 text-sm">View and manage your mailing list members.</p>
           </Link>
 
           {/* Beer Stats placeholder */}
