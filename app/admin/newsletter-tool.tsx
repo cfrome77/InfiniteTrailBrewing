@@ -10,9 +10,6 @@ export function NewsletterTool() {
 
   useEffect(() => {
     async function fetchPosts() {
-      // In Studio context, we use the client directly since it's browser-side
-      // but getAllPostsWithAuth handles the server-side fetch logic.
-      // For simplicity in the tool, we can just use the server action or a direct fetch.
       const allPosts = await getAllPostsWithAuth();
       setPosts(allPosts);
       setLoading(false);
@@ -23,7 +20,7 @@ export function NewsletterTool() {
   if (loading) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <p>Loading Newsletter Center...</p>
+        <p style={{ color: '#1A4132', opacity: 0.5, fontFamily: 'serif' }}>Loading Newsletter Center...</p>
       </div>
     );
   }

@@ -68,6 +68,15 @@ export default {
       type: 'string',
     },
     {
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        layout: 'tags',
+      },
+    },
+    {
       name: 'date',
       title: 'Published Date',
       type: 'date',
@@ -86,11 +95,37 @@ export default {
     },
     {
       name: 'image',
-      title: 'Post Image',
+      title: 'Featured Image',
       type: 'image',
       options: {
         hotspot: true,
       },
+    },
+    {
+      name: 'relatedBeers',
+      title: 'Related Beers',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'beer' }] }],
+    },
+    {
+      name: 'seo',
+      title: 'SEO & Social',
+      type: 'object',
+      fields: [
+        {
+          name: 'title',
+          title: 'Meta Title',
+          type: 'string',
+          description: 'Ideally 50-60 characters',
+        },
+        {
+          name: 'description',
+          title: 'Meta Description',
+          type: 'text',
+          rows: 3,
+          description: 'Ideally 150-160 characters',
+        },
+      ],
     },
   ],
 };

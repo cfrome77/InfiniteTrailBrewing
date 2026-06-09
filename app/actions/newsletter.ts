@@ -1,6 +1,7 @@
 "use server";
 
 import { serverClient as client } from "@/lib/sanity.server";
+import { v4 as uuidv4 } from "uuid";
 
 export async function subscribeToNewsletter(email: string) {
   if (!email || !email.includes("@")) {
@@ -30,6 +31,7 @@ export async function subscribeToNewsletter(email: string) {
       email,
       subscribedAt: new Date().toISOString(),
       status: "subscribed",
+      token: uuidv4(),
     });
 
     return { success: true, message: "Subscribed successfully!" };

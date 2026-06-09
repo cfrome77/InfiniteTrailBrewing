@@ -18,48 +18,58 @@ export async function sendNewsletter(postId: string) {
     const subscribers = await client.fetch(`*[_type == "subscriber" && status == "subscribed"]`);
     if (subscribers.length === 0) return { success: false, message: "No active subscribers found" };
 
-    const emails = subscribers.map((s: any) => s.email);
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://infinitetrailbrewing.com";
+    const fromEmail = process.env.CONTACT_RECEIVING_EMAIL || "newsletter@infinitetrailbrewing.com";
 
-    // 3. Send email via Resend
-    // Note: Resend allows sending to multiple recipients at once in some tiers,
-    // but for larger lists, you'd want to batch them or use an audience.
-    // For now, we'll send it as a broadcast to the list.
+    // 3. Send emails
+    // For individual tokens, we have to send emails separately or use Resend's batching
+    // To implement List-Unsubscribe, we send individually.
 
-    const { data, error } = await resend.emails.send({
-      from: `Infinite Trail Brewing <${process.env.CONTACT_RECEIVING_EMAIL || "newsletter@infinitetrailbrewing.com"}>`,
-      to: [process.env.CONTACT_RECEIVING_EMAIL || "newsletter@infinitetrailbrewing.com"],
-      bcc: emails,
-      subject: `The Trail Report: ${post.title}`,
-      html: `
-        <div style="font-family: serif; color: #1A4132; max-width: 600px; margin: 0 auto; border: 1px solid #E8D7B5; border-radius: 8px; overflow: hidden;">
-          <div style="background-color: #1A4132; padding: 40px 20px; text-align: center;">
-            <h1 style="color: #E8D7B5; margin: 0; font-size: 24px; letter-spacing: 2px; text-transform: uppercase;">The Trail Report</h1>
-          </div>
-          <div style="padding: 40px 30px; background-color: #F5F0E6;">
-            <h2 style="font-size: 28px; margin-bottom: 20px;">${post.title}</h2>
-            <div style="font-family: sans-serif; font-serif: inherit;">
-              ${contentHtml}
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const sub of subscribers) {
+      const unsubscribeUrl = `${siteUrl}/api/unsubscribe?token=${sub.token}`;
+
+      const { data, error } = await resend.emails.send({
+        from: `Infinite Trail Brewing <${fromEmail}>`,
+        to: sub.email,
+        subject: `The Trail Report: ${post.title}`,
+        headers: {
+          "List-Unsubscribe": `<${unsubscribeUrl}>`,
+        },
+        html: `
+          <div style="font-family: serif; color: #1A4132; max-width: 600px; margin: 0 auto; border: 1px solid #E8D7B5; border-radius: 8px; overflow: hidden;">
+            <div style="background-color: #1A4132; padding: 40px 20px; text-align: center;">
+              <h1 style="color: #E8D7B5; margin: 0; font-size: 24px; letter-spacing: 2px; text-transform: uppercase;">The Trail Report</h1>
             </div>
-            ${post.visibility !== 'newsletter' ? `
-            <div style="margin-top: 40px; text-align: center;">
-              <a href="https://infinitetrailbrewing.com/blog/${post.slug.current}" style="background-color: #1A4132; color: #E8D7B5; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Read on Website</a>
+            <div style="padding: 40px 30px; background-color: #F5F0E6;">
+              <h2 style="font-size: 28px; margin-bottom: 20px;">${post.title}</h2>
+              <div style="font-family: sans-serif;">
+                ${contentHtml}
+              </div>
+              ${post.visibility !== 'newsletter' ? `
+              <div style="margin-top: 40px; text-align: center;">
+                <a href="${siteUrl}/blog/${post.slug.current}" style="background-color: #1A4132; color: #E8D7B5; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Read on Website</a>
+              </div>
+              ` : ''}
             </div>
-            ` : ''}
+            <div style="background-color: #E8D7B5; padding: 20px; text-align: center; font-size: 12px; color: #1A4132;">
+              <p>© ${new Date().getFullYear()} Infinite Trail Brewing. All rights reserved.</p>
+              <p>You're receiving this because you're following the trail. <a href="${unsubscribeUrl}" style="color: #1A4132;">Unsubscribe</a></p>
+            </div>
           </div>
-          <div style="background-color: #E8D7B5; padding: 20px; text-align: center; font-size: 12px; color: #1A4132;">
-            <p>© ${new Date().getFullYear()} Infinite Trail Brewing. All rights reserved.</p>
-            <p>You're receiving this because you're following the trail. <a href="https://infinitetrailbrewing.com/unsubscribe" style="color: #1A4132;">Unsubscribe</a></p>
-          </div>
-        </div>
-      `,
-    });
+        `,
+      });
 
-    if (error) {
-      console.error("Resend error:", error);
-      return { success: false, message: error.message };
+      if (error) failCount++;
+      else successCount++;
     }
 
-    return { success: true, message: `Newsletter sent successfully to ${emails.length} subscribers!` };
+    return {
+      success: true,
+      message: `Newsletter sent! ${successCount} successful, ${failCount} failed.`
+    };
   } catch (error) {
     console.error("Newsletter send error:", error);
     return { success: false, message: "An unexpected error occurred." };
@@ -77,9 +87,6 @@ export async function getSubscriberCount() {
 
 export async function getResendStats() {
     try {
-        // Resend doesn't have a direct "stats" endpoint for global metrics easily via SDK like this
-        // But we can fetch the audiences or domains to show it's connected.
-        // Actually, let's fetch the list of sent emails to show recent history.
         const { data, error } = await resend.emails.list();
         if (error) throw error;
 

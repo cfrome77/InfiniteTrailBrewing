@@ -27,5 +27,11 @@ export default {
       },
       initialValue: 'subscribed',
     },
+    {
+      name: 'token',
+      title: 'Unsubscribe Token',
+      type: 'string',
+      readOnly: true,
+    },
   ],
 };

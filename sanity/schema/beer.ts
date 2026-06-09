@@ -11,7 +11,16 @@ export default {
       type: "string",
       validation: (Rule: any) => Rule.required(),
     },
-
+    {
+      name: "slug",
+      title: "Slug",
+      type: "slug",
+      options: {
+        source: "beer_name",
+        maxLength: 96,
+      },
+      validation: (Rule: any) => Rule.required(),
+    },
     {
       name: "style",
       title: "Style",
@@ -22,10 +31,15 @@ export default {
       },
       validation: (Rule: any) => Rule.required(),
     },
-
+    {
+      name: "brewery",
+      title: "Brewery",
+      type: "string",
+      initialValue: "Infinite Trail Brewing",
+    },
     {
       name: "status",
-      title: "Status",
+      title: "Availability Status",
       type: "string",
       options: {
         list: [
@@ -37,36 +51,39 @@ export default {
       },
       validation: (Rule: any) => Rule.required(),
     },
-
-    {
-      name: "notes",
-      title: "Notes",
-      type: "text",
-    },
-
     {
       name: "abv",
-      title: "ABV",
+      title: "ABV (%)",
       type: "number",
-      validation: (Rule: any) =>
-        Rule.min(0).max(20).custom((value: number, context: any) => {
-          const status = context.document?.status;
-
-          if (status === "ready" && value == null) {
-            return "ABV is required for beers that are on tap";
-          }
-
-          return true;
-        }),
+      validation: (Rule: any) => Rule.min(0).max(25),
     },
-
+    {
+      name: "ibu",
+      title: "IBU",
+      type: "number",
+      validation: (Rule: any) => Rule.min(0).max(200),
+    },
+    {
+      name: "tastingNotes",
+      title: "Structured Tasting Notes",
+      type: "object",
+      fields: [
+        { name: "aroma", title: "Aroma", type: "text", rows: 3 },
+        { name: "flavor", title: "Flavor", type: "text", rows: 3 },
+        { name: "mouthfeel", title: "Mouthfeel", type: "text", rows: 3 },
+      ],
+    },
+    {
+      name: "notes",
+      title: "General Description",
+      type: "text",
+    },
     {
       name: "is_flagship",
       title: "Is Flagship",
       type: "boolean",
       initialValue: false,
     },
-
     {
       name: "image",
       title: "Beer Image",
@@ -74,7 +91,12 @@ export default {
       options: {
         hotspot: true,
       },
-      // intentionally NOT required
+    },
+    {
+      name: "relatedPosts",
+      title: "Related Blog Posts",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "post" }] }],
     },
   ],
 };
