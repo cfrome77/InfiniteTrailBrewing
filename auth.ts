@@ -15,8 +15,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       const email = user.email.toLowerCase();
 
+      // 1. Check if the email is a "Master Admin" (via environment variable)
+      const masterEmails = (process.env.MASTER_ADMIN_EMAILS || "").split(",").map(e => e.trim().toLowerCase());
+      if (masterEmails.includes(email)) {
+        return true;
+      }
+
       try {
-        // Query Sanity to check if user is an authorized admin
+        // 2. Query Sanity to check if user is an authorized admin
         const appUser = await client.fetch(
           `*[_type == "appUser" && email == $email && isAdmin == true][0]`,
           { email }

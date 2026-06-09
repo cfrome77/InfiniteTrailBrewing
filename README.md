@@ -51,16 +51,19 @@ A modern web application built with **Next.js**, **Sanity.io**, **Auth.js**, and
 
 This project uses **Google Sign-in** for staff access, managed via an **Admin Whitelist** in Sanity.
 
-### 1. Managing Access
-To grant a team member access to the admin area:
-1.  Open the **Sanity Studio** at `/admin/studio`.
-2.  Log in using your **Sanity.io account** (The Studio handles its own auth and bypasses Google Staff Auth).
-3.  Create a new **App User (Staff)** document.
-4.  Enter their **Name** and the **Email** they use for Google login.
-5.  Toggle the **Is Admin** switch to **ON**.
-6.  Save the document.
+### 1. Initial Setup (First Admin)
+To set up your first admin user without getting locked out:
+1.  Add the `MASTER_ADMIN_EMAILS` environment variable to your deployment (e.g., Vercel) or `.env.local`.
+2.  The value should be your Google email address (e.g., `yourname@gmail.com`). For multiple admins, use a comma-separated list.
+3.  Visit `/admin/dashboard` and log in with that Google account. You now have full access.
 
-You can now log in to the main dashboard at `/admin/dashboard` using that Google account.
+### 2. Managing Additional Staff
+Once you have logged in as the Master Admin:
+1.  Navigate to the **Content Studio** from the dashboard.
+2.  Create a new **App User (Staff)** document.
+3.  Enter their **Name** and **Google Email**.
+4.  Toggle the **Is Admin** switch to **ON**.
+5.  Save the document.
 
 ### 2. Accessing the Dashboard
 - Visit `/admin/dashboard`.
