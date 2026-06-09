@@ -1,11 +1,17 @@
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import Link from "next/link";
-import { Mail, Beer, Users, LayoutDashboard, Settings } from "lucide-react";
+import { Mail, Beer, Users, LayoutDashboard, Settings, TrendingUp } from "lucide-react";
 import { getSubscriberCount } from "@/app/actions/send-newsletter";
+import { getAllBeers } from "@/lib/beers";
 
 export default async function AdminOverview() {
-  const subscriberCount = await getSubscriberCount();
+  const [subscriberCount, beers] = await Promise.all([
+    getSubscriberCount(),
+    getAllBeers()
+  ]);
+
+  const beersOnTap = beers.filter(b => b.status === "ready").length;
 
   return (
     <div className="min-h-screen bg-cream">
@@ -47,11 +53,21 @@ export default async function AdminOverview() {
             </div>
           </Link>
 
-          {/* Beer Stats placeholder */}
-          <div className="bg-tan/5 p-8 rounded-2xl border border-tan/10 border-dashed flex flex-col items-center justify-center text-center opacity-60">
-            <Beer className="w-12 h-12 text-forest/20 mb-4" />
-            <p className="text-forest/40 font-serif text-sm">Inventory Tracking Soon</p>
-          </div>
+          {/* Inventory Link */}
+          <Link
+            href="/admin/inventory"
+            className="group bg-white p-8 rounded-2xl border border-tan/30 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1"
+          >
+            <div className="w-12 h-12 bg-forest/10 rounded-xl flex items-center justify-center mb-6 text-forest group-hover:bg-forest group-hover:text-tan transition-colors">
+              <TrendingUp className="w-6 h-6" />
+            </div>
+            <h2 className="text-2xl font-serif text-forest mb-2">Inventory Metrics</h2>
+            <p className="text-forest/60 text-sm mb-4">View brewing stats and taproom availability.</p>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-forest/5 rounded-full text-xs font-medium text-forest/70">
+                <Beer className="w-3 h-3" />
+                {beersOnTap} Beers on Tap
+            </div>
+          </Link>
         </div>
       </main>
       <Footer />
