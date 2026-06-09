@@ -1,6 +1,9 @@
 # Google Authentication Setup Guide
 
-This guide explains how to generate the credentials required for the **Sign in with Google** feature on your brewery website.
+This guide explains how to generate the credentials required for the **Sign in with Google** feature.
+
+### 💰 Is this free?
+**Yes.** Standard Google Sign-in (OAuth 2.0) is free for your use case. Google Cloud may prompt you to "Enable Billing" or "Start a Free Trial" to access their entire platform, but you can usually skip these steps. You will **not** be charged for using social login for your staff.
 
 ---
 
