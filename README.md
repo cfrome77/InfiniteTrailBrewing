@@ -39,6 +39,7 @@ A modern web application built with **Next.js**, **Sanity.io**, **Auth.js**, and
     CONTACT_RECEIVING_EMAIL="your@email.com"
 
     # Authentication
+    # See GOOGLE_AUTH_SETUP.md for instructions on how to get these:
     AUTH_SECRET="your_auth_secret"
     GOOGLE_CLIENT_ID="your_google_id"
     GOOGLE_CLIENT_SECRET="your_google_secret"
