@@ -1,16 +1,14 @@
 # Infinite Trail Brewing
 
-A modern web application built with **Next.js**, **Sanity.io**, **Auth.js**, and **Tailwind CSS**.
+A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind CSS**.
 
 ## Features
 
 - **Next.js (App Router)**: Fast, server-side rendered, and optimized.
 - **The Trail Report**: A modernized blog system with real-time search and category filtering.
-- **Newsletter System**: Integrated with **Sanity** and **Resend**. Create content once and broadcast it to subscribers with one click.
-- **Google Authentication**: Secure staff login via Auth.js with Sanity-based admin whitelisting.
-- **Sanity.io Content Management**: Headless CMS for managing beers, blog posts, and site content.
+- **Newsletter System**: Integrated with **Sanity** and **Resend**. Create content once and broadcast it to subscribers directly from the CMS.
+- **Unified Admin Experience**: A single administrative hub at `/admin` powered by Sanity Studio.
 - **Transactional Email**: Integrated with **Resend** for contact form notifications and newsletters.
-- **Staff Dashboard**: Unified administrative hub at `/admin/dashboard` for managing the brewery.
 - **Testing**: Comprehensive suite with **Jest** and **Playwright**.
 
 ---
@@ -37,39 +35,26 @@ A modern web application built with **Next.js**, **Sanity.io**, **Auth.js**, and
     # Resend
     RESEND_API_KEY="re_..."
     CONTACT_RECEIVING_EMAIL="your@email.com"
-
-    # Authentication
-    # See GOOGLE_AUTH_SETUP.md for instructions on how to get these:
-    AUTH_SECRET="your_auth_secret"
-    GOOGLE_CLIENT_ID="your_google_id"
-    GOOGLE_CLIENT_SECRET="your_google_secret"
     ```
 
 ---
 
 ## 🛠 Staff Access & Authentication
 
-This project uses **Google Sign-in** for staff access, managed via an **Admin Whitelist** in Sanity.
+This project uses **Sanity.io** as the single source of truth for administrative access. No internal user lists or custom authentication logic are required in the application.
 
-### 1. Initial Setup (First Admin)
-To set up your first admin user without getting locked out:
-1.  Add the `MASTER_ADMIN_EMAILS` environment variable to your deployment (e.g., Vercel) or `.env.local`.
-2.  The value should be your Google email address (e.g., `yourname@gmail.com`). For multiple admins, use a comma-separated list.
-3.  Visit `/admin/dashboard` and log in with that Google account. You now have full access.
+### 1. Granting Access
+To give a team member access to the admin area:
+1.  Go to the [Sanity Manage](https://www.sanity.io/manage) dashboard.
+2.  Select your project.
+3.  Go to **Team** (or **Members**) and click **Invite**.
+4.  Invite them using their email and assign an appropriate role (e.g., **Administrator**, **Editor**).
+5.  Once they accept, they can log in at `/admin` using their Sanity account (which supports Google Sign-in).
 
-### 2. Managing Additional Staff
-Once you have logged in as the Master Admin:
-1.  Navigate to the **Content Studio** from the dashboard.
-2.  Create a new **App User (Staff)** document.
-3.  Enter their **Name** and **Google Email**.
-4.  Toggle the **Is Admin** switch to **ON**.
-5.  Save the document.
-
-### 2. Accessing the Dashboard
-- Visit `/admin/dashboard`.
-- You will be redirected to the `/login` page to "Continue with Google".
-- Only whitelisted users with `isAdmin` enabled will be granted entry.
-- From the dashboard, you can access the **Content Studio**, **Newsletter Center**, and other staff tools.
+### 2. Accessing the Admin Area
+- Visit `/admin`.
+- You will be prompted to log in by Sanity.
+- Once authenticated, you will see a unified Studio with tools for both **Content** (Desk) and **Newsletters**.
 
 ---
 
@@ -79,7 +64,7 @@ The brewery uses a unified content system:
 
 - **Visibility**: When creating a post, you can choose if it is **Website Only**, **Newsletter Only**, or **Both**.
 - **Media**: Posts support inline images and rich text via Sanity's Portable Text.
-- **Broadcast**: In the **Newsletter Center**, you can select any published post to send as a newsletter.
+- **Broadcast**: Use the **Newsletter** tool inside the Studio to select any published post and send it as a newsletter.
 - **Privacy**: Newsletters are sent via **Resend** using BCC to protect subscriber privacy.
 - **Compliance**: An automated `/unsubscribe` flow is included for all subscribers.
 

@@ -2,6 +2,8 @@ import { defineConfig } from 'sanity';
 import { deskTool } from 'sanity/desk';
 import { visionTool } from '@sanity/vision';
 import { schemaTypes } from './sanity/schema';
+import { NewsletterTool } from './app/admin/newsletter-tool';
+import { Mail, LayoutDashboard } from 'lucide-react';
 
 export default defineConfig({
   name: 'default',
@@ -12,9 +14,24 @@ export default defineConfig({
 
   basePath: '/admin',
 
-  plugins: [deskTool(), visionTool()],
+  plugins: [
+    deskTool(),
+    visionTool(),
+  ],
 
   schema: {
     types: schemaTypes,
+  },
+
+  tools: (prev) => {
+    return [
+      {
+        name: 'newsletter',
+        title: 'Newsletters',
+        icon: Mail,
+        component: NewsletterTool,
+      },
+      ...prev,
+    ]
   },
 });
