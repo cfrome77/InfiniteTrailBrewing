@@ -1,10 +1,10 @@
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { getAllPosts } from "@/lib/blog";
+import { getAllPostsWithAuth } from "@/lib/blog";
 import { NewsletterManager } from "../newsletter-manager";
 
 export default async function AdminNewsletterPage() {
-  const allPosts = await getAllPosts();
+  const allPosts = await getAllPostsWithAuth();
 
   return (
     <div className="min-h-screen bg-cream">
