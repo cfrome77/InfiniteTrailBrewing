@@ -7,7 +7,7 @@ import { getAllPosts } from "@/lib/blog";
 import type { BlogPost } from "@/types";
 import { urlFor } from "@/lib/sanity";
 import Image from "next/image";
-import { getCategoryColor } from "@/lib/blog-utils";
+import { getCategoryColor, getTagColor } from "@/lib/blog-utils";
 import { Search, Filter } from "lucide-react";
 
 const categories = [
@@ -209,9 +209,13 @@ export default async function BlogPage({
                   {post.tags && post.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-auto">
                       {post.tags.slice(0, 3).map(tag => (
-                        <span key={tag} className="text-[10px] bg-tan/30 text-forest/60 px-2 py-0.5 rounded-full uppercase tracking-tighter font-semibold">
+                        <Badge
+                          key={tag}
+                          variant="outline"
+                          className={`text-[10px] font-semibold uppercase tracking-tighter px-2 py-0 border-none ${getTagColor(tag)}`}
+                        >
                           #{tag}
-                        </span>
+                        </Badge>
                       ))}
                     </div>
                   )}

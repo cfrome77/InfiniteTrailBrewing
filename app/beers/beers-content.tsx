@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Beer, BeerStatus } from "@/types";
 import { getBeerImage } from "@/lib/images";
@@ -61,9 +62,9 @@ function BeerGrid({ beers }: { beers: Beer[] }) {
         const imageUrl = getBeerImage(beer, "card");
 
         return (
+          <Link key={beer.id} href={`/beers/${beer.slug}`} className="block">
           <Card
-            key={beer.id}
-            className="group bg-white border-none shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden"
+            className="group bg-white border-none shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-full"
           >
             <CardContent className="p-0">
               {/* IMAGE AREA */}
@@ -115,6 +116,7 @@ function BeerGrid({ beers }: { beers: Beer[] }) {
               </div>
             </CardContent>
           </Card>
+          </Link>
         );
       })}
     </div>
@@ -202,7 +204,8 @@ export function BeersContent({ initialBeers }: { initialBeers: Beer[] }) {
                 const imageUrl = getBeerImage(beer, "thumb");
 
                 return (
-                  <Card key={beer.id} className="bg-white shadow-md">
+                  <Link key={beer.id} href={`/beers/${beer.slug}`} className="block">
+                  <Card className="bg-white shadow-md h-full">
                     <CardContent className="p-0">
                       <div className="h-32 relative overflow-hidden bg-gradient-to-b from-amber-200 to-amber-300">
                         {imageUrl && (
@@ -233,6 +236,7 @@ export function BeersContent({ initialBeers }: { initialBeers: Beer[] }) {
                       </div>
                     </CardContent>
                   </Card>
+                  </Link>
                 );
               })}
             </div>

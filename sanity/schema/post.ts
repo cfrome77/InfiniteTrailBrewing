@@ -82,6 +82,12 @@ export default {
       type: 'date',
     },
     {
+      name: 'read_time',
+      title: 'Read Time',
+      type: 'string',
+      description: 'e.g. 5 min read',
+    },
+    {
       name: 'featured',
       title: 'Featured',
       type: 'boolean',

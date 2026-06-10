@@ -10,7 +10,7 @@ export async function getAllBeers(): Promise<Beer[]> {
         _id,
         "id": _id,
         beer_name,
-        slug,
+        "slug": slug.current,
         style,
         brewery,
         status,
