@@ -88,10 +88,10 @@ export async function getSubscriberCount() {
 export async function getResendStats() {
     try {
         const { data, error } = await resend.emails.list();
-        if (error) throw error;
+        if (error || !data) throw error;
 
         return {
-            recentEmails: data.slice(0, 5).map(e => ({
+            recentEmails: (data.data || []).slice(0, 5).map(e => ({
                 id: e.id,
                 subject: e.subject,
                 createdAt: e.created_at,
