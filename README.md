@@ -5,10 +5,10 @@ A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind C
 ## Features
 
 - **Next.js (App Router)**: Fast, server-side rendered, and optimized.
-- **The Trail Report**: A modernized blog system with real-time search and category filtering.
-- **Newsletter System**: Integrated with **Sanity** and **Resend**. Create content once and broadcast it to subscribers directly from the CMS.
-- **Unified Admin Experience**: A single administrative hub at `/admin` powered by Sanity Studio.
-- **Transactional Email**: Integrated with **Resend** for contact form notifications and newsletters.
+- **Sanity.io Content Management**: Headless CMS for managing beers, blog posts, and site stats.
+- **Sanity Auth**: Secure, project-based authentication handled natively by Sanity.
+- **Transactional Email**: Integrated with **Resend** for reliable contact form notifications.
+- **Embedded Sanity Studio**: CMS interface accessible directly at `/admin`.
 - **Testing**: Comprehensive suite with **Jest** and **Playwright**.
 
 ---
@@ -25,48 +25,66 @@ A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind C
     ```
 
 2.  **Configure Environment Variables:**
-    Create a `.env.local` file in the root directory. See `.env.example` for the full list of required variables, including:
+    Create a `.env.local` file in the root directory and add the following:
     ```env
     # Sanity.io
     NEXT_PUBLIC_SANITY_PROJECT_ID="your_project_id"
     NEXT_PUBLIC_SANITY_DATASET="production"
-    SANITY_API_TOKEN="your_token"
-
-    # Resend
-    RESEND_API_KEY="re_..."
-    CONTACT_RECEIVING_EMAIL="your@email.com"
+    SANITY_API_TOKEN="your_token" # Used for server-side fetching if needed
     ```
 
 ---
 
-## 🛠 Staff Access & Authentication
+## 🛠 Sanity.io Setup & Auth
 
-This project uses **Sanity.io** as the single source of truth for administrative access. No internal user lists or custom authentication logic are required in the application.
+This project uses **Sanity Auth** for content management. No custom password logic is required.
 
-### 1. Granting Access
-To give a team member access to the admin area:
+### 1. Invite Users
+To give someone access to manage the site:
 1.  Go to the [Sanity Manage](https://www.sanity.io/manage) dashboard.
 2.  Select your project.
 3.  Go to **Team** (or **Members**) and click **Invite**.
-4.  Invite them using their email and assign an appropriate role (e.g., **Administrator**, **Editor**).
-5.  Once they accept, they can log in at `/admin` using their Sanity account (which supports Google Sign-in).
+4.  Assign a role (e.g., **Administrator**, **Editor**, or **Viewer**).
 
 ### 2. Accessing the Admin Area
-- Visit `/admin`.
-- You will be prompted to log in by Sanity.
-- Once authenticated, you will see a unified Studio with tools for both **Content** (Desk) and **Newsletters**.
+- Visit `http://localhost:3000/admin`.
+- You will be prompted to log in with your Sanity account.
+- Once authenticated, you can manage Beers, Blog Posts, and other content directly within the embedded Studio.
+
+### 3. Configure CORS Settings
+Ensure your application can communicate with Sanity:
+1.  Go to **Settings > API settings** in the Sanity dashboard.
+2.  Under **CORS origins**, click **Add CORS origin**.
+3.  Add `http://localhost:3000` (and your production URL later).
+4.  Check **Allow credentials**.
 
 ---
 
-## 📧 The Trail Report (Blog) & Newsletter
+## 💻 Local Development vs. Production
 
-The brewery uses a unified content system:
+Sanity.io allows you to separate your data between environments using **Datasets**.
 
-- **Visibility**: When creating a post, you can choose if it is **Website Only**, **Newsletter Only**, or **Both**.
-- **Media**: Posts support inline images and rich text via Sanity's Portable Text.
-- **Broadcast**: Use the **Newsletter** tool inside the Studio to select any published post and send it as a newsletter.
-- **Privacy**: Newsletters are sent via **Resend** using BCC to protect subscriber privacy.
-- **Compliance**: An automated `/unsubscribe` flow is included for all subscribers.
+### 1. Create a Development Dataset
+To avoid "messing up" your live data during testing:
+1.  In the Sanity Dashboard, go to **Datasets**.
+2.  Click **Create dataset**.
+3.  Name it `development` (or similar) and choose **Public** or **Private** as per your needs.
+
+### 2. Switching Datasets Locally
+In your `.env.local` file, change the `NEXT_PUBLIC_SANITY_DATASET` variable:
+```env
+# For local testing:
+NEXT_PUBLIC_SANITY_DATASET="development"
+
+# For live data:
+NEXT_PUBLIC_SANITY_DATASET="production"
+```
+
+### 3. How it Works
+- The **Embedded Studio** at `/admin` is just a user interface.
+- It will load and save data to whichever dataset is specified in your environment variables.
+- If you are running the app locally on `localhost:3000` with `development` dataset configured, any changes you make in the Studio will **only** affect the `development` dataset.
+- The **Sanity.io Web Interface** (sanity.io/manage) allows you to browse all your datasets in one place.
 
 ---
 
@@ -81,3 +99,13 @@ npm run test
 ```bash
 npm run test:e2e
 ```
+
+---
+
+## 📧 Contact Form & Resend
+
+**Resend** is used exclusively for the contact form.
+1. Get an API key from [resend.com](https://resend.com).
+2. Add it to your environment variables:
+   - `RESEND_API_KEY`
+   - `CONTACT_RECEIVING_EMAIL`

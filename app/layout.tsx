@@ -41,8 +41,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${oswald.variable} ${montserrat.variable}`} suppressHydrationWarning>
-      <body className="font-sans antialiased" suppressHydrationWarning>
+    <html lang="en" className={`${oswald.variable} ${montserrat.variable}`}>
+      <body className="font-sans antialiased">
         {children}
         <BackToTop />
 

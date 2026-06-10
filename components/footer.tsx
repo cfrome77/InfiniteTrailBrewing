@@ -1,37 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Instagram, Facebook, Send, Beer, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { subscribeToNewsletter } from "@/app/actions/newsletter";
+import { Instagram, Facebook } from "lucide-react";
 
 export function Footer() {
-  const [email, setEmail] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
-    setIsLoading(true);
-    const result = await subscribeToNewsletter(email);
-    setIsLoading(false);
-
-    if (result.success) {
-      setIsSubmitted(true);
-      setMessage(result.message);
-      setEmail("");
-      setTimeout(() => setIsSubmitted(false), 5000);
-    } else {
-      alert(result.message);
-    }
-  };
-
   return (
     <footer className="bg-forest text-tan relative overflow-hidden">
       {/* Background texture overlay */}
@@ -86,7 +59,7 @@ export function Footer() {
                 href="/blog"
                 className="text-tan/70 hover:text-tan transition-colors"
               >
-                The Trail Report
+                Blog
               </Link>
               <Link
                 href="/our-story"
@@ -111,52 +84,15 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Contact & Newsletter */}
+          {/* Contact Info */}
           <div>
-            <h4 className="font-serif text-xl mb-6">Stay on the Trail</h4>
-            <p className="text-tan/70 text-sm mb-6 leading-relaxed">
-              Get brew day recaps and new beer announcements delivered to your inbox.
-            </p>
-
-            {!isSubmitted ? (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-                <div className="relative">
-                  <Input
-                    type="email"
-                    placeholder="Your email address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="bg-tan/10 border-tan/20 text-tan placeholder:text-tan/40 focus:border-tan focus:ring-tan"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={isLoading}
-                  className="bg-tan text-forest hover:bg-tan/90 font-serif tracking-wide"
-                >
-                  {isLoading ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Send className="w-4 h-4 mr-2" />
-                  )}
-                  Subscribe
-                </Button>
-              </form>
-            ) : (
-              <div className="bg-tan/10 border border-tan/20 rounded-lg p-4 text-center animate-fade-in">
-                <Beer className="w-6 h-6 text-tan mx-auto mb-2" />
-                <p className="text-tan font-serif text-sm">{message || "Welcome to the trail!"}</p>
-              </div>
-            )}
-
-            <div className="mt-10 space-y-3 text-tan/70 text-sm">
+            <h4 className="font-serif text-xl mb-6">Contact</h4>
+            <div className="space-y-3 text-tan/70">
               <p>Frederick, MD</p>
-              <p className="pt-1">
+              <p className="pt-2">
                 <Link
                   href="mailto:hello@infinitetrailbrewing.com"
-                  className="hover:text-tan transition-colors border-b border-tan/20"
+                  className="hover:text-tan transition-colors"
                 >
                   hello@infinitetrailbrewing.com
                 </Link>

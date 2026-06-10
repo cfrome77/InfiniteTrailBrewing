@@ -23,23 +23,24 @@ export function Hero() {
         </div>
 
         {/* Tagline */}
-        <p className="font-serif text-2xl md:text-3xl lg:text-4xl tracking-wide mb-4 text-tan/90 animate-fade-in [animation-delay:200ms]">
+        <p className="font-serif text-2xl md:text-3xl lg:text-4xl tracking-wide mb-4 text-tan/90 animate-fade-in [animation-delay:200ms] opacity-0 [animation-fill-mode:forwards]">
           Brewed for the Next Adventure.
         </p>
 
         {/* Location */}
-        <p className="text-lg md:text-xl text-tan/70 mb-6 animate-fade-in [animation-delay:400ms]">
+        <p className="text-lg md:text-xl text-tan/70 mb-6 animate-fade-in [animation-delay:400ms] opacity-0 [animation-fill-mode:forwards]">
           Hand-forged craft beers in Frederick, MD
         </p>
 
-        {/* Description */}
-        <p className="text-lg md:text-xl text-tan/80 max-w-2xl mb-12 animate-fade-in [animation-delay:500ms] leading-relaxed">
-          Inspired by the rugged beauty of the Blue Ridge and built with the endurance of an adventurer.
-          We craft small-batch beers for those who know the best reward is found at the end of the trail.
-        </p>
+        {/* Marketing Copy to fill space */}
+        <div className="max-w-2xl mx-auto mb-10 animate-fade-in [animation-delay:500ms] opacity-0 [animation-fill-mode:forwards]">
+          <p className="text-lg md:text-xl leading-relaxed text-tan/80 italic font-light">
+            From the rolling hills of the Catoctin Mountains to the historic streets of Downtown Frederick, we brew beers that honor the journey. Small batch, high character, and always ready for the next summit.
+          </p>
+        </div>
 
         {/* PRIMARY NAV CTA BUTTONS */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6 animate-slide-up [animation-delay:600ms]">
+        <div className="flex flex-col sm:flex-row gap-4 mb-6 animate-slide-up [animation-delay:600ms] opacity-0 [animation-fill-mode:forwards]">
           <Button
             asChild
             size="lg"

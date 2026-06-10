@@ -1,15 +1,24 @@
-/**
- * Returns consistent Tailwind CSS classes for blog category badges
- */
 export function getCategoryColor(category?: string) {
-  const cat = category || "General";
   const colors: Record<string, string> = {
-    "Brew Day": "bg-sky/10 text-sky-700 border-sky-200/50",
-    "Tasting Notes": "bg-tan/20 text-forest border-tan/30",
-    "Recipes": "bg-forest/5 text-forest border-forest/10",
-    "Tips & Learning": "bg-amber-50 text-amber-700 border-amber-200/50",
-    "General": "bg-tan/10 text-forest border-tan/30",
+    "Brew Day": "bg-sky/20 text-sky border-sky/30",
+    "Tasting Notes": "bg-amber-100 text-amber-900 border-amber-200",
+    "Recipes": "bg-forest/10 text-forest border-forest/20",
+    "Tips & Learning": "bg-emerald-100 text-emerald-900 border-emerald-200",
+    "News": "bg-tan text-forest border-tan-dark/20",
   };
 
-  return colors[cat] || colors["General"];
+  return category ? (colors[category] || "bg-tan text-forest border-tan/50") : "bg-tan text-forest border-tan/50";
+}
+
+export function getTagColor(tag: string) {
+  // Hash the tag name to get a consistent color if not specifically mapped
+  const hash = tag.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const colors = [
+    "bg-blue-50 text-blue-700 border-blue-200",
+    "bg-purple-50 text-purple-700 border-purple-200",
+    "bg-pink-50 text-pink-700 border-pink-200",
+    "bg-orange-50 text-orange-700 border-orange-200",
+    "bg-teal-50 text-teal-700 border-teal-200",
+  ];
+  return colors[hash % colors.length];
 }

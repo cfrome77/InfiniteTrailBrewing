@@ -35,7 +35,7 @@ export function HomeCTA() {
             <div className="w-16 h-16 bg-forest/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-forest/20 transition-colors">
               <BookOpen className="w-8 h-8 text-forest" />
             </div>
-            <h3 className="font-serif text-xl text-forest mb-3">The Trail Report</h3>
+            <h3 className="font-serif text-xl text-forest mb-3">The Blog</h3>
             <p className="text-forest/70 text-sm leading-relaxed">
               Brew day recaps, tasting notes, recipes, and lessons learned along the way.
             </p>
