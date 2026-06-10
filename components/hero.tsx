@@ -23,23 +23,23 @@ export function Hero() {
         </div>
 
         {/* Tagline */}
-        <p className="font-serif text-2xl md:text-3xl lg:text-4xl tracking-wide mb-4 text-tan/90 animate-fade-in [animation-delay:200ms] opacity-0 [animation-fill-mode:forwards]">
+        <p className="font-serif text-2xl md:text-3xl lg:text-4xl tracking-wide mb-4 text-tan/90 animate-fade-in [animation-delay:200ms]">
           Brewed for the Next Adventure.
         </p>
 
         {/* Location */}
-        <p className="text-lg md:text-xl text-tan/70 mb-6 animate-fade-in [animation-delay:400ms] opacity-0 [animation-fill-mode:forwards]">
+        <p className="text-lg md:text-xl text-tan/70 mb-6 animate-fade-in [animation-delay:400ms]">
           Hand-forged craft beers in Frederick, MD
         </p>
 
         {/* Description */}
-        <p className="text-lg md:text-xl text-tan/80 max-w-2xl mb-12 animate-fade-in [animation-delay:500ms] opacity-0 [animation-fill-mode:forwards] leading-relaxed">
+        <p className="text-lg md:text-xl text-tan/80 max-w-2xl mb-12 animate-fade-in [animation-delay:500ms] leading-relaxed">
           Inspired by the rugged beauty of the Blue Ridge and built with the endurance of an adventurer.
           We craft small-batch beers for those who know the best reward is found at the end of the trail.
         </p>
 
         {/* PRIMARY NAV CTA BUTTONS */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6 animate-slide-up [animation-delay:600ms] opacity-0 [animation-fill-mode:forwards]">
+        <div className="flex flex-col sm:flex-row gap-4 mb-6 animate-slide-up [animation-delay:600ms]">
           <Button
             asChild
             size="lg"
