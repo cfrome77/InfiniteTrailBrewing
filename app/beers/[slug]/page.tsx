@@ -1,9 +1,8 @@
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { client } from "@/lib/sanity";
-import { serverClient } from "@/lib/sanity.server";
+import { getBeerBySlug, getAllBeerSlugs } from "@/lib/beers.server";
 import { Beer as BeerType } from "@/types";
-import { urlFor } from "@/lib/sanity";
+import { urlFor } from "@/lib/sanity.client";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -14,29 +13,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export async function generateStaticParams() {
-  const activeClient = process.env.SANITY_API_TOKEN ? serverClient : client;
-  const slugs = await activeClient.fetch(`*[_type == "beer" && defined(slug.current)].slug.current`);
+  const slugs = await getAllBeerSlugs();
   return slugs.map((slug: string) => ({ slug }));
 }
 
 export default async function BeerDetailPage({ params }: { params: { slug: string } | Promise<{ slug: string }> }) {
   const { slug } = "then" in params ? await params : params;
-  const activeClient = process.env.SANITY_API_TOKEN ? serverClient : client;
 
-  const beer: BeerType | null = await activeClient.fetch(
-    `*[_type == "beer" && slug.current == $slug][0] {
-      ...,
-      "slug": slug.current,
-      "relatedPosts": *[_type == "post" && references(^._id) && is_published == true] {
-          _id,
-          title,
-          "slug": slug.current,
-          date,
-          image
-      }
-    }`,
-    { slug }
-  );
+  const beer = await getBeerBySlug(slug);
 
   if (!beer) notFound();
 

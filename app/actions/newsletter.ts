@@ -1,7 +1,7 @@
 "use server";
 
 import { serverClient as client } from "@/lib/sanity.server";
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "crypto";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -20,7 +20,7 @@ export async function subscribeToNewsletter(email: string) {
       { email: normalizedEmail }
     );
 
-    let token = existing?.token || uuidv4();
+    let token = existing?.token || randomUUID();
 
     if (existing) {
       if (existing.status === 'subscribed') {

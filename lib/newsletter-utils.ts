@@ -1,5 +1,5 @@
 import { toHTML } from '@portabletext/to-html';
-import { urlFor } from './sanity';
+import { urlFor } from './sanity.client';
 
 export function transformPortableTextToEmailHtml(portableText: any[]) {
   if (!portableText || !Array.isArray(portableText)) return '';

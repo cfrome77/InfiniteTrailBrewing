@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { NewsletterManager } from "./newsletter-manager";
-import { getAllPostsWithAuth } from "@/lib/blog";
 
 export function NewsletterTool() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -10,7 +9,9 @@ export function NewsletterTool() {
 
   useEffect(() => {
     async function fetchPosts() {
-      const allPosts = await getAllPostsWithAuth();
+      const { client } = await import("@/lib/sanity.client");
+      const { ALL_POSTS_ADMIN_QUERY } = await import("@/lib/blog");
+      const allPosts = await client.fetch(ALL_POSTS_ADMIN_QUERY);
       setPosts(allPosts);
       setLoading(false);
     }

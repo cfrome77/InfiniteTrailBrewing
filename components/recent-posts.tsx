@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getAllPosts } from "@/lib/blog";
-import { urlFor } from "@/lib/sanity";
+import { getAllPosts } from "@/lib/blog.server";
+import { urlFor } from "@/lib/sanity.client";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
 import { getCategoryColor } from "@/lib/blog-utils";

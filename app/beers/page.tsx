@@ -1,8 +1,7 @@
 import { Suspense } from "react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { client } from "@/lib/sanity";
-import { serverClient } from "@/lib/sanity.server";
+import { getBeersForPage } from "@/lib/beers.server";
 import { Beer } from "@/types";
 import { BeersContent } from "./beers-content";
 
@@ -10,28 +9,7 @@ export const dynamic = 'force-dynamic';
 
 // ---------------- PAGE ----------------
 export default async function BeersPage() {
-  const activeClient = process.env.SANITY_API_TOKEN ? serverClient : client;
-
-  let beers: Beer[] = [];
-  try {
-    beers = await activeClient.fetch(`
-      *[_type == "beer"] | order(_createdAt desc) {
-        _id,
-        "id": _id,
-        beer_name,
-        "slug": slug.current,
-        style,
-        status,
-        notes,
-        abv,
-        is_flagship,
-        _createdAt,
-        image
-      }
-    `);
-  } catch (err) {
-    console.error("Error fetching beers:", err);
-  }
+  const beers = await getBeersForPage();
 
   return (
     <main className="min-h-screen bg-cream">

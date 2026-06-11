@@ -7,7 +7,7 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { client } from "@/lib/sanity";
+import { client } from "@/lib/sanity.client";
 
 type BrewStats = {
   total: number;

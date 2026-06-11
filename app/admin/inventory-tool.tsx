@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { InventoryManager } from "./inventory-manager";
-import { getAllBeers } from "@/lib/beers";
 
 export function InventoryTool() {
   const [beers, setBeers] = useState<any[]>([]);
@@ -10,7 +9,9 @@ export function InventoryTool() {
 
   useEffect(() => {
     async function fetchBeers() {
-      const allBeers = await getAllBeers();
+      const { client } = await import("@/lib/sanity.client");
+      const { ALL_BEERS_QUERY } = await import("@/lib/beers");
+      const allBeers = await client.fetch(ALL_BEERS_QUERY);
       setBeers(allBeers);
       setLoading(false);
     }

@@ -6,9 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Calendar, Clock, ArrowLeft, Beer } from "lucide-react";
-import { getPostBySlug, getAllSlugs } from "@/lib/blog";
+import { getPostBySlug, getAllSlugs } from "@/lib/blog.server";
 import { PortableText } from '@portabletext/react';
-import { urlFor } from "@/lib/sanity";
+import { urlFor } from "@/lib/sanity.client";
 import Image from "next/image";
 import { getCategoryColor, getTagColor } from "@/lib/blog-utils";
 
