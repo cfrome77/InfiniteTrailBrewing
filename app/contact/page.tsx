@@ -233,10 +233,11 @@ export default function ContactPage() {
                         Email
                       </h3>
                       <Link
-                        href="mailto:chris@chrisfrome.com"
+                        href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL || "chris@chrisfrome.com"}`}
                         className="text-forest/70 hover:text-forest transition-colors"
                       >
-                        chris@chrisfrome.com
+                        {process.env.NEXT_PUBLIC_CONTACT_EMAIL ||
+                          "chris@chrisfrome.com"}
                       </Link>
                     </div>
                   </CardContent>
