@@ -1,6 +1,6 @@
 export default {
   name: 'post',
-  title: 'Blog Post',
+  title: 'The Trail Report (Blog)',
   type: 'document',
   fields: [
     {
@@ -34,7 +34,33 @@ export default {
       name: 'content',
       title: 'Content',
       type: 'array',
-      of: [{ type: 'block' }],
+      of: [
+        { type: 'block' },
+        {
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            {
+              name: 'alt',
+              type: 'string',
+              title: 'Alternative Text',
+            }
+          ]
+        }
+      ],
+    },
+    {
+      name: 'visibility',
+      title: 'Visibility',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Website Only', value: 'website' },
+          { title: 'Newsletter Only', value: 'newsletter' },
+          { title: 'Website and Newsletter', value: 'both' },
+        ],
+      },
+      initialValue: 'both',
     },
     {
       name: 'category',
@@ -42,9 +68,24 @@ export default {
       type: 'string',
     },
     {
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        layout: 'tags',
+      },
+    },
+    {
       name: 'date',
       title: 'Published Date',
       type: 'date',
+    },
+    {
+      name: 'read_time',
+      title: 'Read Time',
+      type: 'string',
+      description: 'e.g. 5 min read',
     },
     {
       name: 'featured',
@@ -60,11 +101,37 @@ export default {
     },
     {
       name: 'image',
-      title: 'Post Image',
+      title: 'Featured Image',
       type: 'image',
       options: {
         hotspot: true,
       },
+    },
+    {
+      name: 'relatedBeers',
+      title: 'Related Beers',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'beer' }] }],
+    },
+    {
+      name: 'seo',
+      title: 'SEO & Social',
+      type: 'object',
+      fields: [
+        {
+          name: 'title',
+          title: 'Meta Title',
+          type: 'string',
+          description: 'Ideally 50-60 characters',
+        },
+        {
+          name: 'description',
+          title: 'Meta Description',
+          type: 'text',
+          rows: 3,
+          description: 'Ideally 150-160 characters',
+        },
+      ],
     },
   ],
 };
