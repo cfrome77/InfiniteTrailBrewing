@@ -1,5 +1,5 @@
 // lib/images.ts
-import { urlFor } from "@/lib/sanity";
+import { urlFor } from "@/lib/sanity.client";
 
 export function getBeerImage(beer: any, size: "card" | "thumb" = "card") {
   if (!beer?.image) return null;
