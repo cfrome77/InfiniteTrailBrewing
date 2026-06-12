@@ -1,6 +1,8 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+export const dynamic = 'force-dynamic';
+
+const resend = new Resend(process.env.RESEND_API_KEY || "fallback_for_build");
 
 export async function POST(req: Request) {
   try {
