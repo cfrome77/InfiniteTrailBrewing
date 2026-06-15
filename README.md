@@ -28,9 +28,15 @@ A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind C
     Create a `.env.local` file in the root directory and add the following:
     ```env
     # Sanity.io
-    NEXT_PUBLIC_SANITY_PROJECT_ID="your_project_id"
+    NEXT_PUBLIC_SANITY_PROJECT_ID="your-project-id"
     NEXT_PUBLIC_SANITY_DATASET="production"
-    SANITY_API_TOKEN="your_token" # Used for server-side fetching if needed
+    NEXT_PUBLIC_SITE_URL="https://yourdomain.com"
+    NEXT_PUBLIC_CONTACT_EMAIL="hello@yourdomain.com"
+    SANITY_API_TOKEN="your-api-token"
+
+    # Email (Resend)
+    RESEND_API_KEY="your-resend-api-key"
+    CONTACT_RECEIVING_EMAIL="hello@yourdomain.com"
     ```
 
 ---
