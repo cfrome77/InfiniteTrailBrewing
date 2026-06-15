@@ -11,11 +11,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   Mail,
   MapPin,
-  Instagram,
-  Facebook,
   Send,
   CheckCircle,
 } from "lucide-react";
+import { FaFacebook, FaInstagram } from "react-icons/fa6";
 
 export default function ContactPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -257,7 +256,16 @@ export default function ContactPage() {
                     className="w-12 h-12 bg-forest text-tan rounded-full flex items-center justify-center hover:bg-forest/90 transition-colors"
                     aria-label="Follow us on Instagram"
                   >
-                    <Instagram className="w-5 h-5" />
+                    <FaInstagram className="w-5 h-5" />
+                  </Link>
+                  <Link
+                    href="https://facebook.com/infinitetrailbrewing"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-12 h-12 bg-forest text-tan rounded-full flex items-center justify-center hover:bg-forest/90 transition-colors"
+                    aria-label="Follow us on Facebook"
+                  >
+                    <FaFacebook className="w-5 h-5" />
                   </Link>
                 </div>
               </div>
