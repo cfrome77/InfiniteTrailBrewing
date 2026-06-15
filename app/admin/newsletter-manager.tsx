@@ -80,7 +80,7 @@ export function NewsletterManager({ posts }: { posts: Post[] }) {
                         <div className="space-y-2">
                             {resendStats?.recentEmails?.map((email: any) => (
                                 <div key={email.id} className="text-xs flex justify-between border-b border-tan/10 pb-1">
-                                    <span className="truncate max-w-[150px] font-medium">{email.subject}</span>
+                                    <span title={email.subject} className="truncate max-w-[150px] font-medium">{email.subject}</span>
                                     <span className="text-forest/40">{new Date(email.createdAt).toLocaleDateString()}</span>
                                 </div>
                             ))}
