@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Instagram, Facebook } from "lucide-react";
+import { FaInstagram, FaFacebook } from "react-icons/fa6";
 
 export function Footer() {
   return (
@@ -34,7 +34,16 @@ export function Footer() {
                 className="w-10 h-10 bg-tan/10 rounded-full flex items-center justify-center hover:bg-tan/20 transition-colors"
                 aria-label="Follow us on Instagram"
               >
-                <Instagram className="w-5 h-5" />
+                <FaInstagram className="w-5 h-5" />
+              </Link>
+              <Link
+                href="https://facebook.com/infinitetrailbrewing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-tan/10 rounded-full flex items-center justify-center hover:bg-tan/20 transition-colors"
+                aria-label="Follow us on Facebook"
+              >
+                <FaFacebook className="w-5 h-5" />
               </Link>
             </div>
           </div>
@@ -91,10 +100,11 @@ export function Footer() {
               <p>Frederick, MD</p>
               <p className="pt-2">
                 <Link
-                  href="mailto:hello@infinitetrailbrewing.com"
+                  href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL || "chris@chrisfrome.com"}`}
                   className="hover:text-tan transition-colors"
                 >
-                  hello@infinitetrailbrewing.com
+                  {process.env.NEXT_PUBLIC_CONTACT_EMAIL ||
+                    "chris@chrisfrome.com"}
                 </Link>
               </p>
             </div>
