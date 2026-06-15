@@ -88,6 +88,14 @@ NEXT_PUBLIC_SANITY_DATASET="production"
 
 ---
 
+## ⚙️ Environment Stability
+
+To prevent `next-env.d.ts` from fluctuating between `dev` and `build` modes (due to mode-dependent route type imports), this project uses an automated stabilization mechanism:
+
+- **Custom Dev Script:** `npm run dev` executes `scripts/dev.js`, which wraps `next dev` and restores `next-env.d.ts` to a stable state upon exit.
+- **Post-Build Hook:** A `postbuild` script automatically cleans `next-env.d.ts` after production builds.
+- **TypeScript Config:** Mode-dependent types are explicitly included in `tsconfig.json` to maintain full type safety without requiring tracked changes in `next-env.d.ts`.
+
 ## 🧪 Testing
 
 ### Unit & Component Tests (Jest)
