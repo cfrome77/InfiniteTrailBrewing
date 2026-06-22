@@ -9,7 +9,7 @@ A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind C
 - **Sanity Auth**: Secure, project-based authentication handled natively by Sanity.
 - **Transactional Email**: Integrated with **Resend** for reliable contact form notifications.
 - **Embedded Sanity Studio**: CMS interface accessible directly at `/admin`.
-- **E-commerce**: Integrated **Snipcart** for merchandise and checkout.
+- **E-commerce**: Integrated **Stripe Checkout Links** for merchandise.
 - **Testing**: Comprehensive suite with **Jest** and **Playwright**.
 
 ---
@@ -39,8 +39,8 @@ A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind C
     RESEND_API_KEY="your-resend-api-key"
     CONTACT_RECEIVING_EMAIL="hello@yourdomain.com"
 
-    # Snipcart E-commerce
-    NEXT_PUBLIC_SNIPCART_API_KEY="YOUR_SNIPCART_PUBLIC_API_KEY"
+    # E-commerce (Stripe)
+    # No API keys required for checkout links.
     ```
 
 ---
@@ -130,10 +130,8 @@ npm run test:e2e
 
 ---
 
-## 🛒 E-commerce (Snipcart)
+## 🛒 E-commerce (Stripe)
 
-The store is integrated using **Snipcart**.
-1. Create an account at [snipcart.com](https://snipcart.com).
-2. Locate your **Public API Key** in the Snipcart dashboard.
-3. Add it to your environment variables:
-   - `NEXT_PUBLIC_SNIPCART_API_KEY`
+The merchandise section uses direct **Stripe Checkout Links**.
+1. Create products and checkout links in your [Stripe Dashboard](https://dashboard.stripe.com/test/checkout-links).
+2. Update the `href` attributes in `app/merch/page.tsx` with your live links.
