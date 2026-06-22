@@ -9,6 +9,7 @@ A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind C
 - **Sanity Auth**: Secure, project-based authentication handled natively by Sanity.
 - **Transactional Email**: Integrated with **Resend** for reliable contact form notifications.
 - **Embedded Sanity Studio**: CMS interface accessible directly at `/admin`.
+- **E-commerce**: Integrated **Ecwid by Lightspeed** store for merchandise.
 - **Testing**: Comprehensive suite with **Jest** and **Playwright**.
 
 ---
@@ -37,6 +38,9 @@ A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind C
     # Email (Resend)
     RESEND_API_KEY="your-resend-api-key"
     CONTACT_RECEIVING_EMAIL="hello@yourdomain.com"
+
+    # Ecwid Store
+    NEXT_PUBLIC_ECWID_STORE_ID="your-store-id"
     ```
 
 ---
@@ -123,3 +127,13 @@ npm run test:e2e
 2. Add it to your environment variables:
    - `RESEND_API_KEY`
    - `CONTACT_RECEIVING_EMAIL`
+
+---
+
+## 🛒 E-commerce (Ecwid)
+
+The store is integrated using the **Ecwid by Lightspeed** widget.
+1. Create a store at [ecwid.com](https://www.ecwid.com).
+2. Locate your **Store ID** in the Ecwid Control Panel (bottom left).
+3. Add it to your environment variables:
+   - `NEXT_PUBLIC_ECWID_STORE_ID`
