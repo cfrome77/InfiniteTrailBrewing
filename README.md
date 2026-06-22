@@ -9,7 +9,7 @@ A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind C
 - **Sanity Auth**: Secure, project-based authentication handled natively by Sanity.
 - **Transactional Email**: Integrated with **Resend** for reliable contact form notifications.
 - **Embedded Sanity Studio**: CMS interface accessible directly at `/admin`.
-- **E-commerce**: Integrated **Ecwid by Lightspeed** store for merchandise.
+- **E-commerce**: Integrated **Snipcart** for merchandise and checkout.
 - **Testing**: Comprehensive suite with **Jest** and **Playwright**.
 
 ---
@@ -39,8 +39,8 @@ A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind C
     RESEND_API_KEY="your-resend-api-key"
     CONTACT_RECEIVING_EMAIL="hello@yourdomain.com"
 
-    # Ecwid Store
-    NEXT_PUBLIC_ECWID_STORE_ID="your-store-id"
+    # Snipcart E-commerce
+    NEXT_PUBLIC_SNIPCART_API_KEY="YOUR_SNIPCART_PUBLIC_API_KEY"
     ```
 
 ---
@@ -130,10 +130,10 @@ npm run test:e2e
 
 ---
 
-## 🛒 E-commerce (Ecwid)
+## 🛒 E-commerce (Snipcart)
 
-The store is integrated using the **Ecwid by Lightspeed** widget.
-1. Create a store at [ecwid.com](https://www.ecwid.com).
-2. Locate your **Store ID** in the Ecwid Control Panel (bottom left).
+The store is integrated using **Snipcart**.
+1. Create an account at [snipcart.com](https://snipcart.com).
+2. Locate your **Public API Key** in the Snipcart dashboard.
 3. Add it to your environment variables:
-   - `NEXT_PUBLIC_ECWID_STORE_ID`
+   - `NEXT_PUBLIC_SNIPCART_API_KEY`
