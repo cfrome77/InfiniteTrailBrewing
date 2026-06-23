@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 
 const navLinks = [
   { href: "/beers", label: "Our Beers" },
-  { href: "PASTE_YOUR_FOURTHWALL_SHOP_URL_HERE", label: "Shop Merch", isExternal: true },
+  { href: process.env.NEXT_PUBLIC_FOURTHWALL_SHOP_URL, label: "Shop Merch", isExternal: true },
   { href: "/blog", label: "Blog" },
   { href: "/our-story", label: "Our Story" },
   { href: "/contact", label: "Contact" },
@@ -70,7 +70,7 @@ export function Navbar() {
             return (
               <Link
                 key={link.href}
-                href={link.href}
+                href={link.href || "/"}
                 target={isExternal ? "_blank" : undefined}
                 rel={isExternal ? "noopener noreferrer" : undefined}
                 className={`font-sans text-sm tracking-wide uppercase transition-colors ${
@@ -127,7 +127,7 @@ export function Navbar() {
               return (
                 <Link
                   key={link.href}
-                  href={link.href}
+                  href={link.href || "/"}
                   target={isExternal ? "_blank" : undefined}
                   rel={isExternal ? "noopener noreferrer" : undefined}
                   className="font-sans text-lg uppercase py-2 text-tan/70 hover:text-tan"
