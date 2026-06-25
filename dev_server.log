@@ -1,0 +1,30 @@
+
+> my-project@0.1.0 dev
+> node scripts/dev.js
+
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+✓ Ready in 552ms
+⚠ `experimental.typedRoutes` has been moved to `typedRoutes`. Please update your next.config.mjs file accordingly.
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+- Experiments (use with caution):
+  ⨯ typedRoutes
+
+○ Compiling / ...
+NEXT_PUBLIC_SANITY_PROJECT_ID is not set, using fallback: pzzfhnzk
+Initializing Sanity Client - Project: pzzfhnzk, Dataset: development
+SANITY_API_TOKEN is missing. Server-side fetches may fail for private datasets.
+Initializing Sanity Server Client - Project: pzzfhnzk, Dataset: development
+ GET / 200 in 282ms (next.js: 5ms, application-code: 277ms)
+NEXT_PUBLIC_SANITY_PROJECT_ID is not set, using fallback: pzzfhnzk
+Initializing Sanity Client - Project: pzzfhnzk, Dataset: development
+ GET /beers 200 in 2.6s (next.js: 2.2s, application-code: 409ms)
+[browser] NEXT_PUBLIC_SANITY_PROJECT_ID is not set, using fallback: pzzfhnzk (lib/sanity.client.ts:8:11)
+[browser] Image with src "https://cdn.sanity.io/images/pzzfhnzk/development/c5f9ef3882e64e5fb5c86edb5e53a604b798ea85-1200x896.jpg?rect=0,48,1200,800&w=900&h=600&fit=max&auto=format" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET /blog 200 in 1440ms (next.js: 915ms, application-code: 526ms)
