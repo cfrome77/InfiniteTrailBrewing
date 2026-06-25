@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 
 const navLinks = [
   { href: "/beers", label: "Our Beers" },
+  { href: process.env.NEXT_PUBLIC_FOURTHWALL_SHOP_URL, label: "Shop Merch", isExternal: true },
   { href: "/blog", label: "Blog" },
   { href: "/our-story", label: "Our Story" },
   { href: "/contact", label: "Contact" },
@@ -64,19 +65,24 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`font-sans text-sm tracking-wide uppercase transition-colors ${
-                pathname === link.href
-                  ? "text-tan"
-                  : "text-tan/70 hover:text-tan"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const isExternal = "isExternal" in link && link.isExternal;
+            return (
+              <Link
+                key={link.href}
+                href={link.href || "/"}
+                target={isExternal ? "_blank" : undefined}
+                rel={isExternal ? "noopener noreferrer" : undefined}
+                className={`font-sans text-sm tracking-wide uppercase transition-colors ${
+                  pathname === link.href
+                    ? "text-tan"
+                    : "text-tan/70 hover:text-tan"
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
 
           {/* Social */}
           <div className="flex items-center gap-3 ml-2 pl-4 border-l border-tan/30">
@@ -116,15 +122,20 @@ export function Navbar() {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-forest/95 backdrop-blur-md border-t border-tan/20 animate-fade-in duration-300">
           <div className="container mx-auto px-4 py-6 flex flex-col gap-4">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="font-sans text-lg uppercase py-2 text-tan/70 hover:text-tan"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isExternal = "isExternal" in link && link.isExternal;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href || "/"}
+                  target={isExternal ? "_blank" : undefined}
+                  rel={isExternal ? "noopener noreferrer" : undefined}
+                  className="font-sans text-lg uppercase py-2 text-tan/70 hover:text-tan"
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
 
             {/* Social */}
             <div className="flex items-center gap-4 mt-4 pt-4 border-t border-tan/20">
