@@ -9,6 +9,7 @@ A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind C
 - **Sanity Auth**: Secure, project-based authentication handled natively by Sanity.
 - **Transactional Email**: Integrated with **Resend** for reliable contact form notifications.
 - **Embedded Sanity Studio**: CMS interface accessible directly at `/admin`.
+- **E-commerce**: External **Fourthwall** shop for merchandise.
 - **Testing**: Comprehensive suite with **Jest** and **Playwright**.
 
 ---
@@ -37,6 +38,9 @@ A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind C
     # Email (Resend)
     RESEND_API_KEY="your-resend-api-key"
     CONTACT_RECEIVING_EMAIL="hello@yourdomain.com"
+
+    # E-commerce (Fourthwall)
+    # No API keys required for external shop links.
     ```
 
 ---
@@ -123,3 +127,11 @@ npm run test:e2e
 2. Add it to your environment variables:
    - `RESEND_API_KEY`
    - `CONTACT_RECEIVING_EMAIL`
+
+---
+
+## 🛒 E-commerce (Fourthwall)
+
+The merchandise section points to an external **Fourthwall** shop.
+1. Configure your shop at [fourthwall.com](https://fourthwall.com).
+2. Update the `href` attribute for the "Shop Merch" link in `components/navbar.tsx` with your live shop URL.
