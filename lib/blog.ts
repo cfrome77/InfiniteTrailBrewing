@@ -1,5 +1,5 @@
 export const ALL_POSTS_QUERY = `
-  *[_type == "post" && is_published == true && visibility in ["website", "both"]] | order(date desc) {
+  *[_type == "post" && is_published == true && visibility in ["website", "both"] && !(_id in path("drafts.**"))] | order(date desc) {
     _id,
     "id": _id,
     title,
@@ -18,7 +18,7 @@ export const ALL_POSTS_QUERY = `
 `;
 
 export const POST_BY_SLUG_QUERY = `
-  *[_type == "post" && slug.current == $slug && is_published == true && visibility in ["website", "both"]][0] {
+  *[_type == "post" && slug.current == $slug && is_published == true && visibility in ["website", "both"] && !(_id in path("drafts.**"))][0] {
     _id,
     "id": _id,
     title,
@@ -45,7 +45,7 @@ export const POST_BY_SLUG_QUERY = `
 `;
 
 export const ALL_POST_SLUGS_QUERY = `
-  *[_type == "post" && is_published == true && visibility in ["website", "both"]].slug.current
+  *[_type == "post" && is_published == true && visibility in ["website", "both"] && !(_id in path("drafts.**"))].slug.current
 `;
 
 export const ALL_POSTS_ADMIN_QUERY = `
