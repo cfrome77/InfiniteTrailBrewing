@@ -1,5 +1,5 @@
 export const ALL_BEERS_QUERY = `
-  *[_type == "beer"] | order(beer_name asc) {
+  *[_type == "beer" && !(_id in path("drafts.**"))] | order(beer_name asc) {
     _id,
     "id": _id,
     beer_name,
@@ -17,7 +17,7 @@ export const ALL_BEERS_QUERY = `
 `;
 
 export const BEERS_PAGE_QUERY = `
-  *[_type == "beer"] | order(_createdAt desc) {
+  *[_type == "beer" && !(_id in path("drafts.**"))] | order(_createdAt desc) {
     _id,
     "id": _id,
     beer_name,
@@ -33,10 +33,10 @@ export const BEERS_PAGE_QUERY = `
 `;
 
 export const BEER_BY_SLUG_QUERY = `
-  *[_type == "beer" && slug.current == $slug][0] {
+  *[_type == "beer" && slug.current == $slug && !(_id in path("drafts.**"))][0] {
     ...,
     "slug": slug.current,
-    "relatedPosts": *[_type == "post" && references(^._id) && is_published == true] {
+    "relatedPosts": *[_type == "post" && references(^._id) && is_published == true && !(_id in path("drafts.**"))] {
         _id,
         title,
         "slug": slug.current,
@@ -47,5 +47,5 @@ export const BEER_BY_SLUG_QUERY = `
 `;
 
 export const ALL_BEER_SLUGS_QUERY = `
-  *[_type == "beer" && defined(slug.current)].slug.current
+  *[_type == "beer" && defined(slug.current) && !(_id in path("drafts.**"))].slug.current
 `;
