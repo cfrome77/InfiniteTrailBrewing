@@ -22,9 +22,8 @@ export function Footer() {
               className="h-14 w-auto brightness-0 invert mb-6"
             />
             <p className="text-tan/70 max-w-md leading-relaxed mb-6">
-              Brewed for the Next Adventure. Hand-forged craft beers in
-              Frederick, MD, built with the intention and endurance of an
-              adventurer.
+              Brewed for the Next Adventure. An experimental private craft beer lab
+              and digital batch log documented in Frederick, MD.
             </p>
             <div className="flex gap-4">
               <Link
@@ -56,19 +55,19 @@ export function Footer() {
                 href="/beers"
                 className="text-tan/70 hover:text-tan transition-colors"
               >
-                Our Beers
+                The Brew Log
               </Link>
               <Link
                 href="/beers?tab=archive"
                 className="text-tan/70 hover:text-tan transition-colors"
               >
-                Beer Archive
+                Archive Log
               </Link>
               <Link
                 href="/blog"
                 className="text-tan/70 hover:text-tan transition-colors"
               >
-                Blog
+                Lab Notes
               </Link>
               <Link
                 href="/our-story"
@@ -95,8 +94,9 @@ export function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h4 className="font-serif text-xl mb-6">Contact</h4>
+            <h4 className="font-serif text-xl mb-6">Coordinates</h4>
             <div className="space-y-3 text-tan/70">
+              <p className="font-mono text-sm">39.414° N, 77.411° W</p>
               <p>Frederick, MD</p>
               <p className="pt-2">
                 <Link
@@ -109,6 +109,12 @@ export function Footer() {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Private Lab Disclaimer */}
+        <div className="mt-12 p-6 rounded-xl border border-tan/20 bg-tan/5 text-tan/80 text-sm leading-relaxed">
+          <p className="font-serif text-lg mb-2 text-tan">Private Craft Lab Disclaimer</p>
+          Infinite Trail Brewing is a private, non-commercial homebrew project. Our beers are crafted strictly for personal documentation, educational exploration, and sharing with friends & community events. Not for commercial sale or public distribution.
         </div>
 
         {/* Bottom Bar */}

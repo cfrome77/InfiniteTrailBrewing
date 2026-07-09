@@ -5,7 +5,7 @@
 ▲ Next.js 16.2.9 (Turbopack)
 - Local:         http://localhost:3000
 - Network:       http://192.168.0.2:3000
-✓ Ready in 552ms
+✓ Ready in 716ms
 ⚠ `experimental.typedRoutes` has been moved to `typedRoutes`. Please update your next.config.mjs file accordingly.
 Attention: Next.js now collects completely anonymous telemetry regarding usage.
 This information is used to shape Next.js' roadmap and prioritize features.
@@ -20,11 +20,28 @@ NEXT_PUBLIC_SANITY_PROJECT_ID is not set, using fallback: pzzfhnzk
 Initializing Sanity Client - Project: pzzfhnzk, Dataset: development
 SANITY_API_TOKEN is missing. Server-side fetches may fail for private datasets.
 Initializing Sanity Server Client - Project: pzzfhnzk, Dataset: development
- GET / 200 in 282ms (next.js: 5ms, application-code: 277ms)
-NEXT_PUBLIC_SANITY_PROJECT_ID is not set, using fallback: pzzfhnzk
-Initializing Sanity Client - Project: pzzfhnzk, Dataset: development
- GET /beers 200 in 2.6s (next.js: 2.2s, application-code: 409ms)
-[browser] NEXT_PUBLIC_SANITY_PROJECT_ID is not set, using fallback: pzzfhnzk (lib/sanity.client.ts:8:11)
-[browser] Image with src "https://cdn.sanity.io/images/pzzfhnzk/development/c5f9ef3882e64e5fb5c86edb5e53a604b798ea85-1200x896.jpg?rect=0,48,1200,800&w=900&h=600&fit=max&auto=format" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Each child in a list should have a unique "key" prop.
+
+Check the render method of `Navbar`. See https://react.dev/link/warning-keys for more information.
+ GET / 200 in 9.6s (next.js: 8.4s, application-code: 1169ms)
+[browser] Image with src "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingWordmarkDeepForest-Transparent-mWmicyKGqRtwkNbzt0Qqv431s925IK.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
- GET /blog 200 in 1440ms (next.js: 915ms, application-code: 526ms)
+[browser] Each child in a list should have a unique "key" prop.
+
+Check the render method of `div`. It was passed a child from Navbar. See https://react.dev/link/warning-keys for more information.
+Each child in a list should have a unique "key" prop.
+
+Check the render method of `Navbar`. See https://react.dev/link/warning-keys for more information.
+ GET / 200 in 170ms (next.js: 6ms, application-code: 164ms)
+Each child in a list should have a unique "key" prop.
+
+Check the render method of `Navbar`. See https://react.dev/link/warning-keys for more information.
+[browser] Each child in a list should have a unique "key" prop.
+
+Check the render method of `div`. It was passed a child from Navbar. See https://react.dev/link/warning-keys for more information.
+ GET / 200 in 214ms (next.js: 4ms, application-code: 210ms)
+[browser] Each child in a list should have a unique "key" prop.
+
+Check the render method of `div`. It was passed a child from Navbar. See https://react.dev/link/warning-keys for more information.
+[browser] Image with src "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingWordmarkDeepForest-Transparent-mWmicyKGqRtwkNbzt0Qqv431s925IK.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading

@@ -29,13 +29,13 @@ export function Hero() {
 
         {/* Location */}
         <p className="text-lg md:text-xl text-tan/70 mb-6 animate-fade-in [animation-delay:400ms] opacity-0 [animation-fill-mode:forwards]">
-          Hand-forged craft beers in Frederick, MD
+          An experimental private craft beer lab in Frederick, MD
         </p>
 
         {/* Marketing Copy to fill space */}
         <div className="max-w-2xl mx-auto mb-10 animate-fade-in [animation-delay:500ms] opacity-0 [animation-fill-mode:forwards]">
           <p className="text-lg md:text-xl leading-relaxed text-tan/80 italic font-light">
-            From the rolling hills of the Catoctin Mountains to the historic streets of Downtown Frederick, we brew beers that honor the journey. Small batch, high character, and always ready for the next summit.
+            From the rolling hills of the Catoctin Mountains to the historic streets of Downtown Frederick, we document and brew beers that honor the journey. Small batch, private trials, and always ready for the next summit.
           </p>
         </div>
 
@@ -46,7 +46,7 @@ export function Hero() {
             size="lg"
             className="bg-tan text-forest hover:bg-tan/90 font-serif text-lg px-8 py-6 tracking-wide shadow-xl hover:scale-105 transition-all duration-300"
           >
-            <Link href="/beers">Explore Our Beers</Link>
+            <Link href="/beers">Explore The Brew Log</Link>
           </Button>
 
           <Button
@@ -62,7 +62,7 @@ export function Hero() {
       {/* 👇 BOTTOM SCROLL ARROW */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
         <Link
-          href="#explore"
+          href="#telemetry"
           className="animate-bounce opacity-60 hover:opacity-100 transition"
         >
           <ArrowDown className="w-8 h-8 text-tan" />

@@ -11,6 +11,7 @@ import { getBeerStyleGradient } from "@/lib/beerStyleTheme";
 import { BookOpen, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ActionBox } from "@/components/action-box";
 
 export async function generateStaticParams() {
   const slugs = await getAllBeerSlugs();
@@ -76,9 +77,13 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
                       )}
                   </div>
 
-                  <p className="text-xl leading-relaxed text-forest/80 max-w-2xl italic">
+                  <p className="text-xl leading-relaxed text-forest/80 max-w-2xl italic mb-8">
                       {beer.notes}
                   </p>
+
+                  <div>
+                      <ActionBox status={beer.status} />
+                  </div>
               </div>
           </div>
         </div>
