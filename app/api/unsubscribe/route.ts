@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   let subscriber;
   try {
     subscriber = await client.fetch(
-      `*[_type == "subscriber" && token == $token][0]`,
+      `*[_type == "subscriber" && token == $token && !(_id in path("drafts.**"))][0]`,
       { token }
     );
 

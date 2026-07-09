@@ -15,6 +15,12 @@ if (!token && typeof window === 'undefined' && process.env.NODE_ENV !== 'product
   console.warn("SANITY_API_TOKEN is missing. Server-side fetches may fail for private datasets.");
 }
 
+if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_SANITY_DATASET) {
+  console.error("CRITICAL: NEXT_PUBLIC_SANITY_DATASET is not set in production. Falling back to 'development' which may cause data isolation issues.");
+} else if (process.env.NODE_ENV !== 'production') {
+  console.log(`Initializing Sanity Server Client - Project: ${projectId}, Dataset: ${dataset}`);
+}
+
 export const serverClient = createClient({
   projectId,
   dataset,

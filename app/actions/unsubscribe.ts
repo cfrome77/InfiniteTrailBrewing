@@ -9,7 +9,7 @@ export async function unsubscribe(email: string) {
 
   try {
     const existing = await client.fetch(
-      `*[_type == "subscriber" && email == $email][0]`,
+      `*[_type == "subscriber" && email == $email && !(_id in path("drafts.**"))][0]`,
       { email }
     );
 

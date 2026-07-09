@@ -9,13 +9,13 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function sendNewsletter(postId: string) {
   try {
     // 1. Fetch the post
-    const post = await client.fetch(`*[_id == $postId][0]`, { postId });
+    const post = await client.fetch(`*[_id == $postId && !(_id in path("drafts.**"))][0]`, { postId });
     if (!post) return { success: false, message: "Post not found" };
 
     const contentHtml = post.content ? transformPortableTextToEmailHtml(post.content) : `<p>${post.excerpt}</p>`;
 
     // 2. Fetch all active subscribers
-    const subscribers = await client.fetch(`*[_type == "subscriber" && status == "subscribed"]`);
+    const subscribers = await client.fetch(`*[_type == "subscriber" && status == "subscribed" && !(_id in path("drafts.**"))]`);
     if (subscribers.length === 0) return { success: false, message: "No active subscribers found" };
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://infinitetrailbrewing.com";
@@ -78,7 +78,7 @@ export async function sendNewsletter(postId: string) {
 
 export async function getSubscriberCount() {
     try {
-        const count = await client.fetch(`count(*[_type == "subscriber" && status == "subscribed"])`);
+        const count = await client.fetch(`count(*[_type == "subscriber" && status == "subscribed" && !(_id in path("drafts.**"))])`);
         return count;
     } catch (e) {
         return 0;

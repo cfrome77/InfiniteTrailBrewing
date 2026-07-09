@@ -16,7 +16,7 @@ export async function subscribeToNewsletter(email: string) {
   try {
     // Check if already exists
     const existing = await client.fetch(
-      `*[_type == "subscriber" && email == $email][0]`,
+      `*[_type == "subscriber" && email == $email && !(_id in path("drafts.**"))][0]`,
       { email: normalizedEmail }
     );
 

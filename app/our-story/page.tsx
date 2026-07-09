@@ -24,8 +24,8 @@ export default function OurStoryPage() {
     const fetchStats = async () => {
       try {
         const [flagshipsCount, totalCount] = await Promise.all([
-          client.fetch(`count(*[_type == "beer" && is_flagship == true])`),
-          client.fetch(`count(*[_type == "beer" && status != "on_deck"])`),
+          client.fetch(`count(*[_type == "beer" && is_flagship == true && !(_id in path("drafts.**"))])`),
+          client.fetch(`count(*[_type == "beer" && status != "on_deck" && !(_id in path("drafts.**"))])`),
         ]);
 
         setStats({
