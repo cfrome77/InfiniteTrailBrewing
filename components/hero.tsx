@@ -28,9 +28,23 @@ export function Hero() {
         </p>
 
         {/* Location */}
-        <p className="text-lg md:text-xl text-tan/70 mb-6 animate-fade-in [animation-delay:400ms] opacity-0 [animation-fill-mode:forwards]">
+        <p className="text-lg md:text-xl text-tan/70 mb-4 animate-fade-in [animation-delay:400ms] opacity-0 [animation-fill-mode:forwards]">
           An experimental private craft beer lab in Frederick, MD
         </p>
+
+        {/* LIVE TELEMETRY TEASER */}
+        <div className="mb-8 animate-fade-in [animation-delay:450ms] opacity-0 [animation-fill-mode:forwards]">
+          <Link
+            href="/telemetry"
+            className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-sky/30 bg-sky/5 text-sky hover:bg-sky/10 hover:border-sky/50 transition-all duration-300 text-xs font-mono uppercase tracking-widest shadow-sm"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-sky"></span>
+            </span>
+            Kettle Live Status: Sensors Online ➔ View Live Telemetry
+          </Link>
+        </div>
 
         {/* Marketing Copy to fill space */}
         <div className="max-w-2xl mx-auto mb-10 animate-fade-in [animation-delay:500ms] opacity-0 [animation-fill-mode:forwards]">
@@ -62,7 +76,7 @@ export function Hero() {
       {/* 👇 BOTTOM SCROLL ARROW */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
         <Link
-          href="#telemetry"
+          href="#explore"
           className="animate-bounce opacity-60 hover:opacity-100 transition"
         >
           <ArrowDown className="w-8 h-8 text-tan" />

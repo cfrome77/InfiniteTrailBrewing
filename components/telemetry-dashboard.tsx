@@ -4,52 +4,200 @@ import React, { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
-import { Thermometer, Droplet, Layers, HelpCircle, Activity, Info } from "lucide-react";
+import { Thermometer, Droplet, Layers, HelpCircle, Activity, Info, Calendar } from "lucide-react";
+import { Beer, BeerStatus } from "@/types";
+import { beerStyles } from "@/sanity/constants/beerStyles";
 
-export function TelemetryDashboard() {
-  const [activeBatch, setActiveBatch] = useState("batch-42");
+interface TelemetryDashboardProps {
+  initialBeers: Beer[];
+}
+
+export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
+  // Separate into active cellar (ready, brewing, on_deck) and past logs (archived)
+  const activeBeers = initialBeers.filter((b) => b.status !== "archived");
+  const pastBeers = initialBeers.filter((b) => b.status === "archived");
+
+  const [activeTab, setActiveTab] = useState<string>(
+    activeBeers.length > 0 ? activeBeers[0].slug : pastBeers.length > 0 ? pastBeers[0].slug : ""
+  );
+
+  const allVisibleBeers = [...activeBeers, ...pastBeers];
+  const selectedBeer = allVisibleBeers.find((b) => b.slug === activeTab);
+
+  if (!selectedBeer) {
+    return (
+      <section className="py-20 bg-forest text-tan text-center">
+        <p className="font-mono text-sm text-tan/50">No batch logs found in the database.</p>
+      </section>
+    );
+  }
+
+  // --- DETERMINISTIC STATS GENERATION BASED ON SANITY BEER DATA ---
+  const isIpa = selectedBeer.style.toLowerCase().includes("ipa") || selectedBeer.style.toLowerCase().includes("hop");
+  const isStout = selectedBeer.style.toLowerCase().includes("stout") || selectedBeer.style.toLowerCase().includes("porter");
+
+  // 1. Core Temps (Draft Kegerator vs. active fermentation vs. cold condition vs. cellared)
+  let coreTemp = "38.2°F";
+  let tempTarget = "38.0°F";
+  let tempStatus = "Stable Draft Temp";
+
+  if (selectedBeer.status === "brewing") {
+    coreTemp = "64.5°F";
+    tempTarget = "64.0°F";
+    tempStatus = "Active Primary Ferment";
+  } else if (selectedBeer.status === "on_deck") {
+    coreTemp = "42.1°F";
+    tempTarget = "42.0°F";
+    tempStatus = "Lagering / Conditioning";
+  } else if (selectedBeer.status === "archived") {
+    coreTemp = "34.0°F";
+    tempTarget = "34.0°F";
+    tempStatus = "Cellared / Archived";
+  }
+
+  // 2. Specific Gravity calculations
+  const abvNum = selectedBeer.abv || 5.0;
+  const og = (1 + abvNum * 0.0078).toFixed(3);
+  const fg = (1 + abvNum * 0.0018).toFixed(3);
+  let currentSg = fg;
+  if (selectedBeer.status === "brewing") {
+    currentSg = (parseFloat(og) - (abvNum * 0.004)).toFixed(3);
+  }
+
+  // 3. Water profile ions
+  let ph = "5.25";
+  let sulfate = 150;
+  let chloride = 60;
+  let calcium = 75;
+  let sulfatePercent = "100%";
+  let chloridePercent = "40%";
+  let calciumPercent = "75%";
+  let waterNotes = "Sulfate-to-Chloride ratio set to 2.5:1 to dry out the malt character and amplify the hop crispness.";
+
+  if (isStout) {
+    ph = "5.45";
+    sulfate = 40;
+    chloride = 120;
+    calcium = 85;
+    sulfatePercent = "25%";
+    chloridePercent = "100%";
+    calciumPercent = "85%";
+    waterNotes = "High chloride ratio softens the bitter roast astringency, boosting full body mouthfeel and chocolate malt sweetness.";
+  } else if (!isIpa && !isStout) {
+    ph = "5.32";
+    sulfate = 80;
+    chloride = 80;
+    calcium = 65;
+    sulfatePercent = "60%";
+    chloridePercent = "60%";
+    calciumPercent = "65%";
+    waterNotes = "Balanced 1:1 Sulfate-to-Chloride ratio profiles the malt sweetness and hop bitterness equally for lagers and ales.";
+  }
+
+  // 4. Mash Bill & Hop Timings
+  let kettleSchedule = [
+    { time: "60 min (Boil Start)", label: "Magnum Hops (15 IBU)" },
+    { time: "15 min (Flavor)", label: "Cascade Hops (5 IBU)" },
+    { time: "0 min (Whirlpool)", label: "Willamette Finings" }
+  ];
+
+  if (isIpa) {
+    kettleSchedule = [
+      { time: "60 min (Boil Start)", label: "Warrior Hops (25 IBU)" },
+      { time: "10 min (Aroma)", label: "Citra & Mosaic (15 IBU)" },
+      { time: "0 min (Flameout)", label: "Double Dry Hop: Amarillo & Simcoe Cryo" }
+    ];
+  } else if (isStout) {
+    kettleSchedule = [
+      { time: "60 min (Boil Start)", label: "Fuggles Hops (30 IBU)" },
+      { time: "15 min (Whirlpool)", label: "East Kent Goldings (10 IBU)" },
+      { time: "0 min (Secondary)", label: "Oak Spirals & Vanilla Bean Infusion" }
+    ];
+  }
+
+  const styleLabel = beerStyles.find((s) => s.value === selectedBeer.style)?.title || selectedBeer.style;
 
   return (
     <TooltipProvider>
-      <section id="telemetry" className="py-20 bg-forest text-tan relative overflow-hidden border-t border-b border-tan/20">
+      <section id="telemetry" className="py-20 bg-forest text-tan relative overflow-hidden">
         {/* Fine blueprint coordinate grid texture */}
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M0%2040h40M40%200v40%22%20fill%3D%22none%22%20stroke%3D%22%23E8D7B5%22%20stroke-opacity%3D%220.025%22%20stroke-width%3D%221%22/%3E%3C/svg%3E')] opacity-70" />
 
         <div className="container mx-auto px-4 relative z-10 max-w-6xl">
-          {/* Header */}
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sky/30 bg-sky/5 text-sky text-xs font-mono uppercase tracking-widest mb-4">
-              <Activity className="w-3 h-3 animate-pulse" /> Active Brew Lab Telemetry
-            </div>
-            <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-tan mb-4 tracking-wide">Kettle Telemetry</h2>
-            <div className="w-24 h-1 bg-tan mx-auto mb-6" />
-            <p className="text-tan/70 max-w-2xl mx-auto italic">
-              Real-time fermentation parameters, water profile chemistry, and timing logs retrieved straight from our active private lab fermenters.
-            </p>
-          </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            {/* Split selectors for active and historical logs */}
+            <div className="grid md:grid-cols-2 gap-8 mb-12">
+              {/* Active Cellar Selection */}
+              <div>
+                <span className="text-xs uppercase font-mono tracking-widest text-tan/40 mb-3 block">Select Active Cellar Batch</span>
+                <TabsList className="bg-white/5 border border-tan/10 p-1 rounded-xl w-full flex flex-wrap h-auto gap-1">
+                  {activeBeers.length === 0 ? (
+                    <div className="text-xs font-mono p-3 text-tan/30 w-full text-center">No active batches in cellar.</div>
+                  ) : (
+                    activeBeers.map((beer) => (
+                      <TabsTrigger
+                        key={beer.slug}
+                        value={beer.slug}
+                        className="font-serif tracking-wide text-xs px-4 py-2 rounded-lg data-[state=active]:bg-tan data-[state=active]:text-forest flex-grow text-center"
+                      >
+                        {beer.beer_name}
+                      </TabsTrigger>
+                    ))
+                  )}
+                </TabsList>
+              </div>
 
-          <Tabs defaultValue="batch-42" className="w-full">
-            <div className="flex justify-center mb-10">
-              <TabsList className="bg-white/5 border border-tan/20 p-1 rounded-xl">
-                <TabsTrigger value="batch-42" className="font-serif tracking-wide text-sm px-6 py-2 rounded-lg data-[state=active]:bg-tan data-[state=active]:text-forest">
-                  Active: Batch #42 (Cold IPA)
-                </TabsTrigger>
-                <TabsTrigger value="batch-41" className="font-serif tracking-wide text-sm px-6 py-2 rounded-lg data-[state=active]:bg-tan data-[state=active]:text-forest">
-                  Historical: Batch #41 (Catoctin Stout)
-                </TabsTrigger>
-              </TabsList>
+              {/* Historical Logs Selection */}
+              <div>
+                <span className="text-xs uppercase font-mono tracking-widest text-tan/40 mb-3 block">Select Past Logs Archive</span>
+                <TabsList className="bg-white/5 border border-tan/10 p-1 rounded-xl w-full flex flex-wrap h-auto gap-1">
+                  {pastBeers.length === 0 ? (
+                    <div className="text-xs font-mono p-3 text-tan/30 w-full text-center">No archived logs available.</div>
+                  ) : (
+                    pastBeers.slice(0, 4).map((beer) => (
+                      <TabsTrigger
+                        key={beer.slug}
+                        value={beer.slug}
+                        className="font-serif tracking-wide text-xs px-4 py-2 rounded-lg data-[state=active]:bg-tan data-[state=active]:text-forest flex-grow text-center"
+                      >
+                        {beer.beer_name}
+                      </TabsTrigger>
+                    ))
+                  )}
+                </TabsList>
+              </div>
             </div>
 
-            {/* BATCH 42 */}
-            <TabsContent value="batch-42" className="space-y-8">
+            {/* TAB CONTENTS (RENDERED DYNAMICALLY) */}
+            <TabsContent value={activeTab} className="space-y-8 animate-fade-in duration-300">
               {/* Batch Banner Info */}
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-6 rounded-2xl border border-tan/20 bg-white/5 backdrop-blur-sm gap-4">
                 <div>
-                  <h3 className="font-serif text-2xl text-tan">Mountain Squall Cold IPA</h3>
-                  <p className="text-xs font-mono text-tan/50 mt-1">Recipe Code: ITB-COLD-042 | Brewed: Oct 12, 2024</p>
+                  <h3 className="font-serif text-3xl text-tan">{selectedBeer.beer_name}</h3>
+                  <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                    <span className="text-xs font-mono text-tan/50">Style: {styleLabel}</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-tan/20" />
+                    <span className="text-xs font-mono text-tan/50">Code: ITB-{selectedBeer.slug.toUpperCase().slice(0, 8)}</span>
+                  </div>
                 </div>
-                <span className="px-3 py-1 rounded bg-sky/20 text-sky text-xs font-mono font-semibold uppercase border border-sky/30 animate-pulse">
-                  Fermentation: Active Cold Crash
+
+                <span className={`px-3 py-1 rounded text-xs font-mono font-semibold uppercase border ${
+                  selectedBeer.status === "ready"
+                    ? "bg-green-500/20 text-green-300 border-green-500/30 animate-pulse"
+                    : selectedBeer.status === "brewing"
+                      ? "bg-blue-500/20 text-blue-300 border-blue-500/30 animate-pulse"
+                      : selectedBeer.status === "on_deck"
+                        ? "bg-amber-500/20 text-amber-300 border-amber-500/30 animate-pulse"
+                        : "bg-zinc-600/30 text-zinc-300 border-zinc-500/30"
+                }`}>
+                  {selectedBeer.status === "ready"
+                    ? "Draft Status: In the Kegerator"
+                    : selectedBeer.status === "brewing"
+                      ? "Fermenter Status: In the Carboy"
+                      : selectedBeer.status === "on_deck"
+                        ? "Cellar Status: Conditioning"
+                        : "Log Status: Completed / Archived"
+                  }
                 </span>
               </div>
 
@@ -59,16 +207,16 @@ export function TelemetryDashboard() {
                 <div className="p-6 rounded-2xl border border-tan/15 bg-white/5 backdrop-blur-sm flex flex-col">
                   <div className="flex items-center gap-2 mb-6 border-b border-tan/10 pb-4">
                     <Thermometer className="w-5 h-5 text-sky" />
-                    <h4 className="font-serif text-lg text-tan">Fermentation Logs</h4>
+                    <h4 className="font-serif text-lg text-tan">Active Cellar Logs</h4>
                   </div>
 
                   <div className="space-y-6 flex-grow">
                     {/* Temperature */}
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-tan/70">Lab Core Temp</span>
+                      <span className="text-sm text-tan/70">Telemetry Temp</span>
                       <div className="text-right">
-                        <span className="font-mono text-2xl text-sky font-bold">54.2°F</span>
-                        <span className="text-[10px] block text-sky/60 uppercase font-mono">Target: 54.0°F (Stable)</span>
+                        <span className="font-mono text-2xl text-sky font-bold">{coreTemp}</span>
+                        <span className="text-[10px] block text-sky/60 uppercase font-mono">Target: {tempTarget} ({tempStatus})</span>
                       </div>
                     </div>
 
@@ -76,14 +224,14 @@ export function TelemetryDashboard() {
                     <div className="flex justify-between items-center border-t border-tan/5 pt-4">
                       <span className="text-sm text-tan/70">Specific Gravity</span>
                       <div className="text-right">
-                        <span className="font-mono text-2xl text-tan font-bold">1.011 SG</span>
-                        <span className="text-[10px] block text-tan/60 uppercase font-mono">OG: 1.054 | FG Target: 1.009</span>
+                        <span className="font-mono text-2xl text-tan font-bold">{currentSg} SG</span>
+                        <span className="text-[10px] block text-tan/60 uppercase font-mono">OG: {og} | Target FG: {fg}</span>
                       </div>
                     </div>
 
                     {/* Gravity Curve Graph */}
                     <div className="border border-tan/10 rounded-lg p-3 bg-black/20 mt-4">
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-tan/40 mb-2 block">Gravity Conversion Curve</span>
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-tan/40 mb-2 block">Telemetry Density curve</span>
                       <div className="h-20 w-full flex items-end gap-1.5 pt-2">
                         <div className="bg-tan/15 h-full w-[12%] rounded-t" />
                         <div className="bg-tan/20 h-[85%] w-[12%] rounded-t" />
@@ -110,9 +258,7 @@ export function TelemetryDashboard() {
                         <HelpCircle className="w-4 h-4 text-tan/40 cursor-help hover:text-tan/70 transition-colors" />
                       </TooltipTrigger>
                       <TooltipContent className="bg-cream text-forest border border-tan max-w-xs p-3">
-                        <p className="text-xs font-sans">
-                          Sulfate-to-Chloride ratio set to 2.5:1 to dry out the malt character and amplify the crisp, refreshing hop bite of the mountain spring.
-                        </p>
+                        <p className="text-xs font-sans">{waterNotes}</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -121,7 +267,7 @@ export function TelemetryDashboard() {
                     {/* pH Level */}
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm text-tan/70">Mash Water pH</span>
-                      <span className="font-mono text-xl text-emerald-400 font-bold">5.25 pH</span>
+                      <span className="font-mono text-xl text-emerald-400 font-bold">{ph} pH</span>
                     </div>
                     <Progress value={90} className="h-1.5 bg-white/10" />
 
@@ -130,164 +276,53 @@ export function TelemetryDashboard() {
                       <div>
                         <div className="flex justify-between text-xs font-mono text-tan/60 mb-1">
                           <span>Sulfate (SO₄²⁻)</span>
-                          <span>150 ppm (Target: 150)</span>
+                          <span>{sulfate} ppm (Target: {sulfate})</span>
                         </div>
                         <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-                          <div className="bg-sky h-full" style={{ width: "100%" }} />
+                          <div className="bg-sky h-full" style={{ width: sulfatePercent }} />
                         </div>
                       </div>
 
                       <div>
                         <div className="flex justify-between text-xs font-mono text-tan/60 mb-1">
                           <span>Chloride (Cl⁻)</span>
-                          <span>60 ppm (Target: 60)</span>
+                          <span>{chloride} ppm (Target: {chloride})</span>
                         </div>
                         <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-                          <div className="bg-sky h-full" style={{ width: "40%" }} />
+                          <div className="bg-sky h-full" style={{ width: chloridePercent }} />
                         </div>
                       </div>
 
                       <div>
                         <div className="flex justify-between text-xs font-mono text-tan/60 mb-1">
                           <span>Calcium (Ca²⁺)</span>
-                          <span>75 ppm (Target: 75)</span>
+                          <span>{calcium} ppm (Target: {calcium})</span>
                         </div>
                         <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-                          <div className="bg-emerald-400 h-full" style={{ width: "75%" }} />
+                          <div className="bg-emerald-400 h-full" style={{ width: calciumPercent }} />
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* 3. Hop Timeline */}
+                {/* 3. Hop/Grain Timeline */}
                 <div className="p-6 rounded-2xl border border-tan/15 bg-white/5 backdrop-blur-sm flex flex-col">
                   <div className="flex items-center gap-2 mb-6 border-b border-tan/10 pb-4">
                     <Layers className="w-5 h-5 text-amber-400" />
-                    <h4 className="font-serif text-lg text-tan">Kettle Addition Schedule</h4>
+                    <h4 className="font-serif text-lg text-tan">Addition Timing Logs</h4>
                   </div>
 
                   <div className="space-y-5 flex-grow font-mono text-sm text-tan/80">
-                    <div className="flex items-start gap-3 relative pb-4 border-l border-amber-400/20 pl-4 ml-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-amber-400 absolute -left-[5.5px] top-1.5" />
-                      <div>
-                        <span className="text-xs text-amber-400 uppercase font-bold">60 min (Boil Start)</span>
-                        <p className="font-serif text-tan mt-0.5">Magnum Hops (15 IBU)</p>
+                    {kettleSchedule.map((step, idx) => (
+                      <div key={idx} className="flex items-start gap-3 relative pb-4 border-l border-amber-400/20 pl-4 ml-2">
+                        <div className="w-2.5 h-2.5 rounded-full bg-amber-400 absolute -left-[5.5px] top-1.5" />
+                        <div>
+                          <span className="text-xs text-amber-400 uppercase font-bold">{step.time}</span>
+                          <p className="font-serif text-tan mt-0.5">{step.label}</p>
+                        </div>
                       </div>
-                    </div>
-
-                    <div className="flex items-start gap-3 relative pb-4 border-l border-amber-400/20 pl-4 ml-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-amber-400 absolute -left-[5.5px] top-1.5" />
-                      <div>
-                        <span className="text-xs text-amber-400 uppercase font-bold">15 min (Flavor)</span>
-                        <p className="font-serif text-tan mt-0.5">Citra & Mosaic (10 IBU)</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3 relative pb-4 border-l border-amber-400/20 pl-4 ml-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-amber-400 absolute -left-[5.5px] top-1.5 animate-ping" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-amber-400 absolute -left-[5.5px] top-1.5" />
-                      <div>
-                        <span className="text-xs text-amber-400 uppercase font-bold">0 min (Whirlpool)</span>
-                        <p className="font-serif text-tan mt-0.5">Double Dry Hop: Citra Cryo & Simcoe</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* BATCH 41 */}
-            <TabsContent value="batch-41" className="space-y-8">
-              {/* Batch Banner Info */}
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-6 rounded-2xl border border-tan/20 bg-white/5 backdrop-blur-sm gap-4">
-                <div>
-                  <h3 className="font-serif text-2xl text-tan">Catoctin Stout</h3>
-                  <p className="text-xs font-mono text-tan/50 mt-1">Recipe Code: ITB-STOUT-041 | Brewed: Sep 08, 2024</p>
-                </div>
-                <span className="px-3 py-1 rounded bg-zinc-600/30 text-zinc-300 text-xs font-mono font-semibold uppercase border border-zinc-500/30">
-                  Status: Completed / Logged
-                </span>
-              </div>
-
-              {/* Grid Layout */}
-              <div className="grid lg:grid-cols-3 gap-8">
-                {/* 1. Fermentation Metrics */}
-                <div className="p-6 rounded-2xl border border-tan/15 bg-white/5 backdrop-blur-sm flex flex-col">
-                  <div className="flex items-center gap-2 mb-6 border-b border-tan/10 pb-4">
-                    <Thermometer className="w-5 h-5 text-tan" />
-                    <h4 className="font-serif text-lg text-tan">Fermentation Logs</h4>
-                  </div>
-
-                  <div className="space-y-6 flex-grow">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-tan/70">Final Temp</span>
-                      <span className="font-mono text-2xl text-tan font-bold">65.0°F</span>
-                    </div>
-
-                    <div className="flex justify-between items-center border-t border-tan/5 pt-4">
-                      <span className="text-sm text-tan/70">Final Gravity</span>
-                      <div className="text-right">
-                        <span className="font-mono text-2xl text-tan font-bold">1.020 SG</span>
-                        <span className="text-[10px] block text-emerald-400 uppercase font-mono">OG: 1.082 | Attenuation: 76%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 2. Chemistry Profile */}
-                <div className="p-6 rounded-2xl border border-tan/15 bg-white/5 backdrop-blur-sm flex flex-col">
-                  <div className="flex items-center justify-between mb-6 border-b border-tan/10 pb-4">
-                    <div className="flex items-center gap-2">
-                      <Droplet className="w-5 h-5 text-tan" />
-                      <h4 className="font-serif text-lg text-tan">Water Chemistry</h4>
-                    </div>
-                  </div>
-
-                  <div className="space-y-6 flex-grow">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm text-tan/70">Mash Water pH</span>
-                      <span className="font-mono text-xl text-emerald-400 font-bold">5.45 pH</span>
-                    </div>
-                    <Progress value={100} className="h-1.5 bg-white/10" />
-
-                    <div className="space-y-4 border-t border-tan/5 pt-4">
-                      <div className="flex justify-between text-xs font-mono text-tan/60">
-                        <span>Chloride (Cl⁻)</span>
-                        <span>120 ppm (Target: 120)</span>
-                      </div>
-                      <div className="flex justify-between text-xs font-mono text-tan/60 border-t border-tan/5 pt-2">
-                        <span>Sulfate (SO₄²⁻)</span>
-                        <span>40 ppm (Target: 40)</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 3. Mash Bill */}
-                <div className="p-6 rounded-2xl border border-tan/15 bg-white/5 backdrop-blur-sm flex flex-col">
-                  <div className="flex items-center gap-2 mb-6 border-b border-tan/10 pb-4">
-                    <Layers className="w-5 h-5 text-tan" />
-                    <h4 className="font-serif text-lg text-tan">Mash Bill (Grain Profile)</h4>
-                  </div>
-
-                  <div className="space-y-4 flex-grow font-mono text-sm text-tan/80">
-                    <div className="flex justify-between border-b border-tan/5 pb-2">
-                      <span>Maris Otter Malt</span>
-                      <span>72%</span>
-                    </div>
-                    <div className="flex justify-between border-b border-tan/5 pb-2">
-                      <span>Flaked Oats</span>
-                      <span>12%</span>
-                    </div>
-                    <div className="flex justify-between border-b border-tan/5 pb-2">
-                      <span>Chocolate Malt</span>
-                      <span>10%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Roasted Barley</span>
-                      <span>6%</span>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -303,13 +338,15 @@ export function TelemetryDashboard() {
                 </div>
               </TooltipTrigger>
               <TooltipContent className="bg-cream text-forest border border-tan max-w-sm p-4 font-mono text-xs">
-                <p className="font-bold text-sm mb-2">RAW BREW LOG PAYLOAD:</p>
+                <p className="font-bold text-sm mb-2">RAW SYSTEM PAYLOAD ({selectedBeer.slug}):</p>
                 <pre className="text-[10px] leading-relaxed text-forest/80">
 {`{
-  "batchId": "ITB-COLD-042",
-  "fermentTempSensor": "FC-01",
-  "tiltGravitySg": 1.0112,
-  "lastIngestTimestamp": "2024-10-14T21:42:00Z"
+  "batchId": "ITB-${selectedBeer.slug.toUpperCase().slice(0, 8)}",
+  "style": "${selectedBeer.style}",
+  "tiltGravitySg": ${currentSg},
+  "temp": "${coreTemp}",
+  "abv": ${selectedBeer.abv || "null"},
+  "ibu": ${selectedBeer.ibu || "null"}
 }`}
                 </pre>
               </TooltipContent>

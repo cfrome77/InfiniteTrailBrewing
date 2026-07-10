@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 
 const navLinks = [
   { href: "/beers", label: "The Brew Log" },
+  { href: "/telemetry", label: "Lab Telemetry" },
   { href: process.env.NEXT_PUBLIC_FOURTHWALL_SHOP_URL, label: "Shop Merch", isExternal: true },
   { href: "/blog", label: "Lab Notes" },
   { href: "/our-story", label: "Our Story" },

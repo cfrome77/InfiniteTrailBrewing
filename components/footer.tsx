@@ -58,6 +58,12 @@ export function Footer() {
                 The Brew Log
               </Link>
               <Link
+                href="/telemetry"
+                className="text-tan/70 hover:text-tan transition-colors"
+              >
+                Lab Telemetry
+              </Link>
+              <Link
                 href="/beers?tab=archive"
                 className="text-tan/70 hover:text-tan transition-colors"
               >

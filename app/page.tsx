@@ -1,6 +1,5 @@
 import { Navbar } from "@/components/navbar";
 import { Hero } from "@/components/hero";
-import { TelemetryDashboard } from "@/components/telemetry-dashboard";
 import { RecentPosts } from "@/components/recent-posts";
 import { HomeCTA } from "@/components/home-cta";
 import { Footer } from "@/components/footer";
@@ -11,7 +10,6 @@ export default function Home() {
     <main className="min-h-screen">
       <Navbar />
       <Hero />
-      <TelemetryDashboard />
       <RecentPosts />
       <HomeCTA />
       <Footer />
