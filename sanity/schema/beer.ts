@@ -115,6 +115,46 @@ export default {
       of: [{ type: "reference", to: [{ type: "post" }] }],
     },
     {
+      name: "telemetry",
+      title: "Kettle & Cellar Telemetry (Optional)",
+      type: "object",
+      group: "lab",
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
+      fields: [
+        { name: "currentGravity", title: "Current Gravity (SG)", type: "number" },
+        { name: "targetFg", title: "Target Final Gravity (FG)", type: "number" },
+        {
+          name: "waterProfile",
+          title: "Water Chemistry Profile",
+          type: "object",
+          fields: [
+            { name: "ph", title: "Mash pH", type: "number" },
+            { name: "sulfate", title: "Sulfate (ppm)", type: "number" },
+            { name: "chloride", title: "Chloride (ppm)", type: "number" },
+            { name: "calcium", title: "Calcium (ppm)", type: "number" },
+            { name: "waterNotes", title: "Water Adjustment Notes", type: "text", rows: 3 },
+          ]
+        },
+        {
+          name: "kettleSchedule",
+          title: "Kettle Addition Timing Logs",
+          type: "array",
+          of: [
+            {
+              type: "object",
+              fields: [
+                { name: "time", title: "Time (e.g. '60 min', 'Flameout')", type: "string" },
+                { name: "label", title: "Addition Detail (e.g. 'Citra 10 IBU')", type: "string" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
       name: "isCommercialProduct",
       title: "Ready for Public Sale (Commercial)",
       type: "boolean",

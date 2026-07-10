@@ -27,7 +27,7 @@ const STATUS_STRATEGY_MAP: Record<BeerStatus, ActionConfig> = {
     variant: "secondary",
     icon: Thermometer,
     component: Link,
-    props: { href: "/#telemetry" },
+    props: { href: "/telemetry" },
   },
   ready: {
     label: "Request a Tasting Batch",

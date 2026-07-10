@@ -17,6 +17,26 @@ export interface TastingNotes {
   mouthfeel?: string;
 }
 
+export interface WaterProfile {
+  ph?: number;
+  sulfate?: number;
+  chloride?: number;
+  calcium?: number;
+  waterNotes?: string;
+}
+
+export interface KettleAddition {
+  time: string;
+  label: string;
+}
+
+export interface Telemetry {
+  currentGravity?: number;
+  targetFg?: number;
+  waterProfile?: WaterProfile;
+  kettleSchedule?: KettleAddition[];
+}
+
 export interface Beer {
   _id: string;
   id: string; // Map of _id
@@ -32,6 +52,7 @@ export interface Beer {
   is_flagship: boolean;
   image?: any; // Sanity image object (use with urlFor)
   relatedPosts?: any[]; // References to BlogPost documents
+  telemetry?: Telemetry; // Optional Kettle & Cellar telemetry logs
   _createdAt?: string;
 }
 

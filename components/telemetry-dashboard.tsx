@@ -32,7 +32,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
     );
   }
 
-  // --- DETERMINISTIC STATS GENERATION BASED ON SANITY BEER DATA ---
+  // --- STYLE-BASED PROCEDURAL FALLBACKS ---
   const isIpa = selectedBeer.style.toLowerCase().includes("ipa") || selectedBeer.style.toLowerCase().includes("hop");
   const isStout = selectedBeer.style.toLowerCase().includes("stout") || selectedBeer.style.toLowerCase().includes("porter");
 
@@ -57,63 +57,91 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
 
   // 2. Specific Gravity calculations
   const abvNum = selectedBeer.abv || 5.0;
-  const og = (1 + abvNum * 0.0078).toFixed(3);
-  const fg = (1 + abvNum * 0.0018).toFixed(3);
-  let currentSg = fg;
+  const calculatedOg = (1 + abvNum * 0.0078).toFixed(3);
+  const calculatedFg = (1 + abvNum * 0.0018).toFixed(3);
+  let calculatedCurrentSg = calculatedFg;
   if (selectedBeer.status === "brewing") {
-    currentSg = (parseFloat(og) - (abvNum * 0.004)).toFixed(3);
+    calculatedCurrentSg = (parseFloat(calculatedOg) - (abvNum * 0.004)).toFixed(3);
   }
+
+  const currentSg = selectedBeer.telemetry?.currentGravity
+    ? selectedBeer.telemetry.currentGravity.toFixed(3)
+    : calculatedCurrentSg;
+  const fg = selectedBeer.telemetry?.targetFg
+    ? selectedBeer.telemetry.targetFg.toFixed(3)
+    : calculatedFg;
 
   // 3. Water profile ions
-  let ph = "5.25";
-  let sulfate = 150;
-  let chloride = 60;
-  let calcium = 75;
-  let sulfatePercent = "100%";
-  let chloridePercent = "40%";
-  let calciumPercent = "75%";
-  let waterNotes = "Sulfate-to-Chloride ratio set to 2.5:1 to dry out the malt character and amplify the hop crispness.";
+  let calculatedPh = "5.32";
+  let calculatedSulfate = 80;
+  let calculatedChloride = 80;
+  let calculatedCalcium = 65;
+  let calculatedSulfatePercent = "60%";
+  let calculatedChloridePercent = "60%";
+  let calculatedCalciumPercent = "65%";
+  let calculatedWaterNotes = "Balanced 1:1 Sulfate-to-Chloride ratio profiles the malt sweetness and hop bitterness equally for lagers and ales.";
 
-  if (isStout) {
-    ph = "5.45";
-    sulfate = 40;
-    chloride = 120;
-    calcium = 85;
-    sulfatePercent = "25%";
-    chloridePercent = "100%";
-    calciumPercent = "85%";
-    waterNotes = "High chloride ratio softens the bitter roast astringency, boosting full body mouthfeel and chocolate malt sweetness.";
-  } else if (!isIpa && !isStout) {
-    ph = "5.32";
-    sulfate = 80;
-    chloride = 80;
-    calcium = 65;
-    sulfatePercent = "60%";
-    chloridePercent = "60%";
-    calciumPercent = "65%";
-    waterNotes = "Balanced 1:1 Sulfate-to-Chloride ratio profiles the malt sweetness and hop bitterness equally for lagers and ales.";
+  if (isIpa) {
+    calculatedPh = "5.25";
+    calculatedSulfate = 150;
+    calculatedChloride = 60;
+    calculatedCalcium = 75;
+    calculatedSulfatePercent = "100%";
+    calculatedChloridePercent = "40%";
+    calculatedCalciumPercent = "75%";
+    calculatedWaterNotes = "Sulfate-to-Chloride ratio set to 2.5:1 to dry out the malt character and amplify the hop crispness.";
+  } else if (isStout) {
+    calculatedPh = "5.45";
+    calculatedSulfate = 40;
+    calculatedChloride = 120;
+    calculatedCalcium = 85;
+    calculatedSulfatePercent = "25%";
+    calculatedChloridePercent = "100%";
+    calculatedCalciumPercent = "85%";
+    calculatedWaterNotes = "High chloride ratio softens the bitter roast astringency, boosting full body mouthfeel and chocolate malt sweetness.";
   }
 
-  // 4. Mash Bill & Hop Timings
-  let kettleSchedule = [
+  // Merge real telemetry water chemistry if supplied, otherwise use style fallbacks
+  const ph = selectedBeer.telemetry?.waterProfile?.ph
+    ? selectedBeer.telemetry.waterProfile.ph.toFixed(2)
+    : calculatedPh;
+  const sulfate = selectedBeer.telemetry?.waterProfile?.sulfate ?? calculatedSulfate;
+  const chloride = selectedBeer.telemetry?.waterProfile?.chloride ?? calculatedChloride;
+  const calcium = selectedBeer.telemetry?.waterProfile?.calcium ?? calculatedCalcium;
+  const waterNotes = selectedBeer.telemetry?.waterProfile?.waterNotes ?? calculatedWaterNotes;
+
+  // Calculate visual bar percentages based on dynamic or fallback ppm levels
+  const maxSulfate = 180;
+  const maxChloride = 150;
+  const maxCalcium = 100;
+  const sulfatePercent = `${Math.min((sulfate / maxSulfate) * 100, 100)}%`;
+  const chloridePercent = `${Math.min((chloride / maxChloride) * 100, 100)}%`;
+  const calciumPercent = `${Math.min((calcium / maxCalcium) * 100, 100)}%`;
+
+  // 4. Hop Timings
+  let calculatedKettleSchedule = [
     { time: "60 min (Boil Start)", label: "Magnum Hops (15 IBU)" },
     { time: "15 min (Flavor)", label: "Cascade Hops (5 IBU)" },
     { time: "0 min (Whirlpool)", label: "Willamette Finings" }
   ];
 
   if (isIpa) {
-    kettleSchedule = [
+    calculatedKettleSchedule = [
       { time: "60 min (Boil Start)", label: "Warrior Hops (25 IBU)" },
       { time: "10 min (Aroma)", label: "Citra & Mosaic (15 IBU)" },
       { time: "0 min (Flameout)", label: "Double Dry Hop: Amarillo & Simcoe Cryo" }
     ];
   } else if (isStout) {
-    kettleSchedule = [
+    calculatedKettleSchedule = [
       { time: "60 min (Boil Start)", label: "Fuggles Hops (30 IBU)" },
       { time: "15 min (Whirlpool)", label: "East Kent Goldings (10 IBU)" },
       { time: "0 min (Secondary)", label: "Oak Spirals & Vanilla Bean Infusion" }
     ];
   }
+
+  const kettleSchedule = (selectedBeer.telemetry?.kettleSchedule && selectedBeer.telemetry.kettleSchedule.length > 0)
+    ? selectedBeer.telemetry.kettleSchedule
+    : calculatedKettleSchedule;
 
   const styleLabel = beerStyles.find((s) => s.value === selectedBeer.style)?.title || selectedBeer.style;
 
@@ -225,7 +253,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
                       <span className="text-sm text-tan/70">Specific Gravity</span>
                       <div className="text-right">
                         <span className="font-mono text-2xl text-tan font-bold">{currentSg} SG</span>
-                        <span className="text-[10px] block text-tan/60 uppercase font-mono">OG: {og} | Target FG: {fg}</span>
+                        <span className="text-[10px] block text-tan/60 uppercase font-mono">Calculated OG: {calculatedOg} | Target FG: {fg}</span>
                       </div>
                     </div>
 
@@ -276,7 +304,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
                       <div>
                         <div className="flex justify-between text-xs font-mono text-tan/60 mb-1">
                           <span>Sulfate (SO₄²⁻)</span>
-                          <span>{sulfate} ppm (Target: {sulfate})</span>
+                          <span>{sulfate} ppm</span>
                         </div>
                         <div className="h-1 bg-white/10 rounded-full overflow-hidden">
                           <div className="bg-sky h-full" style={{ width: sulfatePercent }} />
@@ -286,7 +314,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
                       <div>
                         <div className="flex justify-between text-xs font-mono text-tan/60 mb-1">
                           <span>Chloride (Cl⁻)</span>
-                          <span>{chloride} ppm (Target: {chloride})</span>
+                          <span>{chloride} ppm</span>
                         </div>
                         <div className="h-1 bg-white/10 rounded-full overflow-hidden">
                           <div className="bg-sky h-full" style={{ width: chloridePercent }} />
@@ -296,7 +324,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
                       <div>
                         <div className="flex justify-between text-xs font-mono text-tan/60 mb-1">
                           <span>Calcium (Ca²⁺)</span>
-                          <span>{calcium} ppm (Target: {calcium})</span>
+                          <span>{calcium} ppm</span>
                         </div>
                         <div className="h-1 bg-white/10 rounded-full overflow-hidden">
                           <div className="bg-emerald-400 h-full" style={{ width: calciumPercent }} />
@@ -346,7 +374,8 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
   "tiltGravitySg": ${currentSg},
   "temp": "${coreTemp}",
   "abv": ${selectedBeer.abv || "null"},
-  "ibu": ${selectedBeer.ibu || "null"}
+  "ibu": ${selectedBeer.ibu || "null"},
+  "has_real_telemetry": ${selectedBeer.telemetry ? "true" : "false"}
 }`}
                 </pre>
               </TooltipContent>

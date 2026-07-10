@@ -37,12 +37,12 @@ function StatusPill({ status }: { status: BeerStatus }) {
 
   const label =
     status === "on_deck"
-      ? "conditioning"
+      ? "on deck"
       : status === "brewing"
-        ? "in the carboy"
+        ? "brewing"
         : status === "ready"
-          ? "in the kegerator"
-          : "past batch";
+          ? "on tap"
+          : "archived";
 
   return (
     <span
@@ -150,7 +150,7 @@ export function BeersContent({ initialBeers }: { initialBeers: Beer[] }) {
               : "bg-tan/50 text-forest"
           }`}
         >
-          Active Cellar
+          Current Brews
         </button>
 
         <button
@@ -161,28 +161,28 @@ export function BeersContent({ initialBeers }: { initialBeers: Beer[] }) {
               : "bg-tan/50 text-forest"
           }`}
         >
-          Past Batches Log
+          Beer Archive
         </button>
       </div>
 
       {/* CURRENT */}
       {activeTab === "current" && (
         <>
-          <SectionTitle title="Conditioning" count={onDeck.length} />
+          <SectionTitle title="On Deck" count={onDeck.length} />
           {onDeck.length === 0 ? (
-            <EmptyState text="No beers currently conditioning." />
+            <EmptyState text="No beers on deck." />
           ) : (
             <BeerGrid beers={onDeck} />
           )}
 
-          <SectionTitle title="In the Carboy" count={brewing.length} />
+          <SectionTitle title="Brewing" count={brewing.length} />
           {brewing.length === 0 ? (
-            <EmptyState text="Nothing fermenting right now." />
+            <EmptyState text="Nothing brewing right now." />
           ) : (
             <BeerGrid beers={brewing} />
           )}
 
-          <SectionTitle title="In the Kegerator" count={ready.length} />
+          <SectionTitle title="On Tap" count={ready.length} />
           {ready.length === 0 ? (
             <EmptyState text="No beers currently on tap." />
           ) : (
@@ -194,10 +194,10 @@ export function BeersContent({ initialBeers }: { initialBeers: Beer[] }) {
       {/* ARCHIVE */}
       {activeTab === "archive" && (
         <>
-          <SectionTitle title="Past Batches Log" count={archived.length} />
+          <SectionTitle title="Archived Beers" count={archived.length} />
 
           {archived.length === 0 ? (
-            <EmptyState text="No past batches archived yet." />
+            <EmptyState text="No archived beers yet." />
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {archived.map((beer) => {

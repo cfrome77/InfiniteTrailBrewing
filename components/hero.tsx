@@ -28,28 +28,14 @@ export function Hero() {
         </p>
 
         {/* Location */}
-        <p className="text-lg md:text-xl text-tan/70 mb-4 animate-fade-in [animation-delay:400ms] opacity-0 [animation-fill-mode:forwards]">
-          An experimental private craft beer lab in Frederick, MD
+        <p className="text-lg md:text-xl text-tan/70 mb-6 animate-fade-in [animation-delay:400ms] opacity-0 [animation-fill-mode:forwards]">
+          Hand-forged craft beers in Frederick, MD
         </p>
-
-        {/* LIVE TELEMETRY TEASER */}
-        <div className="mb-8 animate-fade-in [animation-delay:450ms] opacity-0 [animation-fill-mode:forwards]">
-          <Link
-            href="/telemetry"
-            className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-sky/30 bg-sky/5 text-sky hover:bg-sky/10 hover:border-sky/50 transition-all duration-300 text-xs font-mono uppercase tracking-widest shadow-sm"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-sky"></span>
-            </span>
-            Kettle Live Status: Sensors Online ➔ View Live Telemetry
-          </Link>
-        </div>
 
         {/* Marketing Copy to fill space */}
         <div className="max-w-2xl mx-auto mb-10 animate-fade-in [animation-delay:500ms] opacity-0 [animation-fill-mode:forwards]">
           <p className="text-lg md:text-xl leading-relaxed text-tan/80 italic font-light">
-            From the rolling hills of the Catoctin Mountains to the historic streets of Downtown Frederick, we document and brew beers that honor the journey. Small batch, private trials, and always ready for the next summit.
+            From the rolling hills of the Catoctin Mountains to the historic streets of Downtown Frederick, we brew beers that honor the journey. Small batch, high character, and always ready for the next summit.
           </p>
         </div>
 
@@ -60,7 +46,7 @@ export function Hero() {
             size="lg"
             className="bg-tan text-forest hover:bg-tan/90 font-serif text-lg px-8 py-6 tracking-wide shadow-xl hover:scale-105 transition-all duration-300"
           >
-            <Link href="/beers">Explore The Brew Log</Link>
+            <Link href="/beers">Explore Our Beers</Link>
           </Button>
 
           <Button
