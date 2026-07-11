@@ -29,13 +29,10 @@ export default {
     },
     {
       name: "style",
-      title: "Style",
-      type: "string",
+      title: "Style Reference",
+      type: "reference",
+      to: [{ type: "beerStyle" }],
       group: "lab",
-      options: {
-        list: beerStyles,
-        layout: "dropdown",
-      },
       validation: (Rule: any) => Rule.required(),
     },
     {

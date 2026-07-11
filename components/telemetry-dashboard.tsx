@@ -4,9 +4,8 @@ import React, { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
-import { Thermometer, Droplet, Layers, HelpCircle, Activity, Info, Calendar } from "lucide-react";
-import { Beer, BeerStatus } from "@/types";
-import { beerStyles } from "@/sanity/constants/beerStyles";
+import { Thermometer, Droplet, Layers, HelpCircle, Info } from "lucide-react";
+import { Beer } from "@/types";
 
 interface TelemetryDashboardProps {
   initialBeers: Beer[];
@@ -32,11 +31,8 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
     );
   }
 
-  // --- STYLE-BASED PROCEDURAL FALLBACKS ---
-  const isIpa = selectedBeer.style.toLowerCase().includes("ipa") || selectedBeer.style.toLowerCase().includes("hop");
-  const isStout = selectedBeer.style.toLowerCase().includes("stout") || selectedBeer.style.toLowerCase().includes("porter");
-
-  // 1. Core Temps (Draft Kegerator vs. active fermentation vs. cold condition vs. cellared)
+  // --- STYLE-BASED AND STATUS-BASED DETERMINISTIC FORMULAS ---
+  // Core Temps resolution based on current real-time cellar status
   let coreTemp = "38.2°F";
   let tempTarget = "38.0°F";
   let tempStatus = "Stable Draft Temp";
@@ -55,7 +51,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
     tempStatus = "Cellared / Archived";
   }
 
-  // 2. Specific Gravity calculations
+  // Specific Gravity calculations
   const abvNum = selectedBeer.abv || 5.0;
   const calculatedOg = (1 + abvNum * 0.0078).toFixed(3);
   const calculatedFg = (1 + abvNum * 0.0018).toFixed(3);
@@ -71,46 +67,16 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
     ? selectedBeer.telemetry.targetFg.toFixed(3)
     : calculatedFg;
 
-  // 3. Water profile ions
-  let calculatedPh = "5.32";
-  let calculatedSulfate = 80;
-  let calculatedChloride = 80;
-  let calculatedCalcium = 65;
-  let calculatedSulfatePercent = "60%";
-  let calculatedChloridePercent = "60%";
-  let calculatedCalciumPercent = "65%";
-  let calculatedWaterNotes = "Balanced 1:1 Sulfate-to-Chloride ratio profiles the malt sweetness and hop bitterness equally for lagers and ales.";
+  // --- SEAMLESS CMS-FIRST DATA INHERITANCE ---
+  // Read our server-side coalesced values with zero frontend string checking!
+  const ph = parseFloat(selectedBeer.resolvedPh || "5.32").toFixed(2);
+  const sulfate = selectedBeer.resolvedSulfate;
+  const chloride = selectedBeer.resolvedChloride;
+  const calcium = selectedBeer.resolvedCalcium;
+  const waterNotes = selectedBeer.resolvedWaterNotes;
+  const kettleSchedule = selectedBeer.resolvedKettleSchedule;
 
-  if (isIpa) {
-    calculatedPh = "5.25";
-    calculatedSulfate = 150;
-    calculatedChloride = 60;
-    calculatedCalcium = 75;
-    calculatedSulfatePercent = "100%";
-    calculatedChloridePercent = "40%";
-    calculatedCalciumPercent = "75%";
-    calculatedWaterNotes = "Sulfate-to-Chloride ratio set to 2.5:1 to dry out the malt character and amplify the hop crispness.";
-  } else if (isStout) {
-    calculatedPh = "5.45";
-    calculatedSulfate = 40;
-    calculatedChloride = 120;
-    calculatedCalcium = 85;
-    calculatedSulfatePercent = "25%";
-    calculatedChloridePercent = "100%";
-    calculatedCalciumPercent = "85%";
-    calculatedWaterNotes = "High chloride ratio softens the bitter roast astringency, boosting full body mouthfeel and chocolate malt sweetness.";
-  }
-
-  // Merge real telemetry water chemistry if supplied, otherwise use style fallbacks
-  const ph = selectedBeer.telemetry?.waterProfile?.ph
-    ? selectedBeer.telemetry.waterProfile.ph.toFixed(2)
-    : calculatedPh;
-  const sulfate = selectedBeer.telemetry?.waterProfile?.sulfate ?? calculatedSulfate;
-  const chloride = selectedBeer.telemetry?.waterProfile?.chloride ?? calculatedChloride;
-  const calcium = selectedBeer.telemetry?.waterProfile?.calcium ?? calculatedCalcium;
-  const waterNotes = selectedBeer.telemetry?.waterProfile?.waterNotes ?? calculatedWaterNotes;
-
-  // Calculate visual bar percentages based on dynamic or fallback ppm levels
+  // Calculate visual bar percentages based on ppm levels relative to standards
   const maxSulfate = 180;
   const maxChloride = 150;
   const maxCalcium = 100;
@@ -118,32 +84,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
   const chloridePercent = `${Math.min((chloride / maxChloride) * 100, 100)}%`;
   const calciumPercent = `${Math.min((calcium / maxCalcium) * 100, 100)}%`;
 
-  // 4. Hop Timings
-  let calculatedKettleSchedule = [
-    { time: "60 min (Boil Start)", label: "Magnum Hops (15 IBU)" },
-    { time: "15 min (Flavor)", label: "Cascade Hops (5 IBU)" },
-    { time: "0 min (Whirlpool)", label: "Willamette Finings" }
-  ];
-
-  if (isIpa) {
-    calculatedKettleSchedule = [
-      { time: "60 min (Boil Start)", label: "Warrior Hops (25 IBU)" },
-      { time: "10 min (Aroma)", label: "Citra & Mosaic (15 IBU)" },
-      { time: "0 min (Flameout)", label: "Double Dry Hop: Amarillo & Simcoe Cryo" }
-    ];
-  } else if (isStout) {
-    calculatedKettleSchedule = [
-      { time: "60 min (Boil Start)", label: "Fuggles Hops (30 IBU)" },
-      { time: "15 min (Whirlpool)", label: "East Kent Goldings (10 IBU)" },
-      { time: "0 min (Secondary)", label: "Oak Spirals & Vanilla Bean Infusion" }
-    ];
-  }
-
-  const kettleSchedule = (selectedBeer.telemetry?.kettleSchedule && selectedBeer.telemetry.kettleSchedule.length > 0)
-    ? selectedBeer.telemetry.kettleSchedule
-    : calculatedKettleSchedule;
-
-  const styleLabel = beerStyles.find((s) => s.value === selectedBeer.style)?.title || selectedBeer.style;
+  const styleLabel = selectedBeer.style?.title || "Special Style";
 
   return (
     <TooltipProvider>
@@ -370,7 +311,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
                 <pre className="text-[10px] leading-relaxed text-forest/80">
 {`{
   "batchId": "ITB-${selectedBeer.slug.toUpperCase().slice(0, 8)}",
-  "style": "${selectedBeer.style}",
+  "style": "${styleLabel}",
   "tiltGravitySg": ${currentSg},
   "temp": "${coreTemp}",
   "abv": ${selectedBeer.abv || "null"},

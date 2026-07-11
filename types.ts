@@ -37,12 +37,19 @@ export interface Telemetry {
   kettleSchedule?: KettleAddition[];
 }
 
+export interface BeerStyle {
+  _id: string;
+  title: string;
+  slug: string;
+  defaultTelemetry?: Telemetry;
+}
+
 export interface Beer {
   _id: string;
   id: string; // Map of _id
   beer_name: string;
   slug: string; // Mapped to slug.current in GROQ
-  style: string;
+  style: BeerStyle; // Server-resolved beer style reference
   brewery?: string;
   status: BeerStatus;
   notes?: string | null; // General description
@@ -54,6 +61,17 @@ export interface Beer {
   relatedPosts?: any[]; // References to BlogPost documents
   telemetry?: Telemetry; // Optional Kettle & Cellar telemetry logs
   _createdAt?: string;
+
+  // Coalesced/resolved presentation fields calculated in GROQ server-side
+  resolvedPh: string;
+  resolvedSulfate: number;
+  resolvedChloride: number;
+  resolvedCalcium: number;
+  resolvedWaterNotes: string;
+  resolvedKettleSchedule: KettleAddition[];
+  resolvedCurrentSg: string;
+  resolvedFg: string;
+  resolvedOg: string;
 }
 
 export interface SEOFields {

@@ -54,3 +54,4 @@ Check the render method of `div`. It was passed a child from Navbar. See https:/
 [browser] Each child in a list should have a unique "key" prop.
 
 Check the render method of `div`. It was passed a child from Navbar. See https://react.dev/link/warning-keys for more information.
+✓ Compiled in 268ms
