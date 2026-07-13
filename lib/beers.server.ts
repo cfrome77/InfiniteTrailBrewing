@@ -5,7 +5,11 @@ import { ALL_BEERS_QUERY, BEERS_PAGE_QUERY, BEER_BY_SLUG_QUERY, ALL_BEER_SLUGS_Q
 
 export async function getAllBeers(): Promise<Beer[]> {
   try {
-    const beers = await activeClient.fetch(ALL_BEERS_QUERY);
+    const beers = await activeClient.fetch(
+      ALL_BEERS_QUERY,
+      {},
+      { next: { tags: ["beers"], revalidate: 86400 } }
+    );
     return beers || [];
   } catch (e) {
     console.error("Error fetching beers:", e);
@@ -15,7 +19,11 @@ export async function getAllBeers(): Promise<Beer[]> {
 
 export async function getBeersForPage(): Promise<Beer[]> {
   try {
-    const beers = await activeClient.fetch(BEERS_PAGE_QUERY);
+    const beers = await activeClient.fetch(
+      BEERS_PAGE_QUERY,
+      {},
+      { next: { tags: ["beers"], revalidate: 86400 } }
+    );
     return beers || [];
   } catch (e) {
     console.error("Error fetching beers for page:", e);
@@ -25,7 +33,11 @@ export async function getBeersForPage(): Promise<Beer[]> {
 
 export async function getBeerBySlug(slug: string): Promise<Beer | null> {
   try {
-    const beer = await activeClient.fetch(BEER_BY_SLUG_QUERY, { slug });
+    const beer = await activeClient.fetch(
+      BEER_BY_SLUG_QUERY,
+      { slug },
+      { next: { tags: [`beer:${slug}`, "beers"], revalidate: 86400 } }
+    );
     return beer || null;
   } catch (e) {
     console.error("Error fetching beer by slug:", e);
@@ -35,7 +47,11 @@ export async function getBeerBySlug(slug: string): Promise<Beer | null> {
 
 export async function getAllBeerSlugs(): Promise<string[]> {
   try {
-    const slugs = await activeClient.fetch(ALL_BEER_SLUGS_QUERY);
+    const slugs = await activeClient.fetch(
+      ALL_BEER_SLUGS_QUERY,
+      {},
+      { next: { tags: ["beers"], revalidate: 86400 } }
+    );
     return slugs || [];
   } catch (e) {
     console.error("Error fetching beer slugs:", e);

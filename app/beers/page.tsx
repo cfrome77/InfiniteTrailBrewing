@@ -2,10 +2,9 @@ import { Suspense } from "react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { getBeersForPage } from "@/lib/beers.server";
-import { Beer } from "@/types";
 import { BeersContent } from "./beers-content";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 86400;
 
 // ---------------- PAGE ----------------
 export default async function BeersPage() {
