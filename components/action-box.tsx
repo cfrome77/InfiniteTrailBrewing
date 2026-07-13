@@ -23,7 +23,7 @@ const STATUS_STRATEGY_MAP: Record<BeerStatus, ActionConfig> = {
     props: { href: "/blog" },
   },
   brewing: {
-    label: "View Active Telemetry",
+    label: "View Brew Lab Log",
     variant: "secondary",
     icon: Thermometer,
     component: Link,
