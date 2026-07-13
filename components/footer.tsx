@@ -23,7 +23,7 @@ export function Footer() {
             />
             <p className="text-tan/70 max-w-md leading-relaxed mb-6">
               Brewed for the Next Adventure. An experimental private craft beer lab
-              and digital batch log documented in Frederick, MD.
+              and digital brew log documented in Frederick, MD.
             </p>
             <div className="flex gap-4">
               <Link
@@ -61,7 +61,7 @@ export function Footer() {
                 href="/telemetry"
                 className="text-tan/70 hover:text-tan transition-colors"
               >
-                Lab Telemetry
+                Brew Lab
               </Link>
               <Link
                 href="/beers?tab=archive"
