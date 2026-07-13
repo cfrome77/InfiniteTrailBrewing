@@ -42,9 +42,9 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
     tempTarget = "64.0°F";
     tempStatus = "Primary Fermentation Stage";
   } else if (selectedBeer.status === "on_deck") {
-    coreTemp = "42.1°F";
-    tempTarget = "42.0°F";
-    tempStatus = "Cellar Conditioning Stage";
+    coreTemp = "--";
+    tempTarget = "--";
+    tempStatus = "Not Yet Brewed (Upcoming Batch)";
   } else if (selectedBeer.status === "archived") {
     coreTemp = "34.0°F";
     tempTarget = "34.0°F";
@@ -58,11 +58,13 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
   let calculatedCurrentSg = recipeFg;
   if (selectedBeer.status === "brewing") {
     calculatedCurrentSg = (parseFloat(recipeOg) - (abvNum * 0.004)).toFixed(3);
+  } else if (selectedBeer.status === "on_deck") {
+    calculatedCurrentSg = 0; // represent as N/A in UI
   }
 
   const currentSg = selectedBeer.telemetry?.currentGravity
     ? selectedBeer.telemetry.currentGravity.toFixed(3)
-    : calculatedCurrentSg;
+    : (selectedBeer.status === "on_deck" ? "--" : calculatedCurrentSg);
   const fg = selectedBeer.telemetry?.targetFg
     ? selectedBeer.telemetry.targetFg.toFixed(3)
     : recipeFg;
@@ -167,7 +169,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
                     : selectedBeer.status === "brewing"
                       ? "Fermenting: In the Carboy"
                       : selectedBeer.status === "on_deck"
-                        ? "Conditioning: In the Cellar"
+                        ? "On Deck: Recipe Stage"
                         : "Completed Batch"
                   }
                 </span>
@@ -187,10 +189,12 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-tan/70">Fermentation Temperature</span>
                       <div className="text-right">
-                        <span className="font-mono text-2xl text-sky font-bold">{coreTemp}</span>
+                        <span className="font-mono text-2xl text-sky font-bold">
+                          {coreTemp === "--" ? "--" : `${coreTemp}`}
+                        </span>
                         <span className="text-[10px] block text-sky/60 uppercase font-mono">
-                          Target: {tempTarget} ({tempStatus})
-                          {isEstimated ? " • Estimated" : " • Measured"}
+                          Target: {tempTarget === "--" ? "--" : tempTarget} ({tempStatus})
+                          {selectedBeer.status !== "on_deck" && (isEstimated ? " • Estimated" : " • Measured")}
                         </span>
                       </div>
                     </div>
@@ -199,10 +203,12 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
                     <div className="flex justify-between items-center border-t border-tan/5 pt-4">
                       <span className="text-sm text-tan/70">Gravity</span>
                       <div className="text-right">
-                        <span className="font-mono text-2xl text-tan font-bold">{currentSg} SG</span>
+                        <span className="font-mono text-2xl text-tan font-bold">
+                          {currentSg === "--" ? "--" : `${currentSg} SG`}
+                        </span>
                         <span className="text-[10px] block text-tan/60 uppercase font-mono">
                           Recipe OG: {recipeOg} | Target FG: {fg}
-                          {isEstimated ? " • Estimated" : " • Measured"}
+                          {selectedBeer.status !== "on_deck" && (isEstimated ? " • Estimated" : " • Measured")}
                         </span>
                       </div>
                     </div>
@@ -321,7 +327,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
 {`{
   "batchId": "ITB-${selectedBeer.slug.toUpperCase().slice(0, 8)}",
   "style": "${styleLabel}",
-  "gravity": ${currentSg},
+  "gravity": ${currentSg === "--" ? '"--"' : currentSg},
   "temperature": "${coreTemp}",
   "abv": ${selectedBeer.abv || "null"},
   "ibu": ${selectedBeer.ibu || "null"},
