@@ -32,7 +32,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
   }
 
   // --- STYLE-BASED AND STATUS-BASED DETERMINISTIC FORMULAS ---
-  // Core Temps resolution based on current real-time cellar status
+  // Core Temps resolution based on current cellar status
   let coreTemp = "38.2°F";
   let tempTarget = "38.0°F";
   let tempStatus = "Stable Draft Temp";
@@ -40,24 +40,24 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
   if (selectedBeer.status === "brewing") {
     coreTemp = "64.5°F";
     tempTarget = "64.0°F";
-    tempStatus = "Active Primary Ferment";
+    tempStatus = "Primary Fermentation Stage";
   } else if (selectedBeer.status === "on_deck") {
     coreTemp = "42.1°F";
     tempTarget = "42.0°F";
-    tempStatus = "Lagering / Conditioning";
+    tempStatus = "Cellar Conditioning Stage";
   } else if (selectedBeer.status === "archived") {
     coreTemp = "34.0°F";
     tempTarget = "34.0°F";
-    tempStatus = "Cellared / Archived";
+    tempStatus = "Completed / Cellared";
   }
 
-  // Specific Gravity calculations
+  // Gravity calculations
   const abvNum = selectedBeer.abv || 5.0;
-  const calculatedOg = (1 + abvNum * 0.0078).toFixed(3);
-  const calculatedFg = (1 + abvNum * 0.0018).toFixed(3);
-  let calculatedCurrentSg = calculatedFg;
+  const recipeOg = (1 + abvNum * 0.0078).toFixed(3);
+  const recipeFg = (1 + abvNum * 0.0018).toFixed(3);
+  let calculatedCurrentSg = recipeFg;
   if (selectedBeer.status === "brewing") {
-    calculatedCurrentSg = (parseFloat(calculatedOg) - (abvNum * 0.004)).toFixed(3);
+    calculatedCurrentSg = (parseFloat(recipeOg) - (abvNum * 0.004)).toFixed(3);
   }
 
   const currentSg = selectedBeer.telemetry?.currentGravity
@@ -65,7 +65,10 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
     : calculatedCurrentSg;
   const fg = selectedBeer.telemetry?.targetFg
     ? selectedBeer.telemetry.targetFg.toFixed(3)
-    : calculatedFg;
+    : recipeFg;
+
+  // Let's determine if this gravity and temp are estimated or measured
+  const isEstimated = !selectedBeer.telemetry;
 
   // --- SEAMLESS CMS-FIRST DATA INHERITANCE ---
   // Read our server-side coalesced values with zero frontend string checking!
@@ -98,7 +101,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
             <div className="grid md:grid-cols-2 gap-8 mb-12">
               {/* Active Cellar Selection */}
               <div>
-                <span className="text-xs uppercase font-mono tracking-widest text-tan/40 mb-3 block">Select Active Cellar Batch</span>
+                <span className="text-xs uppercase font-mono tracking-widest text-tan/40 mb-3 block">Active Batches</span>
                 <TabsList className="bg-white/5 border border-tan/10 p-1 rounded-xl w-full flex flex-wrap h-auto gap-1">
                   {activeBeers.length === 0 ? (
                     <div className="text-xs font-mono p-3 text-tan/30 w-full text-center">No active batches in cellar.</div>
@@ -118,7 +121,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
 
               {/* Historical Logs Selection */}
               <div>
-                <span className="text-xs uppercase font-mono tracking-widest text-tan/40 mb-3 block">Select Past Logs Archive</span>
+                <span className="text-xs uppercase font-mono tracking-widest text-tan/40 mb-3 block">Archived Batches</span>
                 <TabsList className="bg-white/5 border border-tan/10 p-1 rounded-xl w-full flex flex-wrap h-auto gap-1">
                   {pastBeers.length === 0 ? (
                     <div className="text-xs font-mono p-3 text-tan/30 w-full text-center">No archived logs available.</div>
@@ -160,12 +163,12 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
                         : "bg-zinc-600/30 text-zinc-300 border-zinc-500/30"
                 }`}>
                   {selectedBeer.status === "ready"
-                    ? "Draft Status: In the Kegerator"
+                    ? "On Tap: In the Kegerator"
                     : selectedBeer.status === "brewing"
-                      ? "Fermenter Status: In the Carboy"
+                      ? "Fermenting: In the Carboy"
                       : selectedBeer.status === "on_deck"
-                        ? "Cellar Status: Conditioning"
-                        : "Log Status: Completed / Archived"
+                        ? "Conditioning: In the Cellar"
+                        : "Completed Batch"
                   }
                 </span>
               </div>
@@ -176,31 +179,37 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
                 <div className="p-6 rounded-2xl border border-tan/15 bg-white/5 backdrop-blur-sm flex flex-col">
                   <div className="flex items-center gap-2 mb-6 border-b border-tan/10 pb-4">
                     <Thermometer className="w-5 h-5 text-sky" />
-                    <h4 className="font-serif text-lg text-tan">Active Cellar Logs</h4>
+                    <h4 className="font-serif text-lg text-tan">Fermentation Status</h4>
                   </div>
 
                   <div className="space-y-6 flex-grow">
                     {/* Temperature */}
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-tan/70">Telemetry Temp</span>
+                      <span className="text-sm text-tan/70">Fermentation Temperature</span>
                       <div className="text-right">
                         <span className="font-mono text-2xl text-sky font-bold">{coreTemp}</span>
-                        <span className="text-[10px] block text-sky/60 uppercase font-mono">Target: {tempTarget} ({tempStatus})</span>
+                        <span className="text-[10px] block text-sky/60 uppercase font-mono">
+                          Target: {tempTarget} ({tempStatus})
+                          {isEstimated ? " • Estimated" : " • Measured"}
+                        </span>
                       </div>
                     </div>
 
-                    {/* Specific Gravity */}
+                    {/* Gravity */}
                     <div className="flex justify-between items-center border-t border-tan/5 pt-4">
-                      <span className="text-sm text-tan/70">Specific Gravity</span>
+                      <span className="text-sm text-tan/70">Gravity</span>
                       <div className="text-right">
                         <span className="font-mono text-2xl text-tan font-bold">{currentSg} SG</span>
-                        <span className="text-[10px] block text-tan/60 uppercase font-mono">Calculated OG: {calculatedOg} | Target FG: {fg}</span>
+                        <span className="text-[10px] block text-tan/60 uppercase font-mono">
+                          Recipe OG: {recipeOg} | Target FG: {fg}
+                          {isEstimated ? " • Estimated" : " • Measured"}
+                        </span>
                       </div>
                     </div>
 
                     {/* Gravity Curve Graph */}
                     <div className="border border-tan/10 rounded-lg p-3 bg-black/20 mt-4">
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-tan/40 mb-2 block">Telemetry Density curve</span>
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-tan/40 mb-2 block">Gravity Progress</span>
                       <div className="h-20 w-full flex items-end gap-1.5 pt-2">
                         <div className="bg-tan/15 h-full w-[12%] rounded-t" />
                         <div className="bg-tan/20 h-[85%] w-[12%] rounded-t" />
@@ -220,7 +229,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
                   <div className="flex items-center justify-between mb-6 border-b border-tan/10 pb-4">
                     <div className="flex items-center gap-2">
                       <Droplet className="w-5 h-5 text-sky" />
-                      <h4 className="font-serif text-lg text-tan">Water Chemistry</h4>
+                      <h4 className="font-serif text-lg text-tan">Water Profile</h4>
                     </div>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -279,7 +288,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
                 <div className="p-6 rounded-2xl border border-tan/15 bg-white/5 backdrop-blur-sm flex flex-col">
                   <div className="flex items-center gap-2 mb-6 border-b border-tan/10 pb-4">
                     <Layers className="w-5 h-5 text-amber-400" />
-                    <h4 className="font-serif text-lg text-tan">Addition Timing Logs</h4>
+                    <h4 className="font-serif text-lg text-tan">Brew Day Timeline</h4>
                   </div>
 
                   <div className="space-y-5 flex-grow font-mono text-sm text-tan/80">
@@ -298,25 +307,26 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
             </TabsContent>
           </Tabs>
 
-          {/* Raw JSON telemetry data Dialog trigger */}
+          {/* Recipe Snapshot & Batch Summary trigger */}
           <div className="mt-12 text-center">
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="inline-flex items-center gap-2 text-xs font-mono text-tan/40 hover:text-tan/80 cursor-pointer transition-colors border border-tan/15 px-4 py-2 rounded-lg bg-black/10">
-                  <Info className="w-3.5 h-3.5" /> [system-telemetry-protocol: active-keg-logs.json]
+                  <Info className="w-3.5 h-3.5" /> [Batch Summary & Recipe Snapshot]
                 </div>
               </TooltipTrigger>
               <TooltipContent className="bg-cream text-forest border border-tan max-w-sm p-4 font-mono text-xs">
-                <p className="font-bold text-sm mb-2">RAW SYSTEM PAYLOAD ({selectedBeer.slug}):</p>
+                <p className="font-bold text-sm mb-2">RECIPE SNAPSHOT ({selectedBeer.slug}):</p>
                 <pre className="text-[10px] leading-relaxed text-forest/80">
 {`{
   "batchId": "ITB-${selectedBeer.slug.toUpperCase().slice(0, 8)}",
   "style": "${styleLabel}",
-  "tiltGravitySg": ${currentSg},
-  "temp": "${coreTemp}",
+  "gravity": ${currentSg},
+  "temperature": "${coreTemp}",
   "abv": ${selectedBeer.abv || "null"},
   "ibu": ${selectedBeer.ibu || "null"},
-  "has_real_telemetry": ${selectedBeer.telemetry ? "true" : "false"}
+  "status": "${selectedBeer.status}",
+  "estimated": ${isEstimated ? "true" : "false"}
 }`}
                 </pre>
               </TooltipContent>
