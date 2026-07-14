@@ -9,9 +9,10 @@ import { FaInstagram, FaFacebook } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 
 const navLinks = [
-  { href: "/beers", label: "Our Beers" },
+  { href: "/beers", label: "The Brew Log" },
+  { href: "/telemetry", label: "Brew Lab" },
   { href: process.env.NEXT_PUBLIC_FOURTHWALL_SHOP_URL, label: "Shop Merch", isExternal: true },
-  { href: "/blog", label: "Blog" },
+  { href: "/blog", label: "Lab Notes" },
   { href: "/our-story", label: "Our Story" },
   { href: "/contact", label: "Contact" },
 ];
