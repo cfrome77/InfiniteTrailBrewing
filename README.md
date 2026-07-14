@@ -1,16 +1,70 @@
 # Infinite Trail Brewing
 
-A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind CSS**.
+A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind CSS**, designed as an experimental private craft beer lab, telemetry console, and digital batch log.
 
-## Features
+---
 
-- **Next.js (App Router)**: Fast, server-side rendered, and optimized.
-- **Sanity.io Content Management**: Headless CMS for managing beers, blog posts, and site stats.
-- **Sanity Auth**: Secure, project-based authentication handled natively by Sanity.
-- **Transactional Email**: Integrated with **Resend** for reliable contact form notifications.
-- **Embedded Sanity Studio**: CMS interface accessible directly at `/admin`.
-- **E-commerce**: External **Fourthwall** shop for merchandise.
-- **Testing**: Comprehensive suite with **Jest** and **Playwright**.
+## 🧭 1. Brand & UX: The Private Lab & Digital Archive
+
+Infinite Trail Brewing operates strictly as a non-commercial, private homebrew project. The site is structured to prioritize **scientific transparency, experimentation logbooks, and community recipe sharing**.
+
+- **Navigational Paths:**
+  - `/beers` ➔ **The Brew Log:** A chronological log of active cellar batches and historical logs.
+  - `/telemetry` ➔ **Lab Telemetry:** Real-time water profile chemistry, kettle additions, and fermentation telemetry.
+  - `/blog` ➔ **Lab Notes:** Detailed logs, brew day recaps, water reports, and fermentation logs.
+- **The Homebrew Disclaimer:**
+  A permanent visual disclaimer in the global footer alerts all visitors:
+  > *Infinite Trail Brewing is a private, non-commercial homebrew project. Our beers are crafted strictly for personal documentation, educational exploration, and sharing with friends & community events. Not for commercial sale or public distribution.*
+- **Geographic Coordinates:**
+  Rather than standard business addresses, location is styled as geographic coordinates of origin:
+  `39.414° N, 77.411° W (Frederick, MD)`
+
+---
+
+## 🎛️ 2. Kettle Telemetry System
+
+Accessible via the dedicated **Lab Telemetry** page (`/telemetry`), this high-end research console visualizes live batch statuses to capture both homebrewer interest and operational-level precision.
+
+- **Teaser Alert:** The homepage Hero section integrates a pulsing, real-time alert button (`Kettle Live Status: Sensors Online ➔ View Live Telemetry`) guiding users directly to the telemetry console.
+- **3-Column SCADA-style Display:**
+  1.  **Fermentation Logs (Cold-Side):** Visualizes core sensor temperatures and specific density gravity curves (OG ➔ SG ➔ Target FG).
+  2.  **Water Chemistry:** Visualizes mashing pH values alongside progress bars representing ionic water concentrations (Sulfate, Chloride, Calcium).
+  3.  **Timing Schedules (Hot-Side):** Lists mashing and kettle additions (hops, finings, dry hops) as a vertical Gantt-style timeline.
+- **Dynamic Database-backed Fallback Engine:**
+  The dashboard retrieves live data from Sanity. If a batch contains real telemetry entries (pH, gravity, or timing list), they take immediate visual precedence. If those fields are blank, the component dynamically falls back to smart, style-based deterministic calculations (e.g. mashing IPA profiles vs Stout mineral targets), keeping the site completely robust and automatic.
+
+---
+
+## 🗄️ 3. Extensible Sanity Schema Design
+
+The `beer` document type in `sanity/schema/beer.ts` is fully extensible to allow a seamless future transition to a retail storefront without requiring database migrations or code rewrites.
+
+- **Editor UI Tabs (`groups`):**
+  Splits the Sanity document panel into clean horizontal tabs:
+  - **Lab Specs:** Everyday brewing specs (style, ABV, IBU, tasting notes, telemetry logs).
+  - **Commercial Info:** Pricing, SKU, and stock levels.
+- **Conditional Visibility:**
+  Root-level boolean toggle `isCommercialProduct` ("Ready for Public Sale") hides the entire commercial specifications panel in Sanity Studio unless checked, keeping the editor interface 100% clean and focused during homebrewing logs.
+- **Sub-Object encapsulation:**
+  All transaction metrics are nested inside `commercialSpecs { price, sku, stockCount }` to maintain a dry, modular database payload.
+
+---
+
+## ⚡ 4. Next.js 15 Server Performance & Tag-Based Webhooks
+
+To keep pages "commercial-fast," data fetching has been moved from the client to Server Components, serving static pre-rendered HTML from the CDN edge cache.
+
+- **Cache Tags:**
+  Server-side fetches are tagged with cache identifiers:
+  - `/beers` fetches are tagged with `['beers']`.
+  - `/beers/[slug]` fetches are tagged with `['beer:slug', 'beers']`.
+  - `/blog` fetches are tagged with `['posts']`.
+- **API Webhook Handler (`/api/revalidate`):**
+  Listen for POST requests from Sanity's Content Lake whenever a document is updated.
+- **HMAC Signature Verification:**
+  The handler securely authenticates requests by hashing the raw body with SHA-256 HMAC using a local `SANITY_REVALIDATE_SECRET` and matching it against the incoming `content-signature` header to block unauthenticated cache-clearing attempts.
+- **Targeted Cache Invalidation:**
+  Upon valid webhook ingestion, the handler calls `revalidateTag` for that specific document and category, instantly evicting stale cache blocks so the very next visit receives freshly rendered content with 0ms database latency.
 
 ---
 
@@ -34,77 +88,18 @@ A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind C
     NEXT_PUBLIC_SITE_URL="https://yourdomain.com"
     NEXT_PUBLIC_CONTACT_EMAIL="hello@yourdomain.com"
     SANITY_API_TOKEN="your-api-token"
+    SANITY_REVALIDATE_SECRET="your-secure-webhook-secret"
 
     # Email (Resend)
     RESEND_API_KEY="your-resend-api-key"
     CONTACT_RECEIVING_EMAIL="hello@yourdomain.com"
-
-    # E-commerce (Fourthwall)
-    # No API keys required for external shop links.
     ```
-
----
-
-## 🛠 Sanity.io Setup & Auth
-
-This project uses **Sanity Auth** for content management. No custom password logic is required.
-
-### 1. Invite Users
-To give someone access to manage the site:
-1.  Go to the [Sanity Manage](https://www.sanity.io/manage) dashboard.
-2.  Select your project.
-3.  Go to **Team** (or **Members**) and click **Invite**.
-4.  Assign a role (e.g., **Administrator**, **Editor**, or **Viewer**).
 
 ### 2. Accessing the Admin Area
 - Visit `http://localhost:3000/admin`.
-- You will be prompted to log in with your Sanity account.
-- Once authenticated, you can manage Beers, Blog Posts, and other content directly within the embedded Studio.
-
-### 3. Configure CORS Settings
-Ensure your application can communicate with Sanity:
-1.  Go to **Settings > API settings** in the Sanity dashboard.
-2.  Under **CORS origins**, click **Add CORS origin**.
-3.  Add `http://localhost:3000` (and your production URL later).
-4.  Check **Allow credentials**.
+- Log in using your Sanity credentials.
 
 ---
-
-## 💻 Local Development vs. Production
-
-Sanity.io allows you to separate your data between environments using **Datasets**.
-
-### 1. Create a Development Dataset
-To avoid "messing up" your live data during testing:
-1.  In the Sanity Dashboard, go to **Datasets**.
-2.  Click **Create dataset**.
-3.  Name it `development` (or similar) and choose **Public** or **Private** as per your needs.
-
-### 2. Switching Datasets Locally
-In your `.env.local` file, change the `NEXT_PUBLIC_SANITY_DATASET` variable:
-```env
-# For local testing:
-NEXT_PUBLIC_SANITY_DATASET="development"
-
-# For live data:
-NEXT_PUBLIC_SANITY_DATASET="production"
-```
-
-### 3. How it Works
-- The **Embedded Studio** at `/admin` is just a user interface.
-- It will load and save data to whichever dataset is specified in your environment variables.
-- If you are running the app locally on `localhost:3000` with `development` dataset configured, any changes you make in the Studio will **only** affect the `development` dataset.
-- The **Sanity.io Web Interface** (sanity.io/manage) allows you to browse all your datasets in one place.
-
----
-
-## ⚙️ Environment Stability
-
-To prevent `next-env.d.ts` from fluctuating between `dev` and `build` modes (due to mode-dependent route type imports), this project uses an automated stabilization mechanism:
-
-- **Custom Dev Script:** `npm run dev` executes `scripts/dev.js`, which wraps `next dev` and restores `next-env.d.ts` to a stable state upon exit.
-- **Post-Build Hook:** A `postbuild` script automatically cleans `next-env.d.ts` after production builds.
-- **TypeScript Config:** Mode-dependent types are explicitly included in `tsconfig.json` to maintain full type safety without requiring tracked changes in `next-env.d.ts`.
 
 ## 🧪 Testing
 
@@ -117,21 +112,3 @@ npm run test
 ```bash
 npm run test:e2e
 ```
-
----
-
-## 📧 Contact Form & Resend
-
-**Resend** is used exclusively for the contact form.
-1. Get an API key from [resend.com](https://resend.com).
-2. Add it to your environment variables:
-   - `RESEND_API_KEY`
-   - `CONTACT_RECEIVING_EMAIL`
-
----
-
-## 🛒 E-commerce (Fourthwall)
-
-The merchandise section points to an external **Fourthwall** shop.
-1. Configure your shop at [fourthwall.com](https://fourthwall.com).
-2. Update the `href` attribute for the "Shop Merch" link in `components/navbar.tsx` with your live shop URL.
