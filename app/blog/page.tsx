@@ -3,7 +3,7 @@ import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { getAllPosts } from "@/lib/blog.server";
+import { getFilteredPosts } from "@/lib/blog.server";
 import type { BlogPost } from "@/types";
 import { urlFor } from "@/lib/sanity.client";
 import Image from "next/image";
@@ -25,24 +25,8 @@ export default async function BlogPage({
 }) {
   const { category, q } = await searchParams;
 
-  const allPosts: BlogPost[] = await getAllPosts();
-
-  // Filter posts by category and search query
-  let filteredPosts: BlogPost[] = allPosts;
-
-  if (category && category !== "All") {
-    filteredPosts = filteredPosts.filter((p) => p.category === category);
-  }
-
-  if (q) {
-    const query = q.toLowerCase();
-    filteredPosts = filteredPosts.filter(
-      (p) =>
-        p.title.toLowerCase().includes(query) ||
-        p.excerpt?.toLowerCase().includes(query) ||
-        p.tags?.some(t => t.toLowerCase().includes(query))
-    );
-  }
+  // Optimized database-level GROQ filtering
+  const filteredPosts: BlogPost[] = await getFilteredPosts(category, q);
 
   // Featured + recent split
   const featuredPost: BlogPost | undefined = filteredPosts.find(
