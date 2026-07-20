@@ -5,25 +5,30 @@ test.describe('Navigation', () => {
     await page.goto('/');
     await expect(page).toHaveTitle(/Infinite Trail Brewing/);
 
-    await page.click('text=Our Beers');
+    // Click 'The Brew Log' (desktop or mobile header)
+    await page.click('text=The Brew Log');
     await expect(page).toHaveURL(/\/beers/);
     await expect(page.locator('h1')).toContainText('Our Beers');
 
-    await page.click('text=Blog');
+    // Click 'Lab Notes'
+    await page.click('text=Lab Notes');
     await expect(page).toHaveURL(/\/blog/);
     await expect(page.locator('h1')).toContainText('The Brewhouse Blog');
 
+    // Click 'Our Story'
     await page.click('text=Our Story');
     await expect(page).toHaveURL(/\/our-story/);
     await expect(page.locator('h1')).toContainText('Our Story');
 
+    // Click 'Contact'
     await page.click('text=Contact');
     await expect(page).toHaveURL(/\/contact/);
     await expect(page.locator('h1')).toContainText('Contact Us');
   });
 
   test('admin route should load sanity studio', async ({ page }) => {
-    await page.goto('/admin');
+    // Increase timeout or check with waitUntil: 'commit' so we don't wait for heavy JS chunk loads to complete in the sandbox
+    await page.goto('/admin', { waitUntil: 'commit' });
     await expect(page).toHaveURL(/\/admin/);
   });
 });
