@@ -485,41 +485,63 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
         </section>
       )}
 
-      {/* 5. RELATED TRAIL REPORT POSTS */}
+      {/* 5. RELATED TRAIL REPORT POSTS / BREW JOURNAL LOGS */}
       {beer.relatedPosts && beer.relatedPosts.length > 0 && (
         <section className="py-20 px-4 bg-tan/20 border-b border-forest/5">
           <div className="container mx-auto max-w-4xl text-center">
             <span className="text-xs font-mono uppercase tracking-widest text-forest/50">From the Logbooks</span>
             <h2 className="font-serif text-3xl md:text-4xl text-forest mt-2 mb-12 flex items-center justify-center gap-3">
               <BookOpen className="w-6 h-6 text-sky" />
-              The Trail Report Notes
+              Recipe Logs & Journal Notes
             </h2>
             <div className="grid sm:grid-cols-2 gap-8">
-              {beer.relatedPosts.map((post: any) => (
-                <Link
-                  key={post._id}
-                  href={`/blog/${post.slug}`}
-                  className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-tan/30 text-left"
-                >
-                  {post.image && (
-                    <div className="relative h-48 w-full overflow-hidden">
-                      <Image
-                        src={urlFor(post.image).width(600).height(400).url()}
-                        alt={post.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        unoptimized
-                      />
+              {beer.relatedPosts.map((post: any) => {
+                const isJournal = post.isJournalEntry === true;
+                const detailUrl = isJournal ? `/journal/${post.slug}` : `/blog/${post.slug}`;
+
+                return (
+                  <Link
+                    key={post._id}
+                    href={detailUrl}
+                    className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-tan/30 text-left"
+                  >
+                    {post.image && (
+                      <div className="relative h-48 w-full overflow-hidden">
+                        <Image
+                          src={urlFor(post.image).width(600).height(400).url()}
+                          alt={post.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          unoptimized
+                        />
+                        {isJournal && (
+                          <div className="absolute top-3 left-3">
+                            <Badge className="bg-sky text-white font-mono uppercase tracking-wider text-[9px] border-none">
+                              Journal Entry
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-forest/40 uppercase tracking-widest font-mono">
+                          {new Date(post.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                        {post.category && (
+                          <span className="text-[10px] font-mono text-forest/60 bg-tan/20 px-2 py-0.5 rounded">
+                            {post.category}
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="font-serif text-xl text-forest group-hover:text-sky transition-colors mb-2 leading-snug">{post.title}</h4>
+                      <span className="text-xs font-mono text-forest/50 group-hover:text-sky transition-colors inline-flex items-center gap-1">
+                        Read {isJournal ? "Journal Log" : "Lab Notes"} ➔
+                      </span>
                     </div>
-                  )}
-                  <div className="p-6">
-                    <h4 className="font-serif text-xl text-forest group-hover:text-sky transition-colors mb-2">{post.title}</h4>
-                    <p className="text-xs text-forest/40 uppercase tracking-widest font-mono">
-                      {new Date(post.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </p>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>

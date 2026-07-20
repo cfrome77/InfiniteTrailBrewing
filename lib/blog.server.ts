@@ -1,7 +1,21 @@
 import 'server-only';
 import { activeClient } from "./sanity.server";
 import { BlogPost } from "@/types";
-import { ALL_POSTS_QUERY, POST_BY_SLUG_QUERY, ALL_POST_SLUGS_QUERY, ALL_POSTS_ADMIN_QUERY } from "./blog";
+import { ALL_POSTS_QUERY, POST_BY_SLUG_QUERY, ALL_POST_SLUGS_QUERY, ALL_POSTS_ADMIN_QUERY, ALL_JOURNAL_ENTRIES_QUERY } from "./blog";
+
+export async function getAllJournalEntries(): Promise<BlogPost[]> {
+  try {
+    const entries = await activeClient.fetch(
+      ALL_JOURNAL_ENTRIES_QUERY,
+      {},
+      { next: { tags: ["posts"], revalidate: 86400 } }
+    );
+    return entries || [];
+  } catch (e) {
+    console.error("Error fetching journal entries:", e);
+    return [];
+  }
+}
 
 export async function getAllPosts(): Promise<BlogPost[]> {
   try {

@@ -110,7 +110,9 @@ export const BEER_BY_SLUG_QUERY = `
       title,
       "slug": slug.current,
       image,
-      date
+      date,
+      isJournalEntry,
+      category
     },
 
     // Server-side coalesced fields

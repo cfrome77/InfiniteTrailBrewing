@@ -8,6 +8,7 @@ const footerLinks = [
   { href: "/", label: "Home" },
   { href: "/beers", label: "The Brew Log" },
   { href: "/telemetry", label: "Brew Lab" },
+  { href: "/journal", label: "Brew Journal" },
   { href: "/beers?tab=archive", label: "Archive Log" },
   { href: "/blog", label: "Lab Notes" },
   { href: "/our-story", label: "Our Story" },

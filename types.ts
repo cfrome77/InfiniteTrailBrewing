@@ -83,6 +83,24 @@ export interface SEOFields {
   description?: string;
 }
 
+export interface BrewingMetrics {
+  originalGravity?: number;
+  finalGravity?: number;
+  mashTemp?: number;
+  boilTime?: number;
+  yeastPitchTemp?: number;
+  fermentationTemp?: number;
+}
+
+export interface JournalDetails {
+  thePlan?: any[];
+  theBrew?: any[];
+  fermentation?: any[];
+  theResult?: any[];
+  nextTime?: any[];
+  brewingMetrics?: BrewingMetrics;
+}
+
 export type BlogPost = {
   _id: string;
   id: string; // Map of _id
@@ -101,6 +119,8 @@ export type BlogPost = {
   image?: any; // Featured Image
   relatedBeers?: any[]; // References to Beer documents
   seo?: SEOFields;
+  isJournalEntry?: boolean;
+  journalDetails?: JournalDetails;
   created_at?: string;
   updated_at?: string;
 };
