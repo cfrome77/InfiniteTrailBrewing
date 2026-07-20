@@ -9,9 +9,10 @@ import { FaInstagram, FaFacebook } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 
 const navLinks = [
+  { href: "/", label: "Home" },
   { href: "/beers", label: "The Brew Log" },
   { href: "/telemetry", label: "Brew Lab" },
-  { href: process.env.NEXT_PUBLIC_FOURTHWALL_SHOP_URL, label: "Shop Merch", isExternal: true },
+  { href: process.env.NEXT_PUBLIC_FOURTHWALL_SHOP_URL || "#", label: "Shop Merch", isExternal: true },
   { href: "/blog", label: "Lab Notes" },
   { href: "/our-story", label: "Our Story" },
   { href: "/contact", label: "Contact" },
@@ -68,9 +69,11 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => {
             const isExternal = "isExternal" in link && link.isExternal;
+            // Generate a unique fallback key if href is empty / undefined
+            const linkKey = `desktop-${link.href || "empty"}-${link.label}`;
             return (
               <Link
-                key={link.href}
+                key={linkKey}
                 href={link.href || "/"}
                 target={isExternal ? "_blank" : undefined}
                 rel={isExternal ? "noopener noreferrer" : undefined}
@@ -125,9 +128,10 @@ export function Navbar() {
           <div className="container mx-auto px-4 py-6 flex flex-col gap-4">
             {navLinks.map((link) => {
               const isExternal = "isExternal" in link && link.isExternal;
+              const linkKey = `mobile-${link.href || "empty"}-${link.label}`;
               return (
                 <Link
-                  key={link.href}
+                  key={linkKey}
                   href={link.href || "/"}
                   target={isExternal ? "_blank" : undefined}
                   rel={isExternal ? "noopener noreferrer" : undefined}
