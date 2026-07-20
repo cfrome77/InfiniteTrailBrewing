@@ -56,6 +56,10 @@ export interface Beer {
   abv?: number | null;
   ibu?: number | null;
   tastingNotes?: TastingNotes;
+  brewDate?: string;
+  batchNumber?: string;
+  ingredients?: string;
+  notableHops?: string[];
   is_flagship: boolean;
   image?: any; // Sanity image object (use with urlFor)
   relatedPosts?: any[]; // References to BlogPost documents

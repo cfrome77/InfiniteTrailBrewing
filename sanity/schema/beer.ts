@@ -83,6 +83,31 @@ export default {
       ],
     },
     {
+      name: "brewDate",
+      title: "Brew Date",
+      type: "date",
+      group: "lab",
+    },
+    {
+      name: "batchNumber",
+      title: "Batch Number",
+      type: "string",
+      group: "lab",
+    },
+    {
+      name: "ingredients",
+      title: "Ingredients (Malt, Yeast, Water details)",
+      type: "text",
+      group: "lab",
+    },
+    {
+      name: "notableHops",
+      title: "Notable Hops / Kettle additions",
+      type: "array",
+      of: [{ type: "string" }],
+      group: "lab",
+    },
+    {
       name: "notes",
       title: "General Description",
       type: "text",
