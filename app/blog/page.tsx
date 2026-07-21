@@ -16,6 +16,7 @@ const categories = [
   "Tasting Notes",
   "Recipes",
   "Tips & Learning",
+  "Lab Notes",
 ];
 
 export default async function BlogPage({
