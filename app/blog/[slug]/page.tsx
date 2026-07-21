@@ -5,7 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Calendar, Clock, ArrowLeft, Beer } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  ArrowLeft,
+  Beer,
+  Compass,
+  Flame,
+  Activity,
+  Award,
+  RotateCcw,
+  Binary
+} from "lucide-react";
 import { getPostBySlug, getAllSlugs } from "@/lib/blog.server";
 import { PortableText } from '@portabletext/react';
 import { urlFor } from "@/lib/sanity.client";
@@ -129,6 +140,150 @@ export default async function BlogPostPage({
               <p className="whitespace-pre-wrap">{post.content}</p>
             )}
           </div>
+
+          {/* Optional Brew Journal Sections & Metrics */}
+          {post.isJournalEntry && post.journalDetails && (
+            <div className="mt-12 pt-12 border-t border-tan/30 space-y-12">
+              <div className="border-l-4 border-sky pl-4">
+                <h3 className="font-serif text-2xl text-forest font-bold">Brew Day Log & Logbook Records</h3>
+                <p className="text-xs text-forest/50 font-mono uppercase tracking-widest mt-1">
+                  Technical process documentation from the brewhouse
+                </p>
+              </div>
+
+              {/* Metrics block */}
+              {post.journalDetails.brewingMetrics && (
+                <div className="bg-forest text-tan p-6 rounded-2xl border border-tan/10 shadow-lg relative overflow-hidden">
+                  <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M0%2040h40M40%200v40%22%20fill%3D%22none%22%20stroke%3D%22%23E8D7B5%22%20stroke-opacity%3D%220.02%22%20stroke-width%3D%221%22/%3E%3C/svg%3E')] opacity-70 pointer-events-none" />
+
+                  <div className="flex items-center gap-2 mb-4 border-b border-tan/10 pb-4 relative z-10">
+                    <Binary className="w-5 h-5 text-sky" />
+                    <h4 className="font-serif text-lg text-tan">Lab Logbook Metrics</h4>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 text-xs font-mono relative z-10">
+                    {post.journalDetails.brewingMetrics.originalGravity && (
+                      <div>
+                        <span className="text-tan/60 block mb-1">Original Gravity (OG)</span>
+                        <span className="font-bold text-tan text-lg">{post.journalDetails.brewingMetrics.originalGravity.toFixed(3)}</span>
+                      </div>
+                    )}
+                    {post.journalDetails.brewingMetrics.finalGravity && (
+                      <div>
+                        <span className="text-tan/60 block mb-1">Final Gravity (FG)</span>
+                        <span className="font-bold text-tan text-lg">{post.journalDetails.brewingMetrics.finalGravity.toFixed(3)}</span>
+                      </div>
+                    )}
+                    {post.journalDetails.brewingMetrics.originalGravity && post.journalDetails.brewingMetrics.finalGravity && (
+                      <div>
+                        <span className="text-sky/80 block mb-1">Calculated ABV</span>
+                        <span className="font-bold text-sky text-lg font-serif">
+                          {((post.journalDetails.brewingMetrics.originalGravity - post.journalDetails.brewingMetrics.finalGravity) * 131.25).toFixed(2)}%
+                        </span>
+                      </div>
+                    )}
+                    {post.journalDetails.brewingMetrics.mashTemp && (
+                      <div>
+                        <span className="text-tan/60 block mb-1">Mash Temp</span>
+                        <span className="font-bold text-tan text-lg">{post.journalDetails.brewingMetrics.mashTemp}°F</span>
+                      </div>
+                    )}
+                    {post.journalDetails.brewingMetrics.boilTime && (
+                      <div>
+                        <span className="text-tan/60 block mb-1">Boil Time</span>
+                        <span className="font-bold text-tan text-lg">{post.journalDetails.brewingMetrics.boilTime} mins</span>
+                      </div>
+                    )}
+                    {post.journalDetails.brewingMetrics.yeastPitchTemp && (
+                      <div>
+                        <span className="text-tan/60 block mb-1">Yeast Pitch Temp</span>
+                        <span className="font-bold text-tan text-lg">{post.journalDetails.brewingMetrics.yeastPitchTemp}°F</span>
+                      </div>
+                    )}
+                    {post.journalDetails.brewingMetrics.fermentationTemp && (
+                      <div>
+                        <span className="text-tan/60 block mb-1">Fermentation Temp</span>
+                        <span className="font-bold text-tan text-lg">{post.journalDetails.brewingMetrics.fermentationTemp}°F</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* 5-stage storytelling sections */}
+              <div className="space-y-8">
+                {/* 1. The Plan */}
+                {post.journalDetails.thePlan && post.journalDetails.thePlan.length > 0 && (
+                  <div className="p-6 bg-white border border-tan/30 rounded-2xl shadow-sm space-y-3">
+                    <div className="flex items-center gap-2 border-b border-tan/20 pb-3">
+                      <Compass className="w-4 h-4 text-amber-600" />
+                      <h4 className="font-serif text-lg text-forest font-bold">1. The Plan</h4>
+                      <span className="text-[10px] font-mono uppercase text-forest/40 ml-auto">What was intended</span>
+                    </div>
+                    <div className="prose prose-forest text-sm leading-relaxed max-w-none">
+                      <PortableText value={post.journalDetails.thePlan} />
+                    </div>
+                  </div>
+                )}
+
+                {/* 2. The Brew */}
+                {post.journalDetails.theBrew && post.journalDetails.theBrew.length > 0 && (
+                  <div className="p-6 bg-white border border-tan/30 rounded-2xl shadow-sm space-y-3">
+                    <div className="flex items-center gap-2 border-b border-tan/20 pb-3">
+                      <Flame className="w-4 h-4 text-orange-600" />
+                      <h4 className="font-serif text-lg text-forest font-bold">2. The Brew</h4>
+                      <span className="text-[10px] font-mono uppercase text-forest/40 ml-auto">What happened during brewing</span>
+                    </div>
+                    <div className="prose prose-forest text-sm leading-relaxed max-w-none">
+                      <PortableText value={post.journalDetails.theBrew} />
+                    </div>
+                  </div>
+                )}
+
+                {/* 3. Fermentation */}
+                {post.journalDetails.fermentation && post.journalDetails.fermentation.length > 0 && (
+                  <div className="p-6 bg-white border border-tan/30 rounded-2xl shadow-sm space-y-3">
+                    <div className="flex items-center gap-2 border-b border-tan/20 pb-3">
+                      <Activity className="w-4 h-4 text-blue-600" />
+                      <h4 className="font-serif text-lg text-forest font-bold">3. Fermentation</h4>
+                      <span className="text-[10px] font-mono uppercase text-forest/40 ml-auto">Fermentation logs</span>
+                    </div>
+                    <div className="prose prose-forest text-sm leading-relaxed max-w-none">
+                      <PortableText value={post.journalDetails.fermentation} />
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. The Result */}
+                {post.journalDetails.theResult && post.journalDetails.theResult.length > 0 && (
+                  <div className="p-6 bg-white border border-tan/30 rounded-2xl shadow-sm space-y-3">
+                    <div className="flex items-center gap-2 border-b border-tan/20 pb-3">
+                      <Award className="w-4 h-4 text-emerald-600" />
+                      <h4 className="font-serif text-lg text-forest font-bold">4. The Result</h4>
+                      <span className="text-[10px] font-mono uppercase text-forest/40 ml-auto">How the beer turned out</span>
+                    </div>
+                    <div className="prose prose-forest text-sm leading-relaxed max-w-none">
+                      <PortableText value={post.journalDetails.theResult} />
+                    </div>
+                  </div>
+                )}
+
+                {/* 5. Next Time */}
+                {post.journalDetails.nextTime && post.journalDetails.nextTime.length > 0 && (
+                  <div className="p-6 bg-white border border-tan/30 rounded-2xl shadow-sm space-y-3">
+                    <div className="flex items-center gap-2 border-b border-tan/20 pb-3">
+                      <RotateCcw className="w-4 h-4 text-purple-600" />
+                      <h4 className="font-serif text-lg text-forest font-bold">5. Next Time</h4>
+                      <span className="text-[10px] font-mono uppercase text-forest/40 ml-auto">Future improvements</span>
+                    </div>
+                    <div className="prose prose-forest text-sm leading-relaxed max-w-none">
+                      <PortableText value={post.journalDetails.nextTime} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Related Beers */}
           {post.relatedBeers && post.relatedBeers.length > 0 && (
