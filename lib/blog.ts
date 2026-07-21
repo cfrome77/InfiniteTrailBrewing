@@ -13,7 +13,15 @@ export const ALL_POSTS_QUERY = `
     is_published,
     image,
     visibility,
-    tags
+    tags,
+    relatedBeers[]->{
+      _id,
+      beer_name,
+      "slug": slug.current,
+      batchNumber,
+      status,
+      image
+    }
   }
 `;
 
@@ -38,7 +46,8 @@ export const POST_BY_SLUG_QUERY = `
       _id,
       beer_name,
       "slug": slug.current,
-      style,
+      batchNumber,
+      status,
       image
     }
   }

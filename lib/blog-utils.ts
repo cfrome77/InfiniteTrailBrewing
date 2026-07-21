@@ -22,3 +22,28 @@ export function getTagColor(tag: string) {
   ];
   return colors[hash % colors.length];
 }
+
+export function calculateReadTime(content: any): string {
+  if (!content) return "1 min read";
+
+  let wordCount = 0;
+
+  if (typeof content === "string") {
+    wordCount = content.trim().split(/\s+/).filter(Boolean).length;
+  } else if (Array.isArray(content)) {
+    // Portable Text is an array of blocks
+    content.forEach((block: any) => {
+      if (block._type === "block" && Array.isArray(block.children)) {
+        block.children.forEach((child: any) => {
+          if (typeof child.text === "string") {
+            wordCount += child.text.trim().split(/\s+/).filter(Boolean).length;
+          }
+        });
+      }
+    });
+  }
+
+  const wpm = 200; // Words per minute
+  const mins = Math.max(1, Math.ceil(wordCount / wpm));
+  return `${mins} min read`;
+}
