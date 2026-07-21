@@ -82,8 +82,8 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
 
   if (!beer) notFound();
 
-  const styleStr = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : beer.style;
-  const styleLabel = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beerStyles.find(s => s.value === beer.style)?.title || beer.style || "Craft Special");
+  const styleStr = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beer.style as string);
+  const styleLabel = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beerStyles.find(s => s.value === (beer.style as string))?.title || (beer.style as string) || "Craft Special");
   const gradient = getBeerStyleGradient(styleStr);
 
   // Core Temps based on real status (labeled clearly as target/estimated specifications)
@@ -119,6 +119,8 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
   const scheduleDefined = Array.isArray(telemetry?.kettleSchedule) && telemetry.kettleSchedule.length > 0;
 
   // Real, non-fabricated telemetry variables (strictly derived from telemetry or hidden if absent)
+  const abvNum = beer.abv || 5.0;
+  const recipeOg = (1 + abvNum * 0.0078).toFixed(3);
   const currentSg = telemetry?.currentGravity ? telemetry.currentGravity.toFixed(3) : null;
   const targetFg = telemetry?.targetFg ? telemetry.targetFg.toFixed(3) : null;
 

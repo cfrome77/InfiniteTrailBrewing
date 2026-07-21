@@ -1,0 +1,15 @@
+
+> my-project@0.1.0 start
+> next start
+
+▲ Next.js 16.2.9
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+✓ Ready in 198ms
+⚠ `experimental.typedRoutes` has been moved to `typedRoutes`. Please update your next.config.mjs file accordingly.
+NEXT_PUBLIC_SANITY_PROJECT_ID is not set, using fallback: pzzfhnzk
+CRITICAL: NEXT_PUBLIC_SANITY_DATASET is not set in production. Falling back to 'development' which may cause data isolation issues.
+CRITICAL: NEXT_PUBLIC_SANITY_DATASET is not set in production. Falling back to 'development' which may cause data isolation issues.
+NEXT_PUBLIC_SANITY_PROJECT_ID is not set, using fallback: pzzfhnzk
+CRITICAL: NEXT_PUBLIC_SANITY_DATASET is not set in production. Falling back to 'development' which may cause data isolation issues.
+CRITICAL: NEXT_PUBLIC_SANITY_DATASET is not set in production. Falling back to 'development' which may cause data isolation issues.

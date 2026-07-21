@@ -154,7 +154,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
   const chloridePercent = `${Math.min((chloride / maxChloride) * 100, 100)}%`;
   const calciumPercent = `${Math.min((calcium / maxCalcium) * 100, 100)}%`;
 
-  const styleLabel = selectedBeer.style?.title || "Special Style";
+  const styleLabel = (typeof selectedBeer.style === "object" && selectedBeer.style !== null) ? selectedBeer.style.title : (selectedBeer.style as string) || "Special Style";
 
   // --- DATA STATES EVALUATION ---
   const isMissingTelemetry = !selectedBeer.telemetry;
@@ -230,7 +230,7 @@ export function TelemetryDashboard({ initialBeers }: TelemetryDashboardProps) {
                         <div className="flex justify-between items-start">
                           <div>
                             <span className="text-[10px] font-mono uppercase tracking-wider text-tan/40">
-                              {beer.style?.title || "Craft Beer"}
+                              {(typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beer.style as string) || "Craft Beer"}
                             </span>
                             <h3 className="font-serif text-xl text-tan group-hover:text-sky transition-colors">
                               {beer.beer_name}
