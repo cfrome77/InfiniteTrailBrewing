@@ -15,7 +15,7 @@ import { getPostBySlug, getAllJournalEntries } from "@/lib/blog.server";
 import { PortableText } from '@portabletext/react';
 import { urlFor } from "@/lib/sanity.client";
 import Image from "next/image";
-import { getTagColor } from "@/lib/blog-utils";
+import { getTagColor, calculateReadTime } from "@/lib/blog-utils";
 
 export const revalidate = 86400; // Revalidate every 24 hours
 
@@ -87,12 +87,10 @@ export default async function JournalDetailPage({
               <Calendar className="w-4 h-4 text-sky" />
               {formatDate(entry.date)}
             </span>
-            {entry.read_time && (
-              <span className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-sky" />
-                {entry.read_time}
-              </span>
-            )}
+            <span className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-sky" />
+              {entry.read_time || calculateReadTime(entry.content)}
+            </span>
             <span>|</span>
             <span>By {entry.author || "Infinite Trail"}</span>
           </div>

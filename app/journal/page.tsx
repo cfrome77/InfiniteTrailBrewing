@@ -7,7 +7,7 @@ import { getAllJournalEntries } from "@/lib/blog.server";
 import type { BlogPost } from "@/types";
 import { urlFor } from "@/lib/sanity.client";
 import Image from "next/image";
-import { getTagColor } from "@/lib/blog-utils";
+import { getTagColor, calculateReadTime } from "@/lib/blog-utils";
 import { Calendar, Beaker, BookOpen, Clock } from "lucide-react";
 
 export const revalidate = 86400; // Revalidate every 24 hours
@@ -109,12 +109,10 @@ export default async function JournalListingPage() {
                             year: "numeric",
                           })}
                         </span>
-                        {entry.read_time && (
-                          <span className="flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5" />
-                            {entry.read_time}
-                          </span>
-                        )}
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5" />
+                          {entry.read_time || calculateReadTime(entry.content)}
+                        </span>
                         <span>•</span>
                         <span>Logged by {entry.author || "Infinite Trail"}</span>
                       </div>

@@ -80,6 +80,8 @@ export default {
       name: 'date',
       title: 'Published Date',
       type: 'date',
+      initialValue: () => new Date().toISOString().split('T')[0],
+      description: 'Auto-populated to today\'s date. Can be manually changed if needed.',
     },
     {
       name: 'read_time',
