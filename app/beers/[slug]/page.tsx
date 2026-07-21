@@ -497,7 +497,7 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
             <div className="grid sm:grid-cols-2 gap-8">
               {beer.relatedPosts.map((post: any) => {
                 const isJournal = post.isJournalEntry === true;
-                const detailUrl = `/blog/${post.slug}`;
+                const detailUrl = isJournal ? `/journal/${post.slug}` : `/blog/${post.slug}`;
 
                 return (
                   <Link
@@ -516,8 +516,8 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
                         />
                         {isJournal && (
                           <div className="absolute top-3 left-3">
-                            <Badge className="bg-sky text-white font-mono uppercase tracking-wider text-[9px] border-none shadow-sm">
-                              Logbook Record
+                            <Badge className="bg-sky text-white font-mono uppercase tracking-wider text-[9px] border-none">
+                              Journal Entry
                             </Badge>
                           </div>
                         )}
@@ -536,7 +536,7 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
                       </div>
                       <h4 className="font-serif text-xl text-forest group-hover:text-sky transition-colors mb-2 leading-snug">{post.title}</h4>
                       <span className="text-xs font-mono text-forest/50 group-hover:text-sky transition-colors inline-flex items-center gap-1">
-                        Read {isJournal ? "Logbook Notes" : "Lab Notes"} ➔
+                        Read {isJournal ? "Journal Log" : "Lab Notes"} ➔
                       </span>
                     </div>
                   </Link>

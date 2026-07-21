@@ -138,65 +138,7 @@ export default {
       title: 'Is Brew Journal Entry',
       type: 'boolean',
       initialValue: false,
-    },
-    {
-      name: 'journalDetails',
-      title: 'Brew Journal Details',
-      type: 'object',
-      hidden: ({ document }: any) => !document?.isJournalEntry,
-      options: {
-        collapsible: true,
-        collapsed: false,
-      },
-      fields: [
-        {
-          name: 'thePlan',
-          title: 'The Plan (What was intended)',
-          type: 'array',
-          of: [{ type: 'block' }],
-        },
-        {
-          name: 'theBrew',
-          title: 'The Brew (What happened during brewing)',
-          type: 'array',
-          of: [{ type: 'block' }],
-        },
-        {
-          name: 'fermentation',
-          title: 'Fermentation (What happened during fermentation)',
-          type: 'array',
-          of: [{ type: 'block' }],
-        },
-        {
-          name: 'theResult',
-          title: 'The Result (How the beer turned out)',
-          type: 'array',
-          of: [{ type: 'block' }],
-        },
-        {
-          name: 'nextTime',
-          title: 'Next Time (What should be changed or improved)',
-          type: 'array',
-          of: [{ type: 'block' }],
-        },
-        {
-          name: 'brewingMetrics',
-          title: 'Brewing Metrics (Optional)',
-          type: 'object',
-          options: {
-            collapsible: true,
-            collapsed: true,
-          },
-          fields: [
-            { name: 'originalGravity', title: 'Original Gravity (OG)', type: 'number' },
-            { name: 'finalGravity', title: 'Final Gravity (FG)', type: 'number' },
-            { name: 'mashTemp', title: 'Mash Temperature (°F)', type: 'number' },
-            { name: 'boilTime', title: 'Boil Time (min)', type: 'number' },
-            { name: 'yeastPitchTemp', title: 'Yeast Pitch Temperature (°F)', type: 'number' },
-            { name: 'fermentationTemp', title: 'Fermentation Temperature (°F)', type: 'number' },
-          ],
-        },
-      ],
+      description: 'Check this box to display this post in the dedicated Brew Journal listing feed.',
     },
   ],
 };
