@@ -10,7 +10,7 @@ import { getPostBySlug, getAllSlugs } from "@/lib/blog.server";
 import { PortableText } from '@portabletext/react';
 import { urlFor } from "@/lib/sanity.client";
 import Image from "next/image";
-import { getCategoryColor, getTagColor } from "@/lib/blog-utils";
+import { getCategoryColor, getTagColor, calculateReadTime } from "@/lib/blog-utils";
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString("en-US", {
@@ -73,12 +73,10 @@ export default async function BlogPostPage({
               <Calendar className="w-4 h-4 text-sky" />
               {formatDate(post.date)}
             </span>
-            {post.read_time && (
-              <span className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-sky" />
-                {post.read_time}
-              </span>
-            )}
+            <span className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-sky" />
+              {post.read_time || calculateReadTime(post.content)}
+            </span>
             <span className="text-tan/40">|</span>
             <span>By {post.author || "Infinite Trail"}</span>
           </div>

@@ -5,17 +5,16 @@ test.describe('Navigation', () => {
     await page.goto('/');
     await expect(page).toHaveTitle(/Infinite Trail Brewing/);
 
-    // Click 'The Brew Log' (desktop or mobile header)
-    await page.locator('header a[href="/beers"]').first().click();
+    // Click 'Our Beers' (desktop or mobile header)
+    await page.click('header >> text=Our Beers');
     await expect(page).toHaveURL(/\/beers/);
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('h1')).toContainText('Our Beers');
     await page.waitForTimeout(1000); // wait for hydration and dev compilation
 
-    // Click 'Lab Notes'
-    await page.locator('header a[href="/blog"]').first().click();
-    await expect(page).toHaveURL(/\/blog/, { timeout: 20000 });
-    await expect(page.locator('h1')).toBeVisible();
+    // Click 'The Brew Log'
+    await page.click('header >> text=The Brew Log');
+    await expect(page).toHaveURL(/\/blog/);
     await expect(page.locator('h1')).toContainText('The Brewhouse Blog');
     await page.waitForTimeout(1000);
 
