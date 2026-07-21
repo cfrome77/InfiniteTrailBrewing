@@ -29,10 +29,12 @@ export default {
     },
     {
       name: "style",
-      title: "Style Reference",
-      type: "reference",
-      to: [{ type: "beerStyle" }],
+      title: "Style",
+      type: "string",
       group: "lab",
+      options: {
+        list: beerStyles,
+      },
       validation: (Rule: any) => Rule.required(),
     },
     {
