@@ -4,30 +4,29 @@ export const ALL_BEERS_QUERY = `
     "id": _id,
     beer_name,
     "slug": slug.current,
-    style-> {
-      _id,
-      title,
-      "slug": slug.current,
-      defaultTelemetry
-    },
+    style,
     brewery,
     status,
     notes,
     abv,
     ibu,
     tastingNotes,
+    brewDate,
+    batchNumber,
+    ingredients,
+    notableHops,
     is_flagship,
     image,
     telemetry,
     _createdAt,
 
     // Server-side coalesced fields
-    "resolvedPh": string(coalesce(telemetry.waterProfile.ph, style->defaultTelemetry.ph, 5.32)),
-    "resolvedSulfate": coalesce(telemetry.waterProfile.sulfate, style->defaultTelemetry.sulfate, 80),
-    "resolvedChloride": coalesce(telemetry.waterProfile.chloride, style->defaultTelemetry.chloride, 80),
-    "resolvedCalcium": coalesce(telemetry.waterProfile.calcium, style->defaultTelemetry.calcium, 65),
-    "resolvedWaterNotes": coalesce(telemetry.waterProfile.waterNotes, style->defaultTelemetry.waterNotes, "Balanced 1:1 Sulfate-to-Chloride ratio profiles the malt sweetness and hop bitterness equally."),
-    "resolvedKettleSchedule": coalesce(telemetry.kettleSchedule, style->defaultTelemetry.kettleSchedule, [
+    "resolvedPh": string(coalesce(telemetry.waterProfile.ph, 5.32)),
+    "resolvedSulfate": coalesce(telemetry.waterProfile.sulfate, 80),
+    "resolvedChloride": coalesce(telemetry.waterProfile.chloride, 80),
+    "resolvedCalcium": coalesce(telemetry.waterProfile.calcium, 65),
+    "resolvedWaterNotes": coalesce(telemetry.waterProfile.waterNotes, "Balanced 1:1 Sulfate-to-Chloride ratio profiles the malt sweetness and hop bitterness equally."),
+    "resolvedKettleSchedule": coalesce(telemetry.kettleSchedule, [
       { "time": "60 min (Boil Start)", "label": "Magnum Hops (15 IBU)" },
       { "time": "15 min (Flavor)", "label": "Cascade Hops (5 IBU)" },
       { "time": "0 min (Whirlpool)", "label": "Willamette Finings" }
@@ -41,30 +40,29 @@ export const BEERS_PAGE_QUERY = `
     "id": _id,
     beer_name,
     "slug": slug.current,
-    style-> {
-      _id,
-      title,
-      "slug": slug.current,
-      defaultTelemetry
-    },
+    style,
     brewery,
     status,
     notes,
     abv,
     ibu,
     tastingNotes,
+    brewDate,
+    batchNumber,
+    ingredients,
+    notableHops,
     is_flagship,
     image,
     telemetry,
     _createdAt,
 
     // Server-side coalesced fields
-    "resolvedPh": string(coalesce(telemetry.waterProfile.ph, style->defaultTelemetry.ph, 5.32)),
-    "resolvedSulfate": coalesce(telemetry.waterProfile.sulfate, style->defaultTelemetry.sulfate, 80),
-    "resolvedChloride": coalesce(telemetry.waterProfile.chloride, style->defaultTelemetry.chloride, 80),
-    "resolvedCalcium": coalesce(telemetry.waterProfile.calcium, style->defaultTelemetry.calcium, 65),
-    "resolvedWaterNotes": coalesce(telemetry.waterProfile.waterNotes, style->defaultTelemetry.waterNotes, "Balanced 1:1 Sulfate-to-Chloride ratio profiles the malt sweetness and hop bitterness equally."),
-    "resolvedKettleSchedule": coalesce(telemetry.kettleSchedule, style->defaultTelemetry.kettleSchedule, [
+    "resolvedPh": string(coalesce(telemetry.waterProfile.ph, 5.32)),
+    "resolvedSulfate": coalesce(telemetry.waterProfile.sulfate, 80),
+    "resolvedChloride": coalesce(telemetry.waterProfile.chloride, 80),
+    "resolvedCalcium": coalesce(telemetry.waterProfile.calcium, 65),
+    "resolvedWaterNotes": coalesce(telemetry.waterProfile.waterNotes, "Balanced 1:1 Sulfate-to-Chloride ratio profiles the malt sweetness and hop bitterness equally."),
+    "resolvedKettleSchedule": coalesce(telemetry.kettleSchedule, [
       { "time": "60 min (Boil Start)", "label": "Magnum Hops (15 IBU)" },
       { "time": "15 min (Flavor)", "label": "Cascade Hops (5 IBU)" },
       { "time": "0 min (Whirlpool)", "label": "Willamette Finings" }
@@ -78,18 +76,17 @@ export const BEER_BY_SLUG_QUERY = `
     "id": _id,
     beer_name,
     "slug": slug.current,
-    style-> {
-      _id,
-      title,
-      "slug": slug.current,
-      defaultTelemetry
-    },
+    style,
     brewery,
     status,
     notes,
     abv,
     ibu,
     tastingNotes,
+    brewDate,
+    batchNumber,
+    ingredients,
+    notableHops,
     is_flagship,
     image,
     telemetry,
@@ -98,16 +95,18 @@ export const BEER_BY_SLUG_QUERY = `
       title,
       "slug": slug.current,
       image,
-      date
+      date,
+      isJournalEntry,
+      category
     },
 
     // Server-side coalesced fields
-    "resolvedPh": string(coalesce(telemetry.waterProfile.ph, style->defaultTelemetry.ph, 5.32)),
-    "resolvedSulfate": coalesce(telemetry.waterProfile.sulfate, style->defaultTelemetry.sulfate, 80),
-    "resolvedChloride": coalesce(telemetry.waterProfile.chloride, style->defaultTelemetry.chloride, 80),
-    "resolvedCalcium": coalesce(telemetry.waterProfile.calcium, style->defaultTelemetry.calcium, 65),
-    "resolvedWaterNotes": coalesce(telemetry.waterProfile.waterNotes, style->defaultTelemetry.waterNotes, "Balanced 1:1 Sulfate-to-Chloride ratio profiles the malt sweetness and hop bitterness equally."),
-    "resolvedKettleSchedule": coalesce(telemetry.kettleSchedule, style->defaultTelemetry.kettleSchedule, [
+    "resolvedPh": string(coalesce(telemetry.waterProfile.ph, 5.32)),
+    "resolvedSulfate": coalesce(telemetry.waterProfile.sulfate, 80),
+    "resolvedChloride": coalesce(telemetry.waterProfile.chloride, 80),
+    "resolvedCalcium": coalesce(telemetry.waterProfile.calcium, 65),
+    "resolvedWaterNotes": coalesce(telemetry.waterProfile.waterNotes, "Balanced 1:1 Sulfate-to-Chloride ratio profiles the malt sweetness and hop bitterness equally."),
+    "resolvedKettleSchedule": coalesce(telemetry.kettleSchedule, [
       { "time": "60 min (Boil Start)", "label": "Magnum Hops (15 IBU)" },
       { "time": "15 min (Flavor)", "label": "Cascade Hops (5 IBU)" },
       { "time": "0 min (Whirlpool)", "label": "Willamette Finings" }
