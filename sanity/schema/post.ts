@@ -135,12 +135,5 @@ export default {
         },
       ],
     },
-    {
-      name: 'isJournalEntry',
-      title: 'Is Brew Journal Entry',
-      type: 'boolean',
-      initialValue: false,
-      description: 'Check this box to display this post in the dedicated Brew Journal listing feed.',
-    },
   ],
 };

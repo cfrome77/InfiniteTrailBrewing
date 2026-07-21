@@ -5,13 +5,13 @@ test.describe('Navigation', () => {
     await page.goto('/');
     await expect(page).toHaveTitle(/Infinite Trail Brewing/);
 
-    // Click 'The Brew Log' (desktop or mobile header)
-    await page.click('header >> text=The Brew Log');
+    // Click 'Our Beers' (desktop or mobile header)
+    await page.click('header >> text=Our Beers');
     await expect(page).toHaveURL(/\/beers/);
     await expect(page.locator('h1')).toContainText('Our Beers');
 
-    // Click 'Lab Notes'
-    await page.click('header >> text=Lab Notes');
+    // Click 'The Brew Log'
+    await page.click('header >> text=The Brew Log');
     await expect(page).toHaveURL(/\/blog/);
     await expect(page.locator('h1')).toContainText('The Brewhouse Blog');
 

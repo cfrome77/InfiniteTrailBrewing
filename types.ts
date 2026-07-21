@@ -101,7 +101,6 @@ export type BlogPost = {
   image?: any; // Featured Image
   relatedBeers?: any[]; // References to Beer documents
   seo?: SEOFields;
-  isJournalEntry?: boolean;
   created_at?: string;
   updated_at?: string;
 };

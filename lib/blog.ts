@@ -14,8 +14,6 @@ export const ALL_POSTS_QUERY = `
     image,
     visibility,
     tags,
-    isJournalEntry,
-    journalDetails,
     relatedBeers[]->{
       _id,
       beer_name,
@@ -44,52 +42,6 @@ export const POST_BY_SLUG_QUERY = `
     visibility,
     tags,
     seo,
-    isJournalEntry,
-    journalDetails,
-    relatedBeers[]->{
-      _id,
-      beer_name,
-      "slug": slug.current,
-      batchNumber,
-      status,
-      style-> {
-        _id,
-        title
-      },
-      image,
-      telemetry {
-        currentGravity,
-        targetFg,
-        waterProfile {
-          ph,
-          sulfate,
-          chloride,
-          calcium,
-          waterNotes
-        }
-      }
-    }
-  }
-`;
-
-export const ALL_JOURNAL_ENTRIES_QUERY = `
-  *[_type == "post" && is_published == true && isJournalEntry == true && visibility in ["website", "both"] && !(_id in path("drafts.**"))] | order(date desc) {
-    _id,
-    "id": _id,
-    title,
-    "slug": slug.current,
-    excerpt,
-    content,
-    author,
-    date,
-    category,
-    featured,
-    is_published,
-    image,
-    visibility,
-    tags,
-    isJournalEntry,
-    journalDetails,
     relatedBeers[]->{
       _id,
       beer_name,

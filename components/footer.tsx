@@ -6,11 +6,10 @@ import { FaInstagram, FaFacebook } from "react-icons/fa6";
 
 const footerLinks = [
   { href: "/", label: "Home" },
-  { href: "/beers", label: "The Brew Log" },
+  { href: "/beers", label: "Our Beers" },
   { href: "/telemetry", label: "Brew Lab" },
-  { href: "/journal", label: "Brew Journal" },
   { href: "/beers?tab=archive", label: "Archive Log" },
-  { href: "/blog", label: "Lab Notes" },
+  { href: "/blog", label: "The Brew Log" },
   { href: "/our-story", label: "Our Story" },
   { href: "/contact", label: "Contact" },
 ];
