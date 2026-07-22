@@ -5,7 +5,7 @@
 ▲ Next.js 16.2.9 (Turbopack)
 - Local:         http://localhost:3000
 - Network:       http://192.168.0.2:3000
-✓ Ready in 560ms
+✓ Ready in 505ms
 ⚠ `experimental.typedRoutes` has been moved to `typedRoutes`. Please update your next.config.mjs file accordingly.
 - Experiments (use with caution):
   ⨯ typedRoutes
@@ -14,10 +14,14 @@ NEXT_PUBLIC_SANITY_PROJECT_ID is not set, using fallback: pzzfhnzk
 Initializing Sanity Client - Project: pzzfhnzk, Dataset: development
 SANITY_API_TOKEN is missing. Server-side fetches may fail for private datasets.
 Initializing Sanity Server Client - Project: pzzfhnzk, Dataset: development
- HEAD / 200 in 1326ms (next.js: 344ms, application-code: 981ms)
- GET / 200 in 168ms (next.js: 6ms, application-code: 162ms)
+ GET / 200 in 1070ms (next.js: 312ms, application-code: 758ms)
 [browser] Image with src "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingWordmarkDeepForest-Transparent-mWmicyKGqRtwkNbzt0Qqv431s925IK.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
- GET / 200 in 207ms (next.js: 4ms, application-code: 203ms)
+ GET / 200 in 127ms (next.js: 5ms, application-code: 122ms)
+ GET / 200 in 155ms (next.js: 4ms, application-code: 151ms)
+ GET / 200 in 147ms (next.js: 12ms, application-code: 135ms)
 [browser] Image with src "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingWordmarkDeepForest-Transparent-mWmicyKGqRtwkNbzt0Qqv431s925IK.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET /beers 200 in 2.2s (next.js: 2.2s, application-code: 64ms)
+[browser] NEXT_PUBLIC_SANITY_PROJECT_ID is not set, using fallback: pzzfhnzk (lib/sanity.client.ts:8:11)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, BookOpen, FlaskConical, Beer } from "lucide-react";
+import { ArrowDown, FlaskConical, Beer } from "lucide-react";
 
 export function Hero() {
   return (
@@ -63,8 +63,8 @@ export function Hero() {
           </p>
         </div>
 
-        {/* Primary Calls to Action */}
-        <div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 animate-slide-up [animation-delay:500ms] opacity-0 [animation-fill-mode:forwards]">
+        {/* Primary Call to Action */}
+        <div className="flex justify-center items-center animate-slide-up [animation-delay:500ms] opacity-0 [animation-fill-mode:forwards]">
           <Button
             asChild
             size="lg"
@@ -72,19 +72,7 @@ export function Hero() {
           >
             <Link href="/beers" className="flex items-center gap-2">
               <Beer className="w-4 h-4" />
-              Explore the Beers
-            </Link>
-          </Button>
-
-          <Button
-            asChild
-            size="lg"
-            variant="outline"
-            className="w-full sm:w-auto border-tan/30 text-tan hover:bg-tan/10 hover:border-tan font-serif text-base px-8 py-6 tracking-wide hover:scale-[1.03] transition-all duration-300"
-          >
-            <Link href="/blog" className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              Read the Brew Log
+              Explore the Trail
             </Link>
           </Button>
         </div>
