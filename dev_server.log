@@ -5,7 +5,7 @@
 ▲ Next.js 16.2.9 (Turbopack)
 - Local:         http://localhost:3000
 - Network:       http://192.168.0.2:3000
-✓ Ready in 560ms
+✓ Ready in 542ms
 ⚠ `experimental.typedRoutes` has been moved to `typedRoutes`. Please update your next.config.mjs file accordingly.
 - Experiments (use with caution):
   ⨯ typedRoutes
@@ -14,10 +14,8 @@ NEXT_PUBLIC_SANITY_PROJECT_ID is not set, using fallback: pzzfhnzk
 Initializing Sanity Client - Project: pzzfhnzk, Dataset: development
 SANITY_API_TOKEN is missing. Server-side fetches may fail for private datasets.
 Initializing Sanity Server Client - Project: pzzfhnzk, Dataset: development
- HEAD / 200 in 1326ms (next.js: 344ms, application-code: 981ms)
- GET / 200 in 168ms (next.js: 6ms, application-code: 162ms)
+ GET / 200 in 1348ms (next.js: 324ms, application-code: 1025ms)
 [browser] Image with src "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingWordmarkDeepForest-Transparent-mWmicyKGqRtwkNbzt0Qqv431s925IK.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
- GET / 200 in 207ms (next.js: 4ms, application-code: 203ms)
-[browser] Image with src "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingWordmarkDeepForest-Transparent-mWmicyKGqRtwkNbzt0Qqv431s925IK.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
-Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 205ms (next.js: 6ms, application-code: 199ms)
+ GET / 200 in 152ms (next.js: 4ms, application-code: 148ms)

@@ -91,11 +91,11 @@ export function Hero() {
       </div>
 
       {/* BOTTOM SCROLL ARROW */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-none">
-        <div className="animate-bounce opacity-40">
+      <a href="#brand-story" aria-label="Scroll down to brand story" className="absolute bottom-8 left-1/2 -translate-x-1/2 cursor-pointer z-20 group transition-colors hover:text-tan">
+        <div className="animate-bounce opacity-40 group-hover:opacity-100 transition-opacity">
           <ArrowDown className="w-6 h-6 text-tan" />
         </div>
-      </div>
+      </a>
     </section>
   );
 }
