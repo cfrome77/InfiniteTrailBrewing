@@ -487,14 +487,14 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
         </section>
       )}
 
-      {/* 5. RELATED TRAIL REPORT POSTS */}
+      {/* 5. RELATED BREW LOG POSTS */}
       {beer.relatedPosts && beer.relatedPosts.length > 0 && (
         <section className="py-20 px-4 bg-tan/20 border-b border-forest/5">
           <div className="container mx-auto max-w-4xl text-center">
             <span className="text-xs font-mono uppercase tracking-widest text-forest/50">From the Logbooks</span>
             <h2 className="font-serif text-3xl md:text-4xl text-forest mt-2 mb-12 flex items-center justify-center gap-3">
               <BookOpen className="w-6 h-6 text-sky" />
-              The Trail Report Notes
+              From The Brew Log
             </h2>
             <div className="grid sm:grid-cols-2 gap-8">
               {beer.relatedPosts.map((post: any) => (
