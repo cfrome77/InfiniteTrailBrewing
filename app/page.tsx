@@ -10,13 +10,8 @@ import { getBeerImage } from "@/lib/images"
 import { getBeerStyleGradient } from "@/lib/beerStyleTheme"
 import { beerStyles } from "@/sanity/constants/beerStyles"
 import {
-  Beer,
-  BookOpen,
-  Compass,
-  FlaskConical,
   Sparkles,
-  ArrowRight,
-  Activity
+  ArrowRight
 } from "lucide-react"
 
 export const revalidate = 86400;
@@ -115,127 +110,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 3. Three Brand Pillars Section */}
-      <section className="bg-white py-20 md:py-32 px-4 border-t border-b border-forest/5 relative">
-        <div className="container mx-auto max-w-5xl">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-mono uppercase tracking-widest text-forest/50">Core Philosophy</span>
-            <h2 className="font-serif text-3xl md:text-4xl text-forest mt-2 uppercase tracking-wide">The Pillars of the Trail</h2>
-            <div className="w-16 h-0.5 bg-forest/20 mx-auto mt-4" />
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Pillar 1: Craft */}
-            <div className="bg-cream/20 rounded-2xl border border-forest/10 p-8 space-y-4 hover:border-forest/20 hover:bg-cream/40 transition-all duration-300">
-              <div className="w-12 h-12 bg-forest/5 rounded-xl flex items-center justify-center text-forest border border-forest/10">
-                <Beer className="w-6 h-6" />
-              </div>
-              <h3 className="font-serif text-2xl text-forest tracking-wide">Craft</h3>
-              <p className="text-forest/70 text-sm leading-relaxed font-light">
-                We design small-batch recipes with extreme precision. We hand-forge every brew, selecting premium malts, exact water mineral ratios, and high-character hops.
-              </p>
-            </div>
-
-            {/* Pillar 2: Experimentation */}
-            <div className="bg-cream/20 rounded-2xl border border-forest/10 p-8 space-y-4 hover:border-forest/20 hover:bg-cream/40 transition-all duration-300">
-              <div className="w-12 h-12 bg-forest/5 rounded-xl flex items-center justify-center text-forest border border-forest/10">
-                <FlaskConical className="w-6 h-6" />
-              </div>
-              <h3 className="font-serif text-2xl text-forest tracking-wide">Experimentation</h3>
-              <p className="text-forest/70 text-sm leading-relaxed font-light">
-                We believe formulas are meant to evolve. From pilot batches to yeast boundary pushes, recipes are tested, logged, adjusted, and occasionally reimagined entirely.
-              </p>
-            </div>
-
-            {/* Pillar 3: Adventure */}
-            <div className="bg-cream/20 rounded-2xl border border-forest/10 p-8 space-y-4 hover:border-forest/20 hover:bg-cream/40 transition-all duration-300">
-              <div className="w-12 h-12 bg-forest/5 rounded-xl flex items-center justify-center text-forest border border-forest/10">
-                <Compass className="w-6 h-6" />
-              </div>
-              <h3 className="font-serif text-2xl text-forest tracking-wide">Adventure</h3>
-              <p className="text-forest/70 text-sm leading-relaxed font-light">
-                Every brew mirrors a larger trek. Inspired by rugged peaks, campfires, and wild places, we craft recipes built to celebrate the hike, the climb, and the next summit.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Brewery Experience Section */}
-      <section className="bg-cream py-20 md:py-32 px-4 relative">
-        <div className="container mx-auto max-w-5xl">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-mono uppercase tracking-widest text-forest/50">Explore Our World</span>
-            <h2 className="font-serif text-3xl md:text-4xl text-forest mt-2 uppercase tracking-wide">The Brewery Experience</h2>
-            <div className="w-16 h-0.5 bg-forest/20 mx-auto mt-4" />
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Experience 1: The Brew House */}
-            <div className="bg-white rounded-2xl border border-forest/10 p-8 flex flex-col justify-between shadow-sm hover:shadow-lg transition-all duration-300">
-              <div className="space-y-4">
-                <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-forest border border-forest/10">
-                  <Beer className="w-6 h-6" />
-                </div>
-                <h3 className="font-serif text-xl text-forest font-semibold">The Brew House</h3>
-                <p className="text-sm text-forest/75 font-light leading-relaxed">
-                  Our customized garage pilot systems are where the alchemy happens. We brew seasonal recipes from light pale ales to dark, robust imperial stouts.
-                </p>
-              </div>
-              <div className="pt-6">
-                <Link
-                  href="/beers"
-                  className="inline-flex items-center gap-1 text-xs font-mono text-forest font-semibold hover:text-forest/80 uppercase tracking-wider transition-colors"
-                >
-                  Explore Our Beers <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Experience 2: The Brew Lab */}
-            <div className="bg-white rounded-2xl border border-forest/10 p-8 flex flex-col justify-between shadow-sm hover:shadow-lg transition-all duration-300">
-              <div className="space-y-4">
-                <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-forest border border-forest/10">
-                  <Activity className="w-6 h-6 text-amber-600" />
-                </div>
-                <h3 className="font-serif text-xl text-forest font-semibold">The Brew Lab</h3>
-                <p className="text-sm text-forest/75 font-light leading-relaxed">
-                  We measure, understand, and refine our process. Check live fermentation statuses, water profiles, and timeline logs from our setup.
-                </p>
-              </div>
-              <div className="pt-6">
-                <Link
-                  href="/telemetry"
-                  className="inline-flex items-center gap-1 text-xs font-mono text-forest font-semibold hover:text-forest/80 uppercase tracking-wider transition-colors"
-                >
-                  Enter the Brew Lab <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Experience 3: The Trail */}
-            <div className="bg-white rounded-2xl border border-forest/10 p-8 flex flex-col justify-between shadow-sm hover:shadow-lg transition-all duration-300">
-              <div className="space-y-4">
-                <div className="w-12 h-12 bg-sky-50 rounded-xl flex items-center justify-center text-forest border border-forest/10">
-                  <BookOpen className="w-6 h-6 text-sky-500" />
-                </div>
-                <h3 className="font-serif text-xl text-forest font-semibold">The Trail</h3>
-                <p className="text-sm text-forest/75 font-light leading-relaxed">
-                  Curiosity leads to new experiments. The Brew Log catalogs the recipes, observations, and tasting dispatches that outline our journey.
-                </p>
-              </div>
-              <div className="pt-6">
-                <Link
-                  href="/blog"
-                  className="inline-flex items-center gap-1 text-xs font-mono text-forest font-semibold hover:text-forest/80 uppercase tracking-wider transition-colors"
-                >
-                  Read the Brew Log <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* 5. One Featured Dynamic Element: Featured Brew */}
       {featuredBeer && (
