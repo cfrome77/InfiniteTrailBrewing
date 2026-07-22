@@ -62,7 +62,7 @@ export function FromTheBrewHouse({ beers }: FromTheBrewHouseProps) {
   if (displayBeer.status === "brewing") {
     calculatedCurrentSg = (parseFloat(recipeOg) - abvNum * 0.004).toFixed(3);
   } else if (displayBeer.status === "on_deck") {
-    calculatedCurrentSg = 0; // represented as N/A or recipe
+    calculatedCurrentSg = "0"; // represented as N/A or recipe
   }
 
   const currentSg = displayBeer.telemetry?.currentGravity
