@@ -11,7 +11,7 @@ export async function GET(request: Request) {
 
   let subscriber;
   try {
-    subscriber = await client.fetch(
+    subscriber = await (client as any).fetch(
       `*[_type == "subscriber" && token == $token][0]`,
       { token }
     );

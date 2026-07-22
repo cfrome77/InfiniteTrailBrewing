@@ -33,7 +33,7 @@ function EmptyState({ text }: { text: string }) {
 }
 
 function StatusPill({ status }: { status: BeerStatus }) {
-  const map: Record<BeerStatus, { bg: string; text: string; dot: string; label: string }> = {
+  const map: Record<BeerStatus, { bg: string; dot: string; label: string }> = {
     on_deck: {
       bg: "bg-amber-100 border-amber-200 text-amber-800",
       dot: "bg-amber-500",
@@ -73,8 +73,8 @@ function BeerGrid({ beers }: { beers: Beer[] }) {
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
       {beers.map((beer) => {
-        const styleStr = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : beer.style;
-        const styleLabel = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beerStyles.find(s => s.value === beer.style)?.title || beer.style || "Craft Special");
+        const styleStr = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beer.style as string);
+        const styleLabel = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beerStyles.find(s => s.value === (beer.style as string))?.title || (beer.style as string) || "Craft Special");
         const color = getBeerStyleGradient(styleStr);
         const imageUrl = getBeerImage(beer, "card");
 

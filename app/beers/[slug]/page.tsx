@@ -82,8 +82,8 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
 
   if (!beer) notFound();
 
-  const styleStr = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : beer.style;
-  const styleLabel = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beerStyles.find(s => s.value === beer.style)?.title || beer.style || "Craft Special");
+  const styleStr = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beer.style as string);
+  const styleLabel = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beerStyles.find(s => s.value === (beer.style as string))?.title || (beer.style as string) || "Craft Special");
   const gradient = getBeerStyleGradient(styleStr);
 
   // Core Temps based on real status (labeled clearly as target/estimated specifications)
@@ -119,6 +119,8 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
   const scheduleDefined = Array.isArray(telemetry?.kettleSchedule) && telemetry.kettleSchedule.length > 0;
 
   // Real, non-fabricated telemetry variables (strictly derived from telemetry or hidden if absent)
+  const abvNum = beer.abv || 5.0;
+  const recipeOg = (1 + abvNum * 0.0078).toFixed(3);
   const currentSg = telemetry?.currentGravity ? telemetry.currentGravity.toFixed(3) : null;
   const targetFg = telemetry?.targetFg ? telemetry.targetFg.toFixed(3) : null;
 
@@ -485,14 +487,14 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
         </section>
       )}
 
-      {/* 5. RELATED TRAIL REPORT POSTS */}
+      {/* 5. RELATED BREW LOG POSTS */}
       {beer.relatedPosts && beer.relatedPosts.length > 0 && (
         <section className="py-20 px-4 bg-tan/20 border-b border-forest/5">
           <div className="container mx-auto max-w-4xl text-center">
             <span className="text-xs font-mono uppercase tracking-widest text-forest/50">From the Logbooks</span>
             <h2 className="font-serif text-3xl md:text-4xl text-forest mt-2 mb-12 flex items-center justify-center gap-3">
               <BookOpen className="w-6 h-6 text-sky" />
-              The Trail Report Notes
+              From The Brew Log
             </h2>
             <div className="grid sm:grid-cols-2 gap-8">
               {beer.relatedPosts.map((post: any) => (

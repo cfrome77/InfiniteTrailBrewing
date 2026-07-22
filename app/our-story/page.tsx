@@ -290,14 +290,14 @@ export default async function OurStoryPage() {
                 <div className="w-12 h-12 bg-sky-50 rounded-xl flex items-center justify-center text-forest border border-forest/10">
                   <BookOpen className="w-6 h-6 text-sky-500" />
                 </div>
-                <h3 className="font-serif text-xl text-forest font-semibold">Lab Notes & Reports</h3>
+                <h3 className="font-serif text-xl text-forest font-semibold">The Brew Log</h3>
                 <p className="text-sm text-forest/70 font-light leading-relaxed">
                   Read complete brew day recaps, water profile reports, tasting session logs, and technical field insights.
                 </p>
               </div>
               <Button asChild variant="link" className="text-forest hover:text-forest/80 font-mono text-sm p-0 justify-start mt-6 group">
                 <Link href="/blog" className="flex items-center gap-1.5">
-                  Read Lab Reports
+                  Read The Brew Log
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>

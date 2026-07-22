@@ -49,7 +49,7 @@ export interface Beer {
   id: string; // Map of _id
   beer_name: string;
   slug: string; // Mapped to slug.current in GROQ
-  style: BeerStyle; // Server-resolved beer style reference
+  style: BeerStyle | string; // Server-resolved beer style reference or standard string style
   brewery?: string;
   status: BeerStatus;
   notes?: string | null; // General description
