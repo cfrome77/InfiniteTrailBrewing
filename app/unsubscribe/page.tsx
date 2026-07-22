@@ -26,7 +26,7 @@ function UnsubscribeContent() {
     if (successParam === "true") {
       setStatus({
         success: true,
-        message: "You have been successfully unsubscribed from The Trail Report."
+        message: "You have been successfully unsubscribed from The Brew Log."
       });
     }
   }, [searchParams]);
@@ -65,7 +65,7 @@ function UnsubscribeContent() {
         ) : (
           <>
             <p className="text-forest/70 mb-8 text-center leading-relaxed">
-              We're sorry to see you go! Enter your email address below to unsubscribe from The Trail Report.
+              We're sorry to see you go! Enter your email address below to unsubscribe from The Brew Log.
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">

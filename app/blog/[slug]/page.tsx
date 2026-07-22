@@ -51,7 +51,7 @@ export default async function BlogPostPage({
             className="inline-flex items-center gap-2 text-tan/70 hover:text-tan transition-colors mb-8 group"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            Back to The Trail Report
+            Back to The Brew Log
           </Link>
 
           <div className="flex items-center gap-4 mb-6">
@@ -170,7 +170,7 @@ export default async function BlogPostPage({
           >
             <Link href="/blog" className="inline-flex items-center gap-2">
               <ArrowLeft className="w-4 h-4" />
-              Return to All Reports
+              Return to The Brew Log
             </Link>
           </Button>
         </div>

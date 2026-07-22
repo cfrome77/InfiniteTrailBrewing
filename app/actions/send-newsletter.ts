@@ -34,14 +34,14 @@ export async function sendNewsletter(postId: string) {
       const { data, error } = await resend.emails.send({
         from: `Infinite Trail Brewing <${fromEmail}>`,
         to: sub.email,
-        subject: `The Trail Report: ${post.title}`,
+        subject: `The Brew Log: ${post.title}`,
         headers: {
           "List-Unsubscribe": `<${unsubscribeUrl}>`,
         },
         html: `
           <div style="font-family: serif; color: #1A4132; max-width: 600px; margin: 0 auto; border: 1px solid #E8D7B5; border-radius: 8px; overflow: hidden;">
             <div style="background-color: #1A4132; padding: 40px 20px; text-align: center;">
-              <h1 style="color: #E8D7B5; margin: 0; font-size: 24px; letter-spacing: 2px; text-transform: uppercase;">The Trail Report</h1>
+              <h1 style="color: #E8D7B5; margin: 0; font-size: 24px; letter-spacing: 2px; text-transform: uppercase;">The Brew Log</h1>
             </div>
             <div style="padding: 40px 30px; background-color: #F5F0E6;">
               <h2 style="font-size: 28px; margin-bottom: 20px;">${post.title}</h2>
