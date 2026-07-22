@@ -62,10 +62,10 @@ export async function subscribeToNewsletter(email: string) {
           </div>
           <div style="padding: 40px 30px; background-color: #F5F0E6;">
             <h2 style="font-size: 28px; margin-bottom: 20px;">Welcome to the Trail!</h2>
-            <p style="font-size: 16px; line-height: 1.6; color: #333;">Thanks for joining our mailing list. You're now set to receive <strong>The Trail Report</strong>, featuring brew day recaps, new beer announcements, and lessons from the brewhouse.</p>
+            <p style="font-size: 16px; line-height: 1.6; color: #333;">Thanks for joining our mailing list. You're now set to receive <strong>The Brew Log</strong>, featuring brew day recaps, new beer announcements, and lessons from the brewhouse.</p>
             <p style="font-size: 16px; line-height: 1.6; color: #333; margin-top: 20px;">We're glad to have you with us on this journey.</p>
             <div style="margin-top: 40px; text-align: center;">
-              <a href="${siteUrl}/blog" style="background-color: #1A4132; color: #E8D7B5; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Explore The Trail Report</a>
+              <a href="${siteUrl}/blog" style="background-color: #1A4132; color: #E8D7B5; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Explore The Brew Log</a>
             </div>
           </div>
           <div style="background-color: #E8D7B5; padding: 20px; text-align: center; font-size: 12px; color: #1A4132;">

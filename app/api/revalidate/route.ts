@@ -33,13 +33,17 @@ export async function POST(req: Request) {
 
     // Revalidate target tags based on document type
     if (_type === "beer") {
+      // @ts-ignore
       revalidateTag("beers");
       if (slug) {
+        // @ts-ignore
         revalidateTag(`beer:${slug}`);
       }
     } else if (_type === "post") {
+      // @ts-ignore
       revalidateTag("posts");
       if (slug) {
+        // @ts-ignore
         revalidateTag(`post:${slug}`);
       }
     }

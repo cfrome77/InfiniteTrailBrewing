@@ -36,12 +36,12 @@ export default defineConfig({
       title: 'Inventory',
       icon: Beer,
       component: InventoryTool,
-    },
+    } as any,
     {
       name: 'newsletter',
       title: 'Newsletter',
       icon: Mail,
       component: NewsletterTool,
-    },
+    } as any,
   ],
 });
