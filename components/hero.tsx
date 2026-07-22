@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, Compass, FlaskConical, Beer } from "lucide-react";
+import { ArrowDown, BookOpen, FlaskConical, Beer } from "lucide-react";
 
 export function Hero() {
   return (
@@ -59,7 +59,7 @@ export function Hero() {
         {/* Clear Brand/Lab Explanation */}
         <div className="max-w-2xl mx-auto mb-12 animate-fade-in [animation-delay:400ms] opacity-0 [animation-fill-mode:forwards]">
           <p className="text-base md:text-lg leading-relaxed text-tan/85 font-light">
-            We are a private, small-batch craft beer lab. By connecting technical mashing chemistry with the spirit of the backcountry, we hand-forge high-character recipes ready for the next summit. Follow the logs, check the live telemetry, and explore the trail with us.
+            We are a private, small-batch homebrewery and experimental craft beer lab based in Frederick, Maryland. By connecting technical mashing chemistry with the rugged spirit of the backcountry, we hand-forge high-character recipes ready for the next summit.
           </p>
         </div>
 
@@ -83,19 +83,8 @@ export function Hero() {
             className="w-full sm:w-auto border-tan/30 text-tan hover:bg-tan/10 hover:border-tan font-serif text-base px-8 py-6 tracking-wide hover:scale-[1.03] transition-all duration-300"
           >
             <Link href="/blog" className="flex items-center gap-2">
-              <Compass className="w-4 h-4" />
-              Follow the Journey
-            </Link>
-          </Button>
-
-          <Button
-            asChild
-            size="lg"
-            variant="link"
-            className="w-full sm:w-auto text-tan/70 hover:text-tan font-mono text-sm uppercase tracking-wider px-6 py-6"
-          >
-            <Link href="#latest-brew">
-              View the Latest Brew ↓
+              <BookOpen className="w-4 h-4" />
+              Read the Brew Log
             </Link>
           </Button>
         </div>

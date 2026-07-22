@@ -15,7 +15,7 @@ test.describe('Navigation', () => {
     // Click 'The Brew Log'
     await page.locator('header a[href="/blog"]').first().click();
     await expect(page).toHaveURL(/\/blog/, { timeout: 20000 });
-    await expect(page.locator('h1')).toContainText('The Brewhouse Blog');
+    await expect(page.locator('h1')).toContainText('The Brew Log');
     await page.waitForTimeout(1500);
 
     // Click 'Our Story'
