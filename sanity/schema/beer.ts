@@ -123,6 +123,13 @@ export default {
       initialValue: false,
     },
     {
+      name: "is_featured",
+      title: "Featured Brew (Showcase on Homepage)",
+      type: "boolean",
+      group: "lab",
+      initialValue: false,
+    },
+    {
       name: "image",
       title: "Beer Image",
       type: "image",

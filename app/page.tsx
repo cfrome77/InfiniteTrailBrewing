@@ -24,8 +24,9 @@ export const revalidate = 86400;
 export default async function Home() {
   const beers = await getBeersForPage();
 
-  // Find a featured beer (prioritize flagship, then active/tap, then latest)
+  // Find a featured beer (prioritize explicitly curated is_featured, then flagship, then active/tap, then latest)
   const featuredBeer =
+    beers.find((b) => b.is_featured) ||
     beers.find((b) => b.is_flagship && b.status !== "archived") ||
     beers.find((b) => b.status === "ready") ||
     beers.find((b) => b.status === "brewing") ||
@@ -163,14 +164,14 @@ export default async function Home() {
 
       {/* 4. Brewery Experience Section */}
       <section className="bg-cream py-20 md:py-32 px-4 relative">
-        <div className="container mx-auto max-w-5xl">
+        <div className="container mx-auto max-w-4xl">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="text-xs font-mono uppercase tracking-widest text-forest/50">Explore Our World</span>
             <h2 className="font-serif text-3xl md:text-4xl text-forest mt-2 uppercase tracking-wide">The Brewery Experience</h2>
             <div className="w-16 h-0.5 bg-forest/20 mx-auto mt-4" />
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 gap-8">
             {/* Experience 1: The Brew House */}
             <div className="bg-white rounded-2xl border border-forest/10 p-8 flex flex-col justify-between shadow-sm hover:shadow-lg transition-all duration-300">
               <div className="space-y-4">
@@ -179,7 +180,7 @@ export default async function Home() {
                 </div>
                 <h3 className="font-serif text-xl text-forest font-semibold">The Brew House</h3>
                 <p className="text-sm text-forest/75 font-light leading-relaxed">
-                  Our customized garage pilot systems are where the alchemy happens. We brew seasonal recipes from light pale ales to dark, robust imperial stouts.
+                  Our customized pilot systems are where the alchemy happens. We brew seasonal recipes from light pale ales to dark, robust imperial stouts.
                 </p>
               </div>
               <div className="pt-6">
@@ -192,28 +193,7 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* Experience 2: The Brew Lab */}
-            <div className="bg-white rounded-2xl border border-forest/10 p-8 flex flex-col justify-between shadow-sm hover:shadow-lg transition-all duration-300">
-              <div className="space-y-4">
-                <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-forest border border-forest/10">
-                  <Activity className="w-6 h-6 text-amber-600" />
-                </div>
-                <h3 className="font-serif text-xl text-forest font-semibold">The Brew Lab</h3>
-                <p className="text-sm text-forest/75 font-light leading-relaxed">
-                  We measure, understand, and refine our process. Check live fermentation statuses, water profiles, and timeline logs from our setup.
-                </p>
-              </div>
-              <div className="pt-6">
-                <Link
-                  href="/telemetry"
-                  className="inline-flex items-center gap-1 text-xs font-mono text-forest font-semibold hover:text-forest/80 uppercase tracking-wider transition-colors"
-                >
-                  Enter the Brew Lab <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Experience 3: The Trail */}
+            {/* Experience 2: The Trail */}
             <div className="bg-white rounded-2xl border border-forest/10 p-8 flex flex-col justify-between shadow-sm hover:shadow-lg transition-all duration-300">
               <div className="space-y-4">
                 <div className="w-12 h-12 bg-sky-50 rounded-xl flex items-center justify-center text-forest border border-forest/10">

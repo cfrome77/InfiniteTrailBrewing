@@ -61,6 +61,7 @@ export interface Beer {
   ingredients?: string;
   notableHops?: string[];
   is_flagship: boolean;
+  is_featured?: boolean;
   image?: any; // Sanity image object (use with urlFor)
   relatedPosts?: any[]; // References to BlogPost documents
   telemetry?: Telemetry; // Optional Kettle & Cellar telemetry logs
