@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -35,6 +35,7 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [beersDropdownOpen, setBeersDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const pathname = usePathname();
   const isHomePage = pathname === "/";
@@ -53,6 +54,18 @@ export function Navbar() {
     setIsMobileMenuOpen(false);
     setBeersDropdownOpen(false);
   }, [pathname]);
+
+  // Click outside to close desktop dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setBeersDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const showSolidBg = isScrolled || !isHomePage;
 
@@ -92,36 +105,46 @@ export function Navbar() {
               return (
                 <div
                   key={linkKey}
-                  className="relative group py-2"
+                  ref={dropdownRef}
+                  className="relative py-2"
                   onMouseEnter={() => setBeersDropdownOpen(true)}
                   onMouseLeave={() => setBeersDropdownOpen(false)}
                 >
-                  <Link
-                    href={link.href}
-                    className={`inline-flex items-center gap-1 font-sans text-sm tracking-wide uppercase transition-colors ${
+                  <button
+                    onClick={() => setBeersDropdownOpen((prev) => !prev)}
+                    className={`inline-flex items-center gap-1 font-sans text-sm tracking-wide uppercase transition-colors cursor-pointer focus:outline-none ${
                       isBeersActive ? "text-tan font-semibold" : "text-tan/70 hover:text-tan"
                     }`}
+                    aria-expanded={beersDropdownOpen}
+                    aria-label="Toggle Our Beers menu"
                   >
-                    {link.label}
-                    <ChevronDown className="w-3.5 h-3.5 text-tan/60 group-hover:text-tan transition-transform duration-200 group-hover:rotate-180" />
-                  </Link>
+                    <span>{link.label}</span>
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 text-tan/60 transition-transform duration-200 ${
+                        beersDropdownOpen ? "rotate-180 text-tan" : ""
+                      }`}
+                    />
+                  </button>
 
-                  {/* Dropdown Menu */}
+                  {/* Dropdown Menu Container with Hover Bridge */}
                   {beersDropdownOpen && (
-                    <div className="absolute top-full left-0 w-48 bg-forest/95 backdrop-blur-md border border-tan/20 rounded-xl shadow-xl py-2 my-1 animate-fade-in z-50">
-                      {link.dropdown?.map((sub) => (
-                        <Link
-                          key={`sub-${sub.href}`}
-                          href={sub.href}
-                          className={`block px-4 py-2.5 text-xs font-sans uppercase tracking-wider transition-colors ${
-                            pathname === sub.href
-                              ? "bg-tan/15 text-tan font-bold"
-                              : "text-tan/70 hover:text-tan hover:bg-tan/10"
-                          }`}
-                        >
-                          {sub.label}
-                        </Link>
-                      ))}
+                    <div className="absolute top-full left-0 pt-2 w-52 z-50 animate-fade-in">
+                      <div className="bg-forest/95 backdrop-blur-md border border-tan/20 rounded-xl shadow-xl py-2 overflow-hidden">
+                        {link.dropdown?.map((sub) => (
+                          <Link
+                            key={`sub-${sub.href}`}
+                            href={sub.href}
+                            onClick={() => setBeersDropdownOpen(false)}
+                            className={`block px-4 py-2.5 text-xs font-sans uppercase tracking-wider transition-colors ${
+                              pathname === sub.href
+                                ? "bg-tan/15 text-tan font-bold"
+                                : "text-tan/70 hover:text-tan hover:bg-tan/10"
+                            }`}
+                          >
+                            {sub.label}
+                          </Link>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -192,6 +215,7 @@ export function Navbar() {
                         <Link
                           key={`mobile-sub-${sub.href}`}
                           href={sub.href}
+                          onClick={() => setIsMobileMenuOpen(false)}
                           className={`font-sans text-base uppercase py-1 ${
                             pathname === sub.href ? "text-tan font-bold" : "text-tan/70 hover:text-tan"
                           }`}
