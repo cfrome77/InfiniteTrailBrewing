@@ -9,7 +9,7 @@ import { Beer, BeerStatus, BeerStyle } from "@/types";
 import { getBeerImage } from "@/lib/images";
 import { getBeerStyleGradient } from "@/lib/beerStyleTheme";
 import { beerStyles } from "@/sanity/constants/beerStyles";
-import { Activity, Beaker, ArrowRight, Search, X, SlidersHorizontal, RotateCcw, Filter } from "lucide-react";
+import { Activity, Beaker, ArrowRight, Search, X, RotateCcw, Filter } from "lucide-react";
 
 // Style Category Filter definitions
 const STYLE_CATEGORIES = [
@@ -105,9 +105,9 @@ function StatusPill({ status }: { status: BeerStatus }) {
       label: "Planned / On Deck",
     },
     brewing: {
-      bg: "bg-blue-100 border-blue-200 text-blue-800 animate-pulse",
-      dot: "bg-blue-500",
-      label: "Brewing / Fermenting",
+      bg: "bg-amber-100 border-amber-200 text-amber-800",
+      dot: "bg-amber-500",
+      label: "Planned / On Deck",
     },
     ready: {
       bg: "bg-emerald-100 border-emerald-200 text-emerald-800",
@@ -222,37 +222,39 @@ function BeerGrid({ beers }: { beers: Beer[] }) {
 }
 
 // ---------------- Main Content Component ----------------
-export function BeersContent({ initialBeers }: { initialBeers: Beer[] }) {
+export function BeersContent({
+  initialBeers,
+  mode = "active",
+}: {
+  initialBeers: Beer[];
+  mode?: "active" | "archive";
+}) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState<string>(searchParams.get("tab") || "current");
   const [searchQuery, setSearchQuery] = useState<string>(searchParams.get("q") || "");
   const [selectedStyle, setSelectedStyle] = useState<string>(searchParams.get("style") || "all");
 
-  // Keep state in sync with URL searchParams if changed externally
   useEffect(() => {
-    setActiveTab(searchParams.get("tab") || "current");
     setSearchQuery(searchParams.get("q") || "");
     setSelectedStyle(searchParams.get("style") || "all");
   }, [searchParams]);
 
-  const updateFilters = (newTab: string, newQuery: string, newStyle: string) => {
-    setActiveTab(newTab);
+  const updateFilters = (newQuery: string, newStyle: string) => {
     setSearchQuery(newQuery);
     setSelectedStyle(newStyle);
 
     const params = new URLSearchParams();
-    if (newTab && newTab !== "current") params.set("tab", newTab);
     if (newQuery.trim()) params.set("q", newQuery.trim());
     if (newStyle && newStyle !== "all") params.set("style", newStyle);
 
     const queryString = params.toString();
-    router.push(`/beers${queryString ? `?${queryString}` : ""}`, { scroll: false });
+    const basePath = mode === "archive" ? "/beers/archive" : "/beers";
+    router.push(`${basePath}${queryString ? `?${queryString}` : ""}`, { scroll: false });
   };
 
   const handleResetFilters = () => {
-    updateFilters(activeTab, "", "all");
+    updateFilters("", "all");
   };
 
   // Filter all beers based on active search term and style category
@@ -260,15 +262,39 @@ export function BeersContent({ initialBeers }: { initialBeers: Beer[] }) {
     (b) => matchesStyleCategory(b.style, selectedStyle) && matchesSearchQuery(b, searchQuery)
   );
 
-  const onDeck = filteredBeers.filter((b) => b.status === "on_deck");
-  const brewing = filteredBeers.filter((b) => b.status === "brewing");
   const ready = filteredBeers.filter((b) => b.status === "ready");
+  const onDeck = filteredBeers.filter((b) => b.status === "on_deck" || b.status === "brewing");
   const archived = filteredBeers.filter((b) => b.status === "archived");
 
   const hasActiveFilters = searchQuery.trim() !== "" || selectedStyle !== "all";
 
   return (
     <div className="max-w-6xl mx-auto">
+      {/* PAGE MODE SUB-NAV TOGGLE */}
+      <div className="flex justify-center p-1.5 bg-forest/5 border border-forest/10 rounded-xl max-w-md mx-auto mb-12">
+        <Link
+          href="/beers"
+          className={`flex-1 py-2.5 px-4 text-center font-serif text-sm md:text-base tracking-wider uppercase rounded-lg transition-all duration-300 ${
+            mode === "active"
+              ? "bg-forest text-tan shadow-md font-bold"
+              : "text-forest/60 hover:text-forest"
+          }`}
+        >
+          On Tap & On Deck
+        </Link>
+
+        <Link
+          href="/beers/archive"
+          className={`flex-1 py-2.5 px-4 text-center font-serif text-sm md:text-base tracking-wider uppercase rounded-lg transition-all duration-300 ${
+            mode === "archive"
+              ? "bg-forest text-tan shadow-md font-bold"
+              : "text-forest/60 hover:text-forest"
+          }`}
+        >
+          Brew Archive
+        </Link>
+      </div>
+
       {/* SEARCH & FILTER CONTROLS BAR */}
       <div className="bg-white/80 backdrop-blur-md border border-forest/15 rounded-2xl p-4 md:p-6 shadow-sm mb-12 space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
@@ -279,12 +305,12 @@ export function BeersContent({ initialBeers }: { initialBeers: Beer[] }) {
               type="text"
               placeholder="Search by beer name, hops, ingredients, or notes..."
               value={searchQuery}
-              onChange={(e) => updateFilters(activeTab, e.target.value, selectedStyle)}
+              onChange={(e) => updateFilters(e.target.value, selectedStyle)}
               className="w-full pl-10 pr-10 py-2.5 bg-forest/5 border border-forest/15 rounded-xl text-sm text-forest placeholder:text-forest/40 focus:outline-none focus:ring-2 focus:ring-forest/30 transition-all font-sans"
             />
             {searchQuery && (
               <button
-                onClick={() => updateFilters(activeTab, "", selectedStyle)}
+                onClick={() => updateFilters("", selectedStyle)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-forest/40 hover:text-forest transition-colors"
                 title="Clear text search"
               >
@@ -298,7 +324,7 @@ export function BeersContent({ initialBeers }: { initialBeers: Beer[] }) {
             <Filter className="w-4 h-4 text-forest/40 shrink-0 hidden sm:block" />
             <select
               value={selectedStyle}
-              onChange={(e) => updateFilters(activeTab, searchQuery, e.target.value)}
+              onChange={(e) => updateFilters(searchQuery, e.target.value)}
               className="w-full px-3.5 py-2.5 bg-forest/5 border border-forest/15 rounded-xl text-sm text-forest focus:outline-none focus:ring-2 focus:ring-forest/30 transition-all font-sans cursor-pointer"
             >
               {STYLE_CATEGORIES.map((cat) => (
@@ -318,7 +344,7 @@ export function BeersContent({ initialBeers }: { initialBeers: Beer[] }) {
               {searchQuery && (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-forest/10 text-forest rounded-md font-bold">
                   Query: &quot;{searchQuery}&quot;
-                  <button onClick={() => updateFilters(activeTab, "", selectedStyle)}>
+                  <button onClick={() => updateFilters("", selectedStyle)}>
                     <X className="w-3 h-3 hover:text-red-600 transition-colors" />
                   </button>
                 </span>
@@ -326,7 +352,7 @@ export function BeersContent({ initialBeers }: { initialBeers: Beer[] }) {
               {selectedStyle !== "all" && (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-forest/10 text-forest rounded-md font-bold">
                   Style: {STYLE_CATEGORIES.find((c) => c.key === selectedStyle)?.label}
-                  <button onClick={() => updateFilters(activeTab, searchQuery, "all")}>
+                  <button onClick={() => updateFilters(searchQuery, "all")}>
                     <X className="w-3 h-3 hover:text-red-600 transition-colors" />
                   </button>
                 </span>
@@ -344,48 +370,12 @@ export function BeersContent({ initialBeers }: { initialBeers: Beer[] }) {
         )}
       </div>
 
-      {/* VIEW TABS */}
-      <div className="flex justify-center p-1.5 bg-forest/5 border border-forest/10 rounded-xl max-w-xl mx-auto mb-12">
-        <button
-          onClick={() => updateFilters("current", searchQuery, selectedStyle)}
-          className={`flex-1 py-2.5 px-3 font-serif text-sm md:text-base tracking-wider uppercase rounded-lg transition-all duration-300 ${
-            activeTab === "current"
-              ? "bg-forest text-tan shadow-md font-bold"
-              : "text-forest/60 hover:text-forest"
-          }`}
-        >
-          Active Cellar
-        </button>
-
-        <button
-          onClick={() => updateFilters("archive", searchQuery, selectedStyle)}
-          className={`flex-1 py-2.5 px-3 font-serif text-sm md:text-base tracking-wider uppercase rounded-lg transition-all duration-300 ${
-            activeTab === "archive"
-              ? "bg-forest text-tan shadow-md font-bold"
-              : "text-forest/60 hover:text-forest"
-          }`}
-        >
-          Archived Logs
-        </button>
-
-        <button
-          onClick={() => updateFilters("all", searchQuery, selectedStyle)}
-          className={`flex-1 py-2.5 px-3 font-serif text-sm md:text-base tracking-wider uppercase rounded-lg transition-all duration-300 ${
-            activeTab === "all"
-              ? "bg-forest text-tan shadow-md font-bold"
-              : "text-forest/60 hover:text-forest"
-          }`}
-        >
-          Every Brew
-        </button>
-      </div>
-
-      {/* CURRENT TAB */}
-      {activeTab === "current" && (
+      {/* ACTIVE BEERS PAGE (On Tap & On Deck) */}
+      {mode === "active" && (
         <div className="space-y-12">
-          {ready.length === 0 && brewing.length === 0 && onDeck.length === 0 ? (
+          {ready.length === 0 && onDeck.length === 0 ? (
             <EmptyState
-              text={hasActiveFilters ? "No active beers match your search criteria." : "No active beers in the cellar."}
+              text={hasActiveFilters ? "No active beers match your search criteria." : "No active beers currently on tap or on deck."}
               onReset={hasActiveFilters ? handleResetFilters : undefined}
             />
           ) : (
@@ -393,25 +383,16 @@ export function BeersContent({ initialBeers }: { initialBeers: Beer[] }) {
               <div>
                 <SectionTitle title="On Tap: In the Kegerator" count={ready.length} />
                 {ready.length === 0 ? (
-                  <EmptyState text="No beers matching your filter currently on tap." />
+                  <EmptyState text="No beers currently on tap." />
                 ) : (
                   <BeerGrid beers={ready} />
                 )}
               </div>
 
               <div>
-                <SectionTitle title="Fermenting: In the Carboy" count={brewing.length} />
-                {brewing.length === 0 ? (
-                  <EmptyState text="Nothing matching your filter brewing or fermenting right now." />
-                ) : (
-                  <BeerGrid beers={brewing} />
-                )}
-              </div>
-
-              <div>
                 <SectionTitle title="On Deck: Planned Batches" count={onDeck.length} />
                 {onDeck.length === 0 ? (
-                  <EmptyState text="No upcoming batches matching your filter on deck." />
+                  <EmptyState text="No upcoming batches on deck." />
                 ) : (
                   <BeerGrid beers={onDeck} />
                 )}
@@ -421,34 +402,18 @@ export function BeersContent({ initialBeers }: { initialBeers: Beer[] }) {
         </div>
       )}
 
-      {/* ARCHIVE TAB */}
-      {activeTab === "archive" && (
+      {/* ARCHIVE PAGE MODE */}
+      {mode === "archive" && (
         <div className="space-y-12 animate-fade-in duration-300">
           <SectionTitle title="Historical Brew Archive" count={archived.length} />
 
           {archived.length === 0 ? (
             <EmptyState
-              text={hasActiveFilters ? "No archived beers match your search criteria." : "No archived beers yet."}
+              text={hasActiveFilters ? "No archived beers match your search criteria." : "No archived beers in the catalog."}
               onReset={hasActiveFilters ? handleResetFilters : undefined}
             />
           ) : (
             <BeerGrid beers={archived} />
-          )}
-        </div>
-      )}
-
-      {/* EVERY BREW / ALL BATCHES TAB */}
-      {activeTab === "all" && (
-        <div className="space-y-12 animate-fade-in duration-300">
-          <SectionTitle title="Every Beer We've Ever Made" count={filteredBeers.length} />
-
-          {filteredBeers.length === 0 ? (
-            <EmptyState
-              text={hasActiveFilters ? "No beers match your search criteria across our entire catalog." : "No beers found in the catalog."}
-              onReset={hasActiveFilters ? handleResetFilters : undefined}
-            />
-          ) : (
-            <BeerGrid beers={filteredBeers} />
           )}
         </div>
       )}
