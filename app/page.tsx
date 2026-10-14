@@ -24,30 +24,6 @@ export const revalidate = 86400;
 export default async function Home() {
   const beers = await getBeersForPage();
 
-  // Find a featured beer (prioritize explicitly curated is_featured, then flagship, then active/tap, then latest)
-  const featuredBeer =
-    beers.find((b) => b.is_featured) ||
-    beers.find((b) => b.is_flagship && b.status !== "archived") ||
-    beers.find((b) => b.status === "ready") ||
-    beers.find((b) => b.status === "brewing") ||
-    beers[0];
-
-  let featuredBeerStyle = "Craft Special"
-  let featuredBeerGradient = "from-tan/10 to-tan/20"
-  let featuredBeerImageUrl = null
-
-  if (featuredBeer) {
-    const styleStr = (typeof featuredBeer.style === "object" && featuredBeer.style !== null)
-      ? (featuredBeer.style.title || "")
-      : (featuredBeer.style as string) || "";
-
-    featuredBeerStyle =
-      beerStyles.find((s) => s.value === styleStr)?.title ||
-      styleStr ||
-      "Craft Special";
-    featuredBeerGradient = getBeerStyleGradient(styleStr);
-    featuredBeerImageUrl = getBeerImage(featuredBeer, "card");
-  }
 
   return (
     <main className="min-h-screen bg-cream text-forest">
@@ -217,94 +193,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 5. One Featured Dynamic Element: Featured Brew */}
-      {featuredBeer && (
-        <section className="bg-forest text-tan py-20 md:py-32 px-4 relative overflow-hidden border-t border-b border-tan/10">
-          {/* Subtle blueprint coordinate grid background texture */}
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M0%2040h40M40%200v40%22%20fill%3D%22none%22%20stroke%3D%22%23E8D7B5%22%20stroke-opacity%3D%220.02%22%3E%3C/path%3E%3C/svg%3E')] opacity-60 pointer-events-none" />
-
-          <div className="container mx-auto max-w-5xl relative z-10">
-            <div className="grid lg:grid-cols-12 gap-12 items-center">
-              {/* Left Column: Narrative */}
-              <div className="lg:col-span-5 space-y-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-tan/10 border border-tan/20 text-xs font-mono uppercase tracking-widest text-tan/80">
-                  <Sparkles className="w-3.5 h-3.5 text-tan" />
-                  <span>Featured Batch</span>
-                </div>
-
-                <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-tan tracking-wide leading-tight uppercase">
-                  Featured Brew
-                </h2>
-
-                <p className="text-tan/80 text-base md:text-lg font-light leading-relaxed">
-                  We run highly focused test batches to evaluate specific brewing profiles. Here is a highlighted recipe currently taking center stage in our cellar logs.
-                </p>
-
-                <div className="pt-2">
-                  <Link
-                    href={`/beers/${featuredBeer.slug}`}
-                    className="group inline-flex items-center gap-2 font-serif text-lg text-tan border-b border-tan/30 pb-1 hover:text-tan/80 hover:border-tan transition-colors"
-                  >
-                    View Recipe & Logs
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </div>
-              </div>
-
-              {/* Right Column: Featured Brew Snapshot Card */}
-              <div className="lg:col-span-7">
-                <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-tan/15 overflow-hidden shadow-2xl">
-                  <div className="grid md:grid-cols-12">
-                    {/* Visual Artwork / Placeholder */}
-                    <div className={`relative h-64 md:h-full md:col-span-5 min-h-[240px] bg-gradient-to-b ${featuredBeerGradient} flex items-center justify-center overflow-hidden`}>
-                      {featuredBeerImageUrl ? (
-                        <Image
-                          src={featuredBeerImageUrl}
-                          alt={featuredBeer.beer_name}
-                          fill
-                          className="object-cover"
-                          unoptimized
-                        />
-                      ) : (
-                        <div className="w-16 h-28 bg-white/25 backdrop-blur-sm rounded-lg border border-white/40" />
-                      )}
-                      {featuredBeer.abv && (
-                        <span className="absolute bottom-4 left-4 text-xs font-mono font-bold bg-forest/85 backdrop-blur-sm border border-tan/20 text-tan px-2.5 py-1 rounded">
-                          {featuredBeer.abv}% ABV
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Details Panel */}
-                    <div className="p-8 md:col-span-7 space-y-6 flex flex-col justify-center">
-                      <div>
-                        <span className="text-xs font-mono uppercase tracking-widest text-tan/50 block">Recipe Profile</span>
-                        <h3 className="font-serif text-2xl md:text-3xl text-tan mt-1 leading-tight">{featuredBeer.beer_name}</h3>
-                        <span className="text-xs font-mono text-tan/60 mt-1 block">Style: {featuredBeerStyle}</span>
-                      </div>
-
-                      {featuredBeer.notes && (
-                        <p className="text-sm text-tan/85 leading-relaxed font-light line-clamp-3 italic">
-                          &ldquo;{featuredBeer.notes}&rdquo;
-                        </p>
-                      )}
-
-                      <div className="pt-2">
-                        <Link
-                          href={`/beers/${featuredBeer.slug}`}
-                          className="inline-flex items-center gap-1.5 text-xs font-mono text-tan/70 hover:text-tan transition-colors uppercase tracking-wider"
-                        >
-                          Inspect Batch Details →
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* 6. Final CTA Section */}
       <section className="bg-tan py-20 md:py-32 px-4 text-center relative overflow-hidden">
