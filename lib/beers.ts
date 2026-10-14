@@ -16,7 +16,6 @@ export const ALL_BEERS_QUERY = `
     ingredients,
     notableHops,
     is_flagship,
-    is_featured,
     image,
     telemetry,
     _createdAt,
