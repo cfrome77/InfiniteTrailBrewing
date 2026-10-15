@@ -9,6 +9,15 @@ const nextConfig = {
   experimental: {
     typedRoutes: false,
   },
+  async redirects() {
+    return [
+      {
+        source: '/telemetry',
+        destination: '/beers',
+        permanent: true,
+      },
+    ]
+  },
 }
 
 export default nextConfig
