@@ -25,7 +25,7 @@ const navLinks: NavLinkItem[] = [
       { href: "/beers/archive", label: "Brew Archive" },
     ],
   },
-  { href: process.env.NEXT_PUBLIC_FOURTHWALL_SHOP_URL || "#", label: "Shop Merch", isExternal: true },
+  { href: "/shop", label: "Shop Merch" },
   { href: "/blog", label: "The Brew Log" },
   { href: "/our-story", label: "Our Story" },
   { href: "/contact", label: "Contact" },
