@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, BookOpen, FlaskConical, Beer } from "lucide-react";
+import { BRAND } from "@/lib/brand";
 
 export function Hero() {
   return (
@@ -24,7 +25,7 @@ export function Hero() {
         {/* Logo */}
         <div className="mb-3 md:mb-4 animate-fade-in [animation-delay:100ms] opacity-0 [animation-fill-mode:forwards]">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingLogo-Transparent-v6FezPtqxZNb3SWQzDZTLQnNvIqEf6.png"
+            src={BRAND.logo}
             alt="Infinite Trail Brewing"
             width={180}
             height={180}

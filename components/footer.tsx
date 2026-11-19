@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FaInstagram, FaFacebook } from "react-icons/fa6";
+import { BRAND } from "@/lib/brand";
 
 const footerLinks = [
   { href: "/", label: "Home" },
@@ -24,7 +25,7 @@ export function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-2">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingWordmarkDeepForest-Transparent-mWmicyKGqRtwkNbzt0Qqv431s925IK.png"
+              src={BRAND.wordmark}
               alt="Infinite Trail Brewing"
               width={200}
               height={67}

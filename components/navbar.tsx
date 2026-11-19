@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { FaInstagram, FaFacebook } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
+import { BRAND } from "@/lib/brand";
 
 interface NavLinkItem {
   href: string;
@@ -85,7 +86,7 @@ export function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingWordmarkDeepForest-Transparent-mWmicyKGqRtwkNbzt0Qqv431s925IK.png"
+            src={BRAND.wordmark}
             alt="Infinite Trail Brewing"
             width={240}
             height={80}

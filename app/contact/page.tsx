@@ -15,6 +15,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { FaFacebook, FaInstagram } from "react-icons/fa6";
+import { BRAND } from "@/lib/brand";
 
 export default function ContactPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -274,7 +275,7 @@ export default function ContactPage() {
               {/* Logo */}
               <div className="bg-forest/5 rounded-2xl p-8 text-center">
                 <Image
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingLogo-Transparent-v6FezPtqxZNb3SWQzDZTLQnNvIqEf6.png"
+                  src={BRAND.logo}
                   alt="Infinite Trail Brewing"
                   width={200}
                   height={200}

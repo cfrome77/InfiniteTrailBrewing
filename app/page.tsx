@@ -13,6 +13,7 @@ import {
   Sparkles,
   ArrowRight,
 } from "lucide-react"
+import { BRAND } from "@/lib/brand"
 
 export const revalidate = 86400;
 
@@ -36,7 +37,7 @@ export default async function Home() {
                 <div className="absolute -inset-1 border border-forest/5 rounded-3xl" />
                 <div className="relative z-10 flex items-center justify-center h-full bg-forest/5 rounded-2xl p-8 shadow-inner">
                   <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingLogo-Transparent-v6FezPtqxZNb3SWQzDZTLQnNvIqEf6.png"
+                    src={BRAND.logo}
                     alt="Infinite Trail Brewing"
                     width={320}
                     height={320}

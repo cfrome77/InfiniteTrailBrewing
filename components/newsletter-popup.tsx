@@ -6,6 +6,7 @@ import { X, Beer, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { subscribeToNewsletter } from "@/app/actions/newsletter"
+import { BRAND } from "@/lib/brand";
 
 export function NewsletterPopup() {
   const [isOpen, setIsOpen] = useState(false)
@@ -93,7 +94,7 @@ export function NewsletterPopup() {
         {/* Header with logo */}
         <div className="bg-forest px-6 py-8 text-center">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingLogo-Transparent-v6FezPtqxZNb3SWQzDZTLQnNvIqEf6.png"
+            src={BRAND.logo}
             alt="Infinite Trail Brewing"
             width={120}
             height={120}
