@@ -38,3 +38,18 @@ npm run test:e2e   # playwright; uses a production build when CI=true
   (`requireAdmin`); the Sanity Studio UI is not the security boundary.
 - **Revalidation** is HMAC-verified and fail-closed: 503 when
   `SANITY_REVALIDATE_SECRET` is unset, 401 on missing/invalid signature.
+- **Brand assets** live in `lib/brand.ts`. Import `BRAND.logo` /
+  `BRAND.wordmark`; do not paste the Blob URLs into components again.
+- **Adding an import via script** — several files (`app/page.tsx`,
+  `app/contact/page.tsx`, `app/our-story/page.tsx`) have multi-line `import {`
+  blocks. Inserting after the last line that *starts with* `import ` lands
+  inside the braces and produces a syntax error. Anchor on the closing
+  `} from "..."` line instead.
+- **Playwright locally** needs `npx playwright install chromium` first;
+  otherwise every test fails with "download new browsers". Local runs use
+  `npm run dev`, which fetches live Sanity data and can hang — prefer
+  `CI=1 npm run test:e2e` to exercise the production build the way CI does.
+- **`npm audit` overstates runtime risk here.** Most findings come from
+  Sanity's CLI, which never ships. Check `.next/server` and `.next/static`
+  for the package before treating an advisory as applicable. The suggested
+  fix for `sanity` is a downgrade to v5 and would break the schemas.
