@@ -77,6 +77,16 @@ Two constraints to keep in mind when changing it:
 - Vercel sends `Authorization: Bearer $CRON_SECRET` and nothing else. The
   handler returns 401 without it and 503 if `CRON_SECRET` is unset.
 
+Do not move this to a GitHub Actions schedule. Scheduled workflows in public
+repositories are automatically disabled after 60 days without repository
+activity, so the keepalive would stop exactly when a dormant site needs it —
+the same dormancy that triggers the Supabase pause. Vercel crons fire
+regardless of git activity.
+
+If independence from Vercel is ever wanted, an external pinger (for example
+cron-job.org) hitting the same authenticated endpoint daily is the simplest
+option. It needs no new code.
+
 Use the **anon** key, not the service role key. The target table should have
 RLS enabled with no policies so the query returns zero rows.
 

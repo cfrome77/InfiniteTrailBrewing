@@ -128,6 +128,14 @@ instead of failing, so the site can run without a Supabase project.
 Use the anon key and give the target table RLS with no policies, so the query
 returns zero rows and exposes nothing.
 
+The schedule lives in Vercel because Hobby allows one cron per day, which is
+enough for a 7-day pause window. A GitHub Actions schedule is not a good
+substitute: scheduled workflows in public repositories are disabled after 60
+days without repository activity, which is exactly when a quiet site needs the
+keepalive most. If you ever want to drop the Vercel dependency, point an
+external pinger such as cron-job.org at the same authenticated endpoint daily;
+no code change is needed.
+
 Note that Vercel's Hobby plan only allows crons once per day. That is enough
 here, since Supabase only needs roughly daily activity.
 
