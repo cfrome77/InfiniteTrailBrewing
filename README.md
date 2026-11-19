@@ -104,6 +104,24 @@ To keep pages "commercial-fast," data fetching has been moved from the client to
     See `.env.example` for the full list and for commands that generate the
     password hash and session secret.
 
+### Supabase keepalive (optional)
+
+`vercel.json` schedules `/api/unpause` once a day. Supabase pauses Free Plan
+projects after a week of low database activity, and the endpoint performs a
+real PostgREST query so the project counts as active.
+
+Set `CRON_SECRET`, `SUPABASE_URL`, `SUPABASE_ANON_KEY` and
+`SUPABASE_KEEPALIVE_TABLE` (see `.env.example`). Vercel invokes the route with
+`Authorization: Bearer $CRON_SECRET`; without it the endpoint returns 401. If
+the Supabase variables are absent the route returns `{ "skipped": true }`
+instead of failing, so the site can run without a Supabase project.
+
+Use the anon key and give the target table RLS with no policies, so the query
+returns zero rows and exposes nothing.
+
+Note that Vercel's Hobby plan only allows crons once per day. That is enough
+here, since Supabase only needs roughly daily activity.
+
 ### 2. Accessing the Admin Area
 - Visit `http://localhost:3000/admin`.
 - Sign in with `ADMIN_USERNAME` and the password matching `ADMIN_PASSWORD_HASH`.
