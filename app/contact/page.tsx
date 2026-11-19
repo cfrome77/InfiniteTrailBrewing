@@ -31,6 +31,7 @@ export default function ContactPage() {
       email: formData.get("email"),
       subject: formData.get("subject"),
       message: formData.get("message"),
+      company: formData.get("company"),
     };
 
     const res = await fetch("/api/contact", {
@@ -105,6 +106,11 @@ export default function ContactPage() {
                 <Card className="bg-white border-none shadow-lg">
                   <CardContent className="p-8">
                     <form onSubmit={handleSubmit} className="space-y-6">
+                      <div aria-hidden="true" className="hidden">
+                        <label htmlFor="company">Company</label>
+                        <input id="company" name="company" type="text" tabIndex={-1} autoComplete="off" />
+                      </div>
+
                       <div className="grid sm:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <label

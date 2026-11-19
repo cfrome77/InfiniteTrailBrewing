@@ -1,114 +1,74 @@
-"use client";
-
-import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import type { Metadata } from "next";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { unsubscribe } from "@/app/actions/unsubscribe";
-import { CheckCircle2, AlertCircle, Loader2, Mail } from "lucide-react";
+import { CheckCircle2, AlertCircle } from "lucide-react";
+import { UnsubscribeForm } from "./unsubscribe-form";
 
-function UnsubscribeContent() {
-  const searchParams = useSearchParams();
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [status, setStatus] = useState<{ success: boolean; message: string } | null>(null);
+export const metadata: Metadata = {
+  title: "Unsubscribe | Infinite Trail Brewing",
+  robots: { index: false, follow: false },
+};
 
-  useEffect(() => {
-    const emailParam = searchParams.get("email");
-    const successParam = searchParams.get("success");
+export const dynamic = "force-dynamic";
 
-    if (emailParam) {
-      setEmail(emailParam);
-    }
+export default async function UnsubscribePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ token?: string; email?: string; success?: string; error?: string }>;
+}) {
+  const { token, email, success, error } = await searchParams;
 
-    if (successParam === "true") {
-      setStatus({
-        success: true,
-        message: "You have been successfully unsubscribed from The Brew Log."
-      });
-    }
-  }, [searchParams]);
+  let content;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
-    setIsLoading(true);
-    const result = await unsubscribe(email);
-    setStatus(result);
-    setIsLoading(false);
-  };
-
-  return (
-    <main className="container mx-auto px-4 pt-40 pb-20 max-w-md">
-      <div className="bg-white p-8 rounded-2xl border border-tan/30 shadow-xl">
-        <h1 className="text-3xl font-serif text-forest mb-6 text-center">Unsubscribe</h1>
-
-        {status ? (
-          <div className={`p-6 rounded-xl text-center ${status.success ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}>
-            {status.success ? (
-              <CheckCircle2 className="w-12 h-12 mx-auto mb-4 text-green-600" />
-            ) : (
-              <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-600" />
-            )}
-            <p className="font-medium">{status.message}</p>
-            <Button
-              variant="link"
-              className="mt-4 text-forest"
-              onClick={() => setStatus(null)}
-            >
-              Back to form
-            </Button>
-          </div>
-        ) : (
-          <>
-            <p className="text-forest/70 mb-8 text-center leading-relaxed">
-              We're sorry to see you go! Enter your email address below to unsubscribe from The Brew Log.
-            </p>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Input
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="border-tan/50 focus:border-forest"
-                />
-              </div>
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-forest text-tan hover:bg-forest/90 font-serif text-lg py-6"
-              >
-                {isLoading ? (
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                ) : "Unsubscribe"}
-              </Button>
-            </form>
-          </>
-        )}
+  if (success === "true") {
+    content = (
+      <div className="p-6 rounded-xl text-center bg-green-50 text-green-800">
+        <CheckCircle2 className="w-12 h-12 mx-auto mb-4 text-green-600" />
+        <p className="font-medium">
+          You have been successfully unsubscribed from The Brew Log.
+        </p>
       </div>
-    </main>
-  );
-}
+    );
+  } else if (error === "true") {
+    content = (
+      <div className="p-6 rounded-xl text-center bg-red-50 text-red-800">
+        <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-600" />
+        <p className="font-medium">
+          That unsubscribe link is invalid or has expired.
+        </p>
+      </div>
+    );
+  } else if (token) {
+    content = (
+      <>
+        <div className="flex items-start gap-3 p-4 rounded-xl bg-tan/20 text-forest/80 text-sm mb-6">
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+          <p>Confirm that you want to stop receiving The Brew Log.</p>
+        </div>
+        <form action={`/api/unsubscribe?token=${encodeURIComponent(token)}`} method="POST">
+          <Button
+            type="submit"
+            className="w-full bg-forest text-tan hover:bg-forest/90 font-serif text-lg py-6"
+          >
+            Confirm Unsubscribe
+          </Button>
+        </form>
+      </>
+    );
+  } else {
+    content = <UnsubscribeForm initialEmail={email} />;
+  }
 
-export default function UnsubscribePage() {
   return (
     <div className="min-h-screen bg-cream">
       <Navbar />
-      <Suspense fallback={
-        <main className="container mx-auto px-4 pt-40 pb-20 max-w-md">
-          <div className="bg-white p-8 rounded-2xl border border-tan/30 shadow-xl flex flex-col items-center justify-center min-h-[300px]">
-            <Loader2 className="w-10 h-10 text-forest animate-spin" />
-          </div>
-        </main>
-      }>
-        <UnsubscribeContent />
-      </Suspense>
+      <main className="container mx-auto px-4 pt-40 pb-20 max-w-md">
+        <div className="bg-white p-8 rounded-2xl border border-tan/30 shadow-xl">
+          <h1 className="text-3xl font-serif text-forest mb-6 text-center">Unsubscribe</h1>
+          {content}
+        </div>
+      </main>
       <Footer />
     </div>
   );

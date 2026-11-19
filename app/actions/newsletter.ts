@@ -3,15 +3,23 @@
 import { serverClient as client } from "@/lib/sanity.server";
 import { randomUUID } from "crypto";
 import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function subscribeToNewsletter(email: string) {
-  if (!email || !email.includes("@")) {
+  const normalizedEmail = email.toLowerCase().trim();
+
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(normalizedEmail)) {
     return { success: false, message: "Invalid email address" };
   }
 
-  const normalizedEmail = email.toLowerCase().trim();
+  if (!rateLimit(`subscribe:${normalizedEmail}`, 3, 15 * 60 * 1000)) {
+    return { success: false, message: "Too many requests. Please try again later." };
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.error("RESEND_API_KEY is not configured; welcome email cannot send.");
+    return { success: false, message: "Email is not configured." };
+  }
 
   try {
     // Check if already exists
@@ -20,7 +28,7 @@ export async function subscribeToNewsletter(email: string) {
       { email: normalizedEmail }
     );
 
-    let token = existing?.token || randomUUID();
+    const token = existing?.token || randomUUID();
 
     if (existing) {
       if (existing.status === 'subscribed') {
@@ -48,12 +56,14 @@ export async function subscribeToNewsletter(email: string) {
     const fromEmail = process.env.CONTACT_RECEIVING_EMAIL || "newsletter@infinitetrailbrewing.com";
     const unsubscribeUrl = `${siteUrl}/api/unsubscribe?token=${token}`;
 
-    await resend.emails.send({
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const { error } = await resend.emails.send({
       from: `Infinite Trail Brewing <${fromEmail}>`,
       to: normalizedEmail,
       subject: "Welcome to the Trail!",
       headers: {
         "List-Unsubscribe": `<${unsubscribeUrl}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
       },
       html: `
         <div style="font-family: serif; color: #1A4132; max-width: 600px; margin: 0 auto; border: 1px solid #E8D7B5; border-radius: 8px; overflow: hidden;">
@@ -75,6 +85,11 @@ export async function subscribeToNewsletter(email: string) {
         </div>
       `,
     });
+
+    if (error) {
+      console.error("Welcome email failed:", error);
+      return { success: true, message: "You're subscribed, but the welcome email could not be sent." };
+    }
 
     return { success: true, message: "Welcome to the trail! Check your inbox for a confirmation." };
   } catch (error) {
