@@ -20,7 +20,6 @@ export function InventoryManager({ beers: initialBeers }: { beers: BeerData[] })
 
     const onTap = beers.filter(b => b.status === "ready");
     const brewing = beers.filter(b => b.status === "brewing");
-    const onDeck = beers.filter(b => b.status === "on_deck");
     const avgAbv = onTap.length > 0 ? (onTap.reduce((acc, b) => acc + (b.abv || 0), 0) / onTap.length).toFixed(1) : 0;
 
     const handleStatusChange = async (beerId: string, newStatus: string) => {

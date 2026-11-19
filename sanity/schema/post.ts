@@ -1,4 +1,4 @@
-export default {
+const post = {
   name: 'post',
   title: 'The Trail Report (Blog)',
   type: 'document',
@@ -137,3 +137,5 @@ export default {
     },
   ],
 };
+
+export default post;

@@ -12,7 +12,6 @@ import {
   ArrowRight,
   Flame,
   Activity,
-  Heart,
   MapPin,
   Sparkles
 } from "lucide-react";
@@ -63,7 +62,7 @@ export default async function OurStoryPage() {
       title: "Learning",
       icon: <BookOpen className="w-6 h-6 text-sky-500" />,
       subtitle: "Telemetry & Journals",
-      description: "We are obsessed with progress. By logging kettle telemetry (pH values, specific gravity, fermentation curves) on our Brew Lab dashboard and cataloging our observations in our Brew Journal, we treat every batch as a classroom to refine our methods.",
+      description: "We are obsessed with progress. By logging kettle telemetry (pH values, specific gravity, fermentation curves) in each batch log and cataloging our observations in our Brew Journal, we treat every batch as a classroom to refine our methods.",
     },
     {
       step: "05",
@@ -271,14 +270,14 @@ export default async function OurStoryPage() {
                 <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-forest border border-forest/10">
                   <Activity className="w-6 h-6 text-amber-600" />
                 </div>
-                <h3 className="font-serif text-xl text-forest font-semibold">Brew Lab Telemetry</h3>
+                <h3 className="font-serif text-xl text-forest font-semibold">Batch Telemetry</h3>
                 <p className="text-sm text-forest/70 font-light leading-relaxed">
-                  Check live fermentation curves, gravity readings, mash pH values, and hot-side boil timelines.
+                  Every brew log records fermentation gravity, mash pH values, water chemistry, and hot-side boil timelines.
                 </p>
               </div>
               <Button asChild variant="link" className="text-forest hover:text-forest/80 font-mono text-sm p-0 justify-start mt-6 group">
-                <Link href="/telemetry" className="flex items-center gap-1.5">
-                  View Lab Data
+                <Link href="/beers" className="flex items-center gap-1.5">
+                  View Batch Logs
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>

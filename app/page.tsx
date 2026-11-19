@@ -4,27 +4,19 @@ import { Navbar } from "@/components/navbar"
 import { Hero } from "@/components/hero"
 import { Footer } from "@/components/footer"
 import { NewsletterPopup } from "@/components/newsletter-popup"
-import { getBeersForPage } from "@/lib/beers.server"
 import { Button } from "@/components/ui/button"
-import { getBeerImage } from "@/lib/images"
-import { getBeerStyleGradient } from "@/lib/beerStyleTheme"
-import { beerStyles } from "@/sanity/constants/beerStyles"
 import {
   Beer,
   BookOpen,
   Compass,
   FlaskConical,
   Sparkles,
-  ArrowRight,
-  Activity
+  ArrowRight
 } from "lucide-react"
 
 export const revalidate = 86400;
 
-export default async function Home() {
-  const beers = await getBeersForPage();
-
-
+export default function Home() {
   return (
     <main className="min-h-screen bg-cream text-forest">
       <Navbar />

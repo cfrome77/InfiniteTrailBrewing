@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
@@ -235,10 +235,16 @@ export function BeersContent({
   const [searchQuery, setSearchQuery] = useState<string>(searchParams.get("q") || "");
   const [selectedStyle, setSelectedStyle] = useState<string>(searchParams.get("style") || "all");
 
-  useEffect(() => {
+  // Back/forward navigation changes the query string, so the inputs have to
+  // follow it. Doing that during render (React's documented alternative to an
+  // effect) keeps the fields in sync without a second render pass.
+  const paramsKey = `${searchParams.get("q") ?? ""}|${searchParams.get("style") ?? ""}`;
+  const [prevParamsKey, setPrevParamsKey] = useState(paramsKey);
+  if (prevParamsKey !== paramsKey) {
+    setPrevParamsKey(paramsKey);
     setSearchQuery(searchParams.get("q") || "");
     setSelectedStyle(searchParams.get("style") || "all");
-  }, [searchParams]);
+  }
 
   const updateFilters = (newQuery: string, newStyle: string) => {
     setSearchQuery(newQuery);

@@ -40,6 +40,15 @@ export function Navbar() {
   const pathname = usePathname();
   const isHomePage = pathname === "/";
 
+  // Adjusting state during render instead of in an effect avoids the extra
+  // render pass (and the flash of the still-open menu) on every navigation.
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setIsMobileMenuOpen(false);
+    setBeersDropdownOpen(false);
+  }
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -48,12 +57,6 @@ export function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  // Close mobile menu & dropdown on route change
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-    setBeersDropdownOpen(false);
-  }, [pathname]);
 
   // Click outside to close desktop dropdown
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { beerStyles } from "../constants/beerStyles";
 
-export default {
+const beer = {
   name: "beer",
   title: "Beer",
   type: "document",
@@ -203,3 +203,5 @@ export default {
     },
   ],
 };
+
+export default beer;

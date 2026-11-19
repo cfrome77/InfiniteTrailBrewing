@@ -1,4 +1,4 @@
-export default {
+const beerStyle = {
   name: "beerStyle",
   title: "Beer Style (Telemetry Defaults)",
   type: "document",
@@ -51,3 +51,5 @@ export default {
     }
   ]
 };
+
+export default beerStyle;
