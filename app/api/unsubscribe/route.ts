@@ -1,36 +1,35 @@
 import { serverClient as client } from "@/lib/sanity.server";
 import { redirect } from "next/navigation";
 
+/**
+ * Unsubscribe links from emails land here. The token is the only credential,
+ * so a missing or unknown token never reveals whether an address is on the list.
+ */
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const token = searchParams.get("token");
+  const token = new URL(request.url).searchParams.get("token");
 
   if (!token) {
-    return new Response("Missing unsubscribe token", { status: 400 });
+    redirect("/unsubscribe?error=missing");
   }
 
-  let subscriber;
+  let found = false;
+
   try {
-    subscriber = await (client as any).fetch(
-      `*[_type == "subscriber" && token == $token][0]`,
-      { token }
+    const subscriber: { _id: string; status?: string } | null = await client.fetch(
+      `*[_type == "subscriber" && token == $unsubscribeToken][0]{ _id, status }`,
+      { unsubscribeToken: token },
     );
 
     if (subscriber) {
-      await client
-        .patch(subscriber._id)
-        .set({ status: "unsubscribed" })
-        .commit();
+      found = true;
+      if (subscriber.status !== "unsubscribed") {
+        await client.patch(subscriber._id).set({ status: "unsubscribed" }).commit();
+      }
     }
   } catch (error) {
     console.error("API Unsubscribe error:", error);
-    return new Response("An error occurred while processing your request", { status: 500 });
+    redirect("/unsubscribe?error=failed");
   }
 
-  if (subscriber) {
-    // Redirect to a success page or the main unsubscribe page with a success flag
-    redirect("/unsubscribe?success=true");
-  } else {
-    return new Response("Invalid unsubscribe token", { status: 404 });
-  }
+  redirect(found ? "/unsubscribe?success=true" : "/unsubscribe?error=invalid");
 }
