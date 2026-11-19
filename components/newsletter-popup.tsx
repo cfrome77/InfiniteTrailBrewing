@@ -1,15 +1,18 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useTransition } from "react"
 import Image from "next/image"
 import { X, Beer, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { subscribeToNewsletter } from "@/app/actions/newsletter"
 
 export function NewsletterPopup() {
   const [isOpen, setIsOpen] = useState(false)
   const [email, setEmail] = useState("")
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
     // Never show to subscribers
@@ -46,15 +49,24 @@ export function NewsletterPopup() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle newsletter signup here
-    setIsSubmitted(true)
-    // Store a permanent flag for subscribers so they never see it again
-    localStorage.setItem("itb-newsletter-subscribed", "true")
-    
-    // Close popup after showing success message
-    setTimeout(() => {
-      setIsOpen(false)
-    }, 2000)
+    setError(null)
+
+    startTransition(async () => {
+      const result = await subscribeToNewsletter(email)
+
+      if (!result.success) {
+        setError(result.message)
+        return
+      }
+
+      setIsSubmitted(true)
+      // Permanent flag so subscribers are never shown the popup again.
+      localStorage.setItem("itb-newsletter-subscribed", "true")
+
+      setTimeout(() => {
+        setIsOpen(false)
+      }, 2000)
+    })
   }
 
   if (!isOpen) return null
@@ -116,12 +128,19 @@ export function NewsletterPopup() {
                   />
                 </div>
                 
-                <Button 
+                <Button
                   type="submit"
-                  className="w-full bg-forest text-tan hover:bg-forest/90 font-serif tracking-wide"
+                  disabled={isPending}
+                  className="w-full bg-forest text-tan hover:bg-forest/90 font-serif tracking-wide disabled:opacity-60"
                 >
-                  Subscribe
+                  {isPending ? "Subscribing…" : "Subscribe"}
                 </Button>
+
+                {error && (
+                  <p role="alert" className="text-center text-sm text-red-700">
+                    {error}
+                  </p>
+                )}
 
                 <button
                   type="button"

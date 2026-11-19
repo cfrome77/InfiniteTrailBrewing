@@ -2,16 +2,20 @@
 
 import { serverClient as client } from "@/lib/sanity.server";
 import { randomUUID } from "crypto";
-import { Resend } from "resend";
+import { getResendClient } from "@/lib/resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function subscribeToNewsletter(email: string) {
-  if (!email || !email.includes("@")) {
+  if (typeof email !== "string") {
     return { success: false, message: "Invalid email address" };
   }
 
   const normalizedEmail = email.toLowerCase().trim();
+
+  if (normalizedEmail.length > 254 || !EMAIL_RE.test(normalizedEmail)) {
+    return { success: false, message: "Invalid email address" };
+  }
 
   try {
     // Check if already exists
@@ -43,12 +47,19 @@ export async function subscribeToNewsletter(email: string) {
       });
     }
 
+    const resend = getResendClient();
+
     // Send Welcome Email
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://infinitetrailbrewing.com";
     const fromEmail = process.env.CONTACT_RECEIVING_EMAIL || "newsletter@infinitetrailbrewing.com";
     const unsubscribeUrl = `${siteUrl}/api/unsubscribe?token=${token}`;
 
-    await resend.emails.send({
+    if (!resend) {
+      console.error("Welcome email skipped: RESEND_API_KEY is not configured.");
+      return { success: true, message: "You're subscribed! Check your inbox for a confirmation." };
+    }
+
+    const { error: sendError } = await resend.emails.send({
       from: `Infinite Trail Brewing <${fromEmail}>`,
       to: normalizedEmail,
       subject: "Welcome to the Trail!",
@@ -75,6 +86,17 @@ export async function subscribeToNewsletter(email: string) {
         </div>
       `,
     });
+
+    // Resend reports failures in its response rather than throwing; without this
+    // check a dropped welcome email still reported success and the subscriber
+    // never received their unsubscribe link.
+    if (sendError) {
+      console.error("Welcome email failed:", sendError);
+      return {
+        success: true,
+        message: "You're subscribed, but we could not send the welcome email.",
+      };
+    }
 
     return { success: true, message: "Welcome to the trail! Check your inbox for a confirmation." };
   } catch (error) {
