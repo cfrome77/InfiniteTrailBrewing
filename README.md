@@ -93,11 +93,26 @@ To keep pages "commercial-fast," data fetching has been moved from the client to
     # Email (Resend)
     RESEND_API_KEY="your-resend-api-key"
     CONTACT_RECEIVING_EMAIL="hello@yourdomain.com"
+    CONTACT_FROM_EMAIL="noreply@mail.yourdomain.com"
+
+    # Staff access for /admin
+    ADMIN_USERNAME="your-username"
+    ADMIN_PASSWORD_HASH="scrypt:<salt-hex>:<hash-hex>"
+    ADMIN_SESSION_SECRET="at-least-32-random-characters"
     ```
+
+    See `.env.example` for the full list and for commands that generate the
+    password hash and session secret.
 
 ### 2. Accessing the Admin Area
 - Visit `http://localhost:3000/admin`.
-- Log in using your Sanity credentials.
+- Sign in with `ADMIN_USERNAME` and the password matching `ADMIN_PASSWORD_HASH`.
+- You are then forwarded to Sanity Studio, which still requires your Sanity
+  account for content editing.
+
+`ADMIN_SESSION_SECRET` must be at least 32 characters. If it is missing or too
+short, admin sign-in fails closed and every admin route redirects to the login
+page. Sessions last 8 hours.
 
 ---
 

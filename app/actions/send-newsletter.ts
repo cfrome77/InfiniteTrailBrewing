@@ -3,10 +3,15 @@
 import { serverClient as client } from "@/lib/sanity.server";
 import { Resend } from "resend";
 import { transformPortableTextToEmailHtml } from "@/lib/newsletter-utils";
+import { requireAdmin } from "@/lib/admin-guard";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+const BATCH_SIZE = 100;
+
 export async function sendNewsletter(postId: string) {
+  await requireAdmin();
+
   try {
     // 1. Fetch the post
     const post = await client.fetch(`*[_id == $postId][0]`, { postId });
@@ -21,49 +26,61 @@ export async function sendNewsletter(postId: string) {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://infinitetrailbrewing.com";
     const fromEmail = process.env.CONTACT_RECEIVING_EMAIL || "newsletter@infinitetrailbrewing.com";
 
-    // 3. Send emails
-    // For individual tokens, we have to send emails separately or use Resend's batching
-    // To implement List-Unsubscribe, we send individually.
-
+    // 3. Send in batches. Each recipient still needs their own List-Unsubscribe
+    // token, so emails are built individually and only the transport is batched.
     let successCount = 0;
     let failCount = 0;
 
-    for (const sub of subscribers) {
-      const unsubscribeUrl = `${siteUrl}/api/unsubscribe?token=${sub.token}`;
+    for (let i = 0; i < subscribers.length; i += BATCH_SIZE) {
+      const chunk = subscribers.slice(i, i + BATCH_SIZE);
 
-      const { data, error } = await resend.emails.send({
-        from: `Infinite Trail Brewing <${fromEmail}>`,
-        to: sub.email,
-        subject: `The Brew Log: ${post.title}`,
-        headers: {
-          "List-Unsubscribe": `<${unsubscribeUrl}>`,
-        },
-        html: `
-          <div style="font-family: serif; color: #1A4132; max-width: 600px; margin: 0 auto; border: 1px solid #E8D7B5; border-radius: 8px; overflow: hidden;">
-            <div style="background-color: #1A4132; padding: 40px 20px; text-align: center;">
-              <h1 style="color: #E8D7B5; margin: 0; font-size: 24px; letter-spacing: 2px; text-transform: uppercase;">The Brew Log</h1>
-            </div>
-            <div style="padding: 40px 30px; background-color: #F5F0E6;">
-              <h2 style="font-size: 28px; margin-bottom: 20px;">${post.title}</h2>
-              <div style="font-family: sans-serif;">
-                ${contentHtml}
+      const payloads = chunk.map((sub: any) => {
+        const unsubscribeUrl = `${siteUrl}/api/unsubscribe?token=${sub.token}`;
+        return {
+          from: `Infinite Trail Brewing <${fromEmail}>`,
+          to: sub.email,
+          subject: `The Brew Log: ${post.title}`,
+          headers: {
+            "List-Unsubscribe": `<${unsubscribeUrl}>`,
+            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+          },
+          html: `
+            <div style="font-family: serif; color: #1A4132; max-width: 600px; margin: 0 auto; border: 1px solid #E8D7B5; border-radius: 8px; overflow: hidden;">
+              <div style="background-color: #1A4132; padding: 40px 20px; text-align: center;">
+                <h1 style="color: #E8D7B5; margin: 0; font-size: 24px; letter-spacing: 2px; text-transform: uppercase;">The Brew Log</h1>
               </div>
-              ${post.visibility !== 'newsletter' ? `
-              <div style="margin-top: 40px; text-align: center;">
-                <a href="${siteUrl}/blog/${post.slug.current}" style="background-color: #1A4132; color: #E8D7B5; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Read on Website</a>
+              <div style="padding: 40px 30px; background-color: #F5F0E6;">
+                <h2 style="font-size: 28px; margin-bottom: 20px;">${post.title}</h2>
+                <div style="font-family: sans-serif;">
+                  ${contentHtml}
+                </div>
+                ${post.visibility !== 'newsletter' ? `
+                <div style="margin-top: 40px; text-align: center;">
+                  <a href="${siteUrl}/blog/${post.slug.current}" style="background-color: #1A4132; color: #E8D7B5; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Read on Website</a>
+                </div>
+                ` : ''}
               </div>
-              ` : ''}
+              <div style="background-color: #E8D7B5; padding: 20px; text-align: center; font-size: 12px; color: #1A4132;">
+                <p>© ${new Date().getFullYear()} Infinite Trail Brewing. All rights reserved.</p>
+                <p>You're receiving this because you're following the trail. <a href="${unsubscribeUrl}" style="color: #1A4132;">Unsubscribe</a></p>
+              </div>
             </div>
-            <div style="background-color: #E8D7B5; padding: 20px; text-align: center; font-size: 12px; color: #1A4132;">
-              <p>© ${new Date().getFullYear()} Infinite Trail Brewing. All rights reserved.</p>
-              <p>You're receiving this because you're following the trail. <a href="${unsubscribeUrl}" style="color: #1A4132;">Unsubscribe</a></p>
-            </div>
-          </div>
-        `,
+          `,
+        };
       });
 
-      if (error) failCount++;
-      else successCount++;
+      const { data, error } = await resend.batch.send(payloads as any, {
+        batchValidation: "permissive",
+      });
+
+      if (error || !data) {
+        failCount += chunk.length;
+        console.error("Newsletter batch error:", error);
+        continue;
+      }
+
+      successCount += data.data.length;
+      failCount += chunk.length - data.data.length;
     }
 
     return {
@@ -77,15 +94,17 @@ export async function sendNewsletter(postId: string) {
 }
 
 export async function getSubscriberCount() {
+    await requireAdmin();
     try {
         const count = await client.fetch(`count(*[_type == "subscriber" && status == "subscribed"])`);
         return count;
-    } catch (e) {
+    } catch {
         return 0;
     }
 }
 
 export async function getResendStats() {
+    await requireAdmin();
     try {
         const { data, error } = await resend.emails.list();
         if (error || !data) throw error;
@@ -98,8 +117,8 @@ export async function getResendStats() {
                 to: e.to
             }))
         };
-    } catch (e) {
-        console.error("Error fetching Resend stats:", e);
+    } catch (error) {
+        console.error("Error fetching Resend stats:", error);
         return null;
     }
 }
