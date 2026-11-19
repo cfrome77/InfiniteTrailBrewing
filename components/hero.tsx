@@ -81,7 +81,7 @@ export function Hero() {
             asChild
             size="lg"
             variant="outline"
-            className="w-full sm:w-auto border-tan/30 text-tan hover:bg-tan/10 hover:border-tan font-serif text-base px-8 py-6 tracking-wide hover:scale-[1.03] transition-all duration-300"
+            className="w-full sm:w-auto bg-transparent border-tan/30 text-tan hover:bg-tan/10 hover:border-tan font-serif text-base px-8 py-6 tracking-wide hover:scale-[1.03] transition-all duration-300"
           >
             <Link href="/blog" className="flex items-center gap-2">
               <BookOpen className="w-4 h-4" />

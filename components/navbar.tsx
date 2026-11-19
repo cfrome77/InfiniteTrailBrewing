@@ -176,16 +176,20 @@ export function Navbar() {
             <Link
               href="https://instagram.com/infinitetrailbrewing"
               target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Follow us on Instagram"
               className="text-tan/70 hover:text-tan"
             >
-              <FaInstagram className="w-5 h-5" />
+              <FaInstagram className="w-5 h-5" aria-hidden="true" />
             </Link>
             <Link
               href="https://facebook.com/infinitetrailbrewing"
               target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Follow us on Facebook"
               className="text-tan/70 hover:text-tan"
             >
-              <FaFacebook className="w-5 h-5" />
+              <FaFacebook className="w-5 h-5" aria-hidden="true" />
             </Link>
           </div>
         </div>
@@ -196,14 +200,17 @@ export function Navbar() {
           size="icon"
           className="md:hidden text-tan hover:bg-tan/10"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-menu"
         >
-          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {isMobileMenuOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
         </Button>
       </nav>
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-forest/95 backdrop-blur-md border-t border-tan/20 animate-fade-in duration-300">
+        <div id="mobile-menu" className="md:hidden bg-forest/95 backdrop-blur-md border-t border-tan/20 animate-fade-in duration-300">
           <div className="container mx-auto px-4 py-6 flex flex-col gap-4">
             {navLinks.map((link) => {
               const isExternal = link.isExternal;
