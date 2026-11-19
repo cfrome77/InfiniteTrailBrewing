@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { getBeerBySlug, getAllBeerSlugs } from "@/lib/beers.server";
-import { Beer as BeerType, BeerStatus } from "@/types";
+import { BeerStatus } from "@/types";
 import { urlFor } from "@/lib/sanity.client";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -12,14 +12,10 @@ import { ActionBox } from "@/components/action-box";
 import {
   BookOpen,
   ArrowLeft,
-  Calendar,
-  Hash,
   Droplet,
   Thermometer,
   Layers,
   Beaker,
-  Activity,
-  Award,
   Sparkles,
   Info
 } from "lucide-react";

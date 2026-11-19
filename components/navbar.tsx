@@ -49,11 +49,15 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu & dropdown on route change
-  useEffect(() => {
+  // Close mobile menu & dropdown on route change. Adjusting state during
+  // render is the documented alternative to an effect here: React re-renders
+  // immediately without painting the stale open menu.
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (lastPathname !== pathname) {
+    setLastPathname(pathname);
     setIsMobileMenuOpen(false);
     setBeersDropdownOpen(false);
-  }, [pathname]);
+  }
 
   // Click outside to close desktop dropdown
   useEffect(() => {

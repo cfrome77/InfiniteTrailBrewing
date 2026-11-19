@@ -46,7 +46,8 @@ export default function ContactPage() {
     if (res.ok) {
       setIsSubmitted(true);
     } else {
-      alert("Something went wrong. Please try again.");
+      const data = await res.json().catch(() => null);
+      alert(data?.message || "Something went wrong. Please try again.");
     }
   };
 

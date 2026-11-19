@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
@@ -232,13 +232,21 @@ export function BeersContent({
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const [searchQuery, setSearchQuery] = useState<string>(searchParams.get("q") || "");
-  const [selectedStyle, setSelectedStyle] = useState<string>(searchParams.get("style") || "all");
+  const urlQuery = searchParams.get("q") || "";
+  const urlStyle = searchParams.get("style") || "all";
 
-  useEffect(() => {
-    setSearchQuery(searchParams.get("q") || "");
-    setSelectedStyle(searchParams.get("style") || "all");
-  }, [searchParams]);
+  const [searchQuery, setSearchQuery] = useState<string>(urlQuery);
+  const [selectedStyle, setSelectedStyle] = useState<string>(urlStyle);
+
+  // Re-sync from the URL on back/forward without an effect. Typing only
+  // touches local state, so it stays responsive; the URL changes on submit.
+  const urlKey = `${urlQuery}\u0000${urlStyle}`;
+  const [lastUrlKey, setLastUrlKey] = useState(urlKey);
+  if (lastUrlKey !== urlKey) {
+    setLastUrlKey(urlKey);
+    setSearchQuery(urlQuery);
+    setSelectedStyle(urlStyle);
+  }
 
   const updateFilters = (newQuery: string, newStyle: string) => {
     setSearchQuery(newQuery);

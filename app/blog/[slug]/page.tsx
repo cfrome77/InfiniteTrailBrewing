@@ -109,7 +109,7 @@ export default async function BlogPostPage({
           )}
 
           <div
-            className="prose prose-lg prose-forest max-w-none
+            className="prose prose-lg max-w-none
               prose-headings:font-serif prose-headings:text-forest
               prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
               prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3

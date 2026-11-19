@@ -12,7 +12,6 @@ import {
   ArrowRight,
   Flame,
   Activity,
-  Heart,
   MapPin,
   Sparkles
 } from "lucide-react";
