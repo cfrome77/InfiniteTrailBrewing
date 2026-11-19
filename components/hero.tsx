@@ -45,15 +45,15 @@ export function Hero() {
         </div>
 
         {/* Brand Narrative mapping: Beer -> Brewing -> Experimentation -> Adventure -> Exploration */}
-        <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3 text-[10px] md:text-sm font-mono text-tan/50 mb-3 md:mb-4 uppercase tracking-widest max-w-xl mx-auto animate-fade-in [animation-delay:300ms] opacity-0 [animation-fill-mode:forwards]">
+        <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3 text-[10px] md:text-sm font-mono text-tan/75 mb-3 md:mb-4 uppercase tracking-widest max-w-xl mx-auto animate-fade-in [animation-delay:300ms] opacity-0 [animation-fill-mode:forwards]">
           <span>Beer</span>
-          <span className="text-tan/20">➔</span>
+          <span aria-hidden="true" className="text-tan/20">➔</span>
           <span>Brewing</span>
-          <span className="text-tan/20">➔</span>
+          <span aria-hidden="true" className="text-tan/20">➔</span>
           <span>Experimentation</span>
-          <span className="text-tan/20">➔</span>
+          <span aria-hidden="true" className="text-tan/20">➔</span>
           <span>Adventure</span>
-          <span className="text-tan/20">➔</span>
+          <span aria-hidden="true" className="text-tan/20">➔</span>
           <span>Exploration</span>
         </div>
 
