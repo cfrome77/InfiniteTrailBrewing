@@ -19,3 +19,8 @@ node_modules
 # Playwright test artifacts
 playwright-report/
 test-results/
+
+# Build & runtime artifacts
+*.log
+tsconfig.tsbuildinfo
+*.tsbuildinfo

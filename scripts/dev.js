@@ -17,6 +17,6 @@ function cleanup() {
 process.on('SIGINT', cleanup);
 process.on('SIGTERM', cleanup);
 
-dev.on('exit', (code) => {
+dev.on('exit', () => {
   cleanup();
 });
