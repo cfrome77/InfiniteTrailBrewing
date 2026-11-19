@@ -26,7 +26,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
     "lucide-react": "1.17.0",
-    "next": "^16.2.12",
+    "next": "^16.4.6",
     "next-sanity": "^13.1.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.7",
@@ -36,7 +36,7 @@
     "server-only": "^0.0.1",
     "styled-components": "^6.1.15",
     "tailwind-merge": "^3.6.0",
-    "zod": "^4.4.3"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
@@ -53,7 +53,7 @@
     "eslint-config-next": "^16.4.6",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
-    "postcss": "^8.5",
+    "postcss": "^8.5.33",
     "tailwindcss": "^4.3.3",
     "ts-jest": "^29.4.11",
     "ts-node": "^10.9.2",
