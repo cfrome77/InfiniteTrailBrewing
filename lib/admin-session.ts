@@ -18,10 +18,11 @@ function sign(payload: string, secret: string): string {
   return crypto.createHmac("sha256", secret).update(payload).digest("base64url");
 }
 
-// Hashing both sides keeps the comparison constant-time regardless of length.
+// Compare in constant-time when lengths match; otherwise return false.
 function timingSafeEquals(a: string, b: string): boolean {
-  const left = crypto.createHash("sha256").update(a).digest();
-  const right = crypto.createHash("sha256").update(b).digest();
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  if (left.length !== right.length) return false;
   return crypto.timingSafeEqual(left, right);
 }
 
