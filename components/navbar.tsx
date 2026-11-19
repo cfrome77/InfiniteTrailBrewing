@@ -118,7 +118,7 @@ export function Navbar() {
                   <button
                     onClick={() => setBeersDropdownOpen((prev) => !prev)}
                     className={`inline-flex items-center gap-1 font-sans text-sm tracking-wide uppercase transition-colors cursor-pointer focus:outline-none ${
-                      isBeersActive ? "text-tan font-semibold" : "text-tan/70 hover:text-tan"
+                      isBeersActive ? "text-tan font-semibold" : "text-tan/75 hover:text-tan"
                     }`}
                     aria-expanded={beersDropdownOpen}
                     aria-label="Toggle Our Beers menu"
@@ -143,7 +143,7 @@ export function Navbar() {
                             className={`block px-4 py-2.5 text-xs font-sans uppercase tracking-wider transition-colors ${
                               pathname === sub.href
                                 ? "bg-tan/15 text-tan font-bold"
-                                : "text-tan/70 hover:text-tan hover:bg-tan/10"
+                                : "text-tan/75 hover:text-tan hover:bg-tan/10"
                             }`}
                           >
                             {sub.label}
@@ -163,7 +163,7 @@ export function Navbar() {
                 target={isExternal ? "_blank" : undefined}
                 rel={isExternal ? "noopener noreferrer" : undefined}
                 className={`font-sans text-sm tracking-wide uppercase transition-colors ${
-                  pathname === link.href ? "text-tan" : "text-tan/70 hover:text-tan"
+                  pathname === link.href ? "text-tan" : "text-tan/75 hover:text-tan"
                 }`}
               >
                 {link.label}
@@ -178,7 +178,7 @@ export function Navbar() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Follow us on Instagram"
-              className="text-tan/70 hover:text-tan"
+              className="text-tan/75 hover:text-tan"
             >
               <FaInstagram className="w-5 h-5" aria-hidden="true" />
             </Link>
@@ -187,7 +187,7 @@ export function Navbar() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Follow us on Facebook"
-              className="text-tan/70 hover:text-tan"
+              className="text-tan/75 hover:text-tan"
             >
               <FaFacebook className="w-5 h-5" aria-hidden="true" />
             </Link>
@@ -229,7 +229,7 @@ export function Navbar() {
                           href={sub.href}
                           onClick={() => setIsMobileMenuOpen(false)}
                           className={`font-sans text-base uppercase py-1 ${
-                            pathname === sub.href ? "text-tan font-bold" : "text-tan/70 hover:text-tan"
+                            pathname === sub.href ? "text-tan font-bold" : "text-tan/75 hover:text-tan"
                           }`}
                         >
                           • {sub.label}
@@ -246,7 +246,7 @@ export function Navbar() {
                   href={link.href || "/"}
                   target={isExternal ? "_blank" : undefined}
                   rel={isExternal ? "noopener noreferrer" : undefined}
-                  className="font-sans text-lg uppercase py-2 text-tan/70 hover:text-tan"
+                  className="font-sans text-lg uppercase py-2 text-tan/75 hover:text-tan"
                 >
                   {link.label}
                 </Link>

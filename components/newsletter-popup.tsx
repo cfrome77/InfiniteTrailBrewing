@@ -152,7 +152,7 @@ export function NewsletterPopup() {
                 </button>
               </form>
               
-              <p className="text-center text-xs text-forest/50 mt-4">
+              <p className="text-center text-xs text-forest/75 mt-4">
                 No spam, ever. Unsubscribe anytime.
               </p>
             </>

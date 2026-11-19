@@ -14,7 +14,7 @@ export default function AdminLoginPage() {
         <h1 className="font-serif text-3xl text-forest mb-2 text-center uppercase tracking-wide">
           Staff Sign In
         </h1>
-        <p className="text-sm text-forest/60 text-center mb-8">
+        <p className="text-sm text-forest/75 text-center mb-8">
           Restricted area. Brewery staff only.
         </p>
 

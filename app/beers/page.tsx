@@ -25,7 +25,7 @@ export default async function BeersPage() {
 
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <Suspense fallback={<div className="text-center py-20 text-forest/50">Loading beers...</div>}>
+          <Suspense fallback={<div className="text-center py-20 text-forest/75">Loading beers...</div>}>
             <BeersContent initialBeers={beers} />
           </Suspense>
         </div>

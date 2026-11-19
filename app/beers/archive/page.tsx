@@ -25,7 +25,7 @@ export default async function BeerArchivePage() {
 
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <Suspense fallback={<div className="text-center py-20 text-forest/50">Loading archive...</div>}>
+          <Suspense fallback={<div className="text-center py-20 text-forest/75">Loading archive...</div>}>
             <BeersContent initialBeers={beers} mode="archive" />
           </Suspense>
         </div>

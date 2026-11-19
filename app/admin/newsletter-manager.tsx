@@ -103,7 +103,7 @@ export function NewsletterManager({ posts }: { posts: Post[] }) {
                             <div key={post._id} className="py-4 flex items-center justify-between gap-4">
                                 <div>
                                     <h4 className="font-medium text-forest">{post.title}</h4>
-                                    <p className="text-xs text-forest/50">{new Date(post.date).toLocaleDateString()}</p>
+                                    <p className="text-xs text-forest/75">{new Date(post.date).toLocaleDateString()}</p>
                                 </div>
                                 <Button
                                     size="sm"

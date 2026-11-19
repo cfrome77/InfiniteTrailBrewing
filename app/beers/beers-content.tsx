@@ -192,7 +192,7 @@ function BeerGrid({ beers }: { beers: Beer[] }) {
 
                   <div>
                     {/* Metrics Row */}
-                    <div className="grid grid-cols-2 gap-4 border-t border-forest/10 pt-4 mb-4 font-mono text-xs text-forest/60">
+                    <div className="grid grid-cols-2 gap-4 border-t border-forest/10 pt-4 mb-4 font-mono text-xs text-forest/75">
                       <div className="flex items-center gap-1.5">
                         <span className="font-bold text-forest">ABV:</span>
                         <span>{beer.abv ? `${beer.abv}%` : "TBD"}</span>
@@ -285,7 +285,7 @@ export function BeersContent({
           className={`flex-1 py-2.5 px-4 text-center font-serif text-sm md:text-base tracking-wider uppercase rounded-lg transition-all duration-300 ${
             mode === "active"
               ? "bg-forest text-tan shadow-md font-bold"
-              : "text-forest/60 hover:text-forest"
+              : "text-forest/75 hover:text-forest"
           }`}
         >
           On Tap & On Deck
@@ -296,7 +296,7 @@ export function BeersContent({
           className={`flex-1 py-2.5 px-4 text-center font-serif text-sm md:text-base tracking-wider uppercase rounded-lg transition-all duration-300 ${
             mode === "archive"
               ? "bg-forest text-tan shadow-md font-bold"
-              : "text-forest/60 hover:text-forest"
+              : "text-forest/75 hover:text-forest"
           }`}
         >
           Brew Archive
@@ -333,6 +333,7 @@ export function BeersContent({
             <select
               value={selectedStyle}
               onChange={(e) => updateFilters(searchQuery, e.target.value)}
+              aria-label="Filter beers by style"
               className="w-full px-3.5 py-2.5 bg-forest/5 border border-forest/15 rounded-xl text-sm text-forest focus:outline-none focus:ring-2 focus:ring-forest/30 transition-all font-sans cursor-pointer"
             >
               {STYLE_CATEGORIES.map((cat) => (

@@ -217,7 +217,7 @@ export default function ContactPage() {
                         Location
                       </h3>
                       <p className="text-forest/70">Frederick, MD</p>
-                      <p className="text-sm text-forest/50 mt-1">
+                      <p className="text-sm text-forest/75 mt-1">
                         Home brewery—not open to the public
                       </p>
                     </div>

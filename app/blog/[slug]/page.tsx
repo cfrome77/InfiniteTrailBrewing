@@ -150,7 +150,7 @@ export default async function BlogPostPage({
                               )}
                               <div>
                                   <h4 className="font-serif text-lg text-forest group-hover:text-sky transition-colors">{beer.beer_name}</h4>
-                                  <p className="text-xs text-forest/50 uppercase tracking-tighter">{beer.style}</p>
+                                  <p className="text-xs text-forest/75 uppercase tracking-tighter">{beer.style}</p>
                               </div>
                           </Link>
                       ))}

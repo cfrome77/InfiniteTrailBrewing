@@ -89,7 +89,7 @@ export default async function Home() {
       <section className="bg-white py-20 md:py-32 px-4 border-t border-b border-forest/5 relative">
         <div className="container mx-auto max-w-5xl">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-mono uppercase tracking-widest text-forest/50">Core Philosophy</span>
+            <span className="text-xs font-mono uppercase tracking-widest text-forest/75">Core Philosophy</span>
             <h2 className="font-serif text-3xl md:text-4xl text-forest mt-2 uppercase tracking-wide">The Pillars of the Trail</h2>
             <div className="w-16 h-0.5 bg-forest/20 mx-auto mt-4" />
           </div>
@@ -135,7 +135,7 @@ export default async function Home() {
       <section className="bg-cream py-20 md:py-32 px-4 relative">
         <div className="container mx-auto max-w-4xl">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-mono uppercase tracking-widest text-forest/50">Explore Our World</span>
+            <span className="text-xs font-mono uppercase tracking-widest text-forest/75">Explore Our World</span>
             <h2 className="font-serif text-3xl md:text-4xl text-forest mt-2 uppercase tracking-wide">The Brewery Experience</h2>
             <div className="w-16 h-0.5 bg-forest/20 mx-auto mt-4" />
           </div>

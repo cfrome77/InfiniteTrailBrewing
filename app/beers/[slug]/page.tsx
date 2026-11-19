@@ -236,7 +236,7 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
         <section className="py-20 px-4 bg-white/30 border-b border-forest/5">
           <div className="container mx-auto max-w-5xl">
             <div className="text-center max-w-2xl mx-auto mb-16">
-              <span className="text-xs font-mono uppercase tracking-widest text-forest/50">Sensory Evaluation</span>
+              <span className="text-xs font-mono uppercase tracking-widest text-forest/75">Sensory Evaluation</span>
               <h2 className="font-serif text-3xl md:text-4xl text-forest mt-2">The Organoleptic Profile</h2>
               <div className="w-16 h-0.5 bg-forest/20 mx-auto mt-4" />
             </div>
@@ -287,7 +287,7 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
         <section className="py-20 px-4 bg-tan/10 border-b border-forest/5">
           <div className="container mx-auto max-w-5xl">
             <div className="text-center max-w-2xl mx-auto mb-16">
-              <span className="text-xs font-mono uppercase tracking-widest text-forest/50">Recipe Sheet</span>
+              <span className="text-xs font-mono uppercase tracking-widest text-forest/75">Recipe Sheet</span>
               <h2 className="font-serif text-3xl md:text-4xl text-forest mt-2">Grist & Hop Bill</h2>
               <div className="w-16 h-0.5 bg-forest/20 mx-auto mt-4" />
             </div>
@@ -487,7 +487,7 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
       {beer.relatedPosts && beer.relatedPosts.length > 0 && (
         <section className="py-20 px-4 bg-tan/20 border-b border-forest/5">
           <div className="container mx-auto max-w-4xl text-center">
-            <span className="text-xs font-mono uppercase tracking-widest text-forest/50">From the Logbooks</span>
+            <span className="text-xs font-mono uppercase tracking-widest text-forest/75">From the Logbooks</span>
             <h2 className="font-serif text-3xl md:text-4xl text-forest mt-2 mb-12 flex items-center justify-center gap-3">
               <BookOpen className="w-6 h-6 text-sky" />
               From The Brew Log
