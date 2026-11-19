@@ -104,6 +104,15 @@ To keep pages "commercial-fast," data fetching has been moved from the client to
     See `.env.example` for the full list and for commands that generate the
     password hash and session secret.
 
+### Rate limiting (recommended)
+
+Contact, newsletter and unsubscribe are rate limited. Without configuration the
+limiter is per-instance memory, so on serverless the limit is effectively
+multiplied by the number of warm instances. Set `UPSTASH_REDIS_REST_URL` and
+`UPSTASH_REDIS_REST_TOKEN` (free tier is enough) to share counters across
+instances. If Redis is unreachable the limiter logs and falls back to memory
+rather than blocking the request.
+
 ### Supabase keepalive (optional)
 
 `vercel.json` schedules `/api/unpause` once a day. Supabase pauses Free Plan

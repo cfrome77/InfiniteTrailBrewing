@@ -12,7 +12,7 @@ export async function subscribeToNewsletter(email: string) {
     return { success: false, message: "Invalid email address" };
   }
 
-  if (!rateLimit(`subscribe:${normalizedEmail}`, 3, 15 * 60 * 1000)) {
+  if (!(await rateLimit(`subscribe:${normalizedEmail}`, 3, 15 * 60 * 1000))) {
     return { success: false, message: "Too many requests. Please try again later." };
   }
 

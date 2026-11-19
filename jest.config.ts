@@ -15,6 +15,10 @@ const config: Config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
     '^lucide-react$': '<rootDir>/node_modules/lucide-react/dist/cjs/lucide-react.js',
+    // @upstash/redis ships ESM only by default, which Jest cannot parse.
+    '^@upstash/redis$': '<rootDir>/node_modules/@upstash/redis/nodejs.js',
+    // jsdom selects uncrypto's browser ESM build; tests need the CJS one.
+    '^uncrypto$': '<rootDir>/node_modules/uncrypto/dist/crypto.node.cjs',
   },
 };
 

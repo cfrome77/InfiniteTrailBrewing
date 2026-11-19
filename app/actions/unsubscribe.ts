@@ -13,7 +13,7 @@ export async function requestUnsubscribe(email: string) {
     return { success: false, message: "Invalid email address" };
   }
 
-  if (!rateLimit(`unsub:${email.toLowerCase().trim()}`, 3, 15 * 60 * 1000)) {
+  if (!(await rateLimit(`unsub:${email.toLowerCase().trim()}`, 3, 15 * 60 * 1000))) {
     return { success: false, message: "Too many requests. Please try again later." };
   }
 

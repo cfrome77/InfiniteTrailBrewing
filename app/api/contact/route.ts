@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     return Response.json({ success: false, error: "Email is not configured." }, { status: 503 });
   }
 
-  if (!rateLimit(`contact:${clientIp(req)}`, 5, 10 * 60 * 1000)) {
+  if (!(await rateLimit(`contact:${clientIp(req)}`, 5, 10 * 60 * 1000))) {
     return Response.json({ success: false, error: "Too many requests." }, { status: 429 });
   }
 

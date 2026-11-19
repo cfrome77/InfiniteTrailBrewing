@@ -1,29 +1,29 @@
 import { clientIp, rateLimit } from "../../lib/rate-limit";
 
-describe("rateLimit", () => {
-  it("allows requests up to the limit then blocks", () => {
+describe("rateLimit (in-memory fallback)", () => {
+  it("allows requests up to the limit then blocks", async () => {
     const key = `test-${Math.random()}`;
-    expect(rateLimit(key, 2, 60_000)).toBe(true);
-    expect(rateLimit(key, 2, 60_000)).toBe(true);
-    expect(rateLimit(key, 2, 60_000)).toBe(false);
+    expect(await rateLimit(key, 2, 60_000)).toBe(true);
+    expect(await rateLimit(key, 2, 60_000)).toBe(true);
+    expect(await rateLimit(key, 2, 60_000)).toBe(false);
   });
 
-  it("keeps buckets independent per key", () => {
+  it("keeps buckets independent per key", async () => {
     const a = `a-${Math.random()}`;
     const b = `b-${Math.random()}`;
-    expect(rateLimit(a, 1, 60_000)).toBe(true);
-    expect(rateLimit(a, 1, 60_000)).toBe(false);
-    expect(rateLimit(b, 1, 60_000)).toBe(true);
+    expect(await rateLimit(a, 1, 60_000)).toBe(true);
+    expect(await rateLimit(a, 1, 60_000)).toBe(false);
+    expect(await rateLimit(b, 1, 60_000)).toBe(true);
   });
 
-  it("resets once the window elapses", () => {
+  it("resets once the window elapses", async () => {
     const key = `w-${Math.random()}`;
-    expect(rateLimit(key, 1, 1)).toBe(true);
+    expect(await rateLimit(key, 1, 1)).toBe(true);
     const start = Date.now();
     while (Date.now() - start < 5) {
       // wait out the 1ms window
     }
-    expect(rateLimit(key, 1, 1)).toBe(true);
+    expect(await rateLimit(key, 1, 1)).toBe(true);
   });
 });
 

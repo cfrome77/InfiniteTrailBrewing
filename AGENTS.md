@@ -82,14 +82,30 @@ RLS enabled with no policies so the query returns zero rows.
 
 ## Rate limiting
 
-`lib/rate-limit.ts` is an in-memory fixed-window limiter. It is per-instance:
-on multi-instance or serverless deployments each instance keeps its own
-counters, so treat it as a speed bump, not a guarantee. Anything stronger
-needs an edge/WAF limiter or a shared store.
+`lib/rate-limit.ts` is a fixed-window limiter. `rateLimit()` is **async**;
+every call site must `await` it.
 
-Buckets are swept once a minute and the map is capped at 10,000 entries, so a
-flood of unique keys cannot grow it without bound. Do not add a per-call sweep:
-it is O(n) and would run on every request.
+With `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` set, the counter
+lives in Redis and is shared across all serverless instances. Without them it
+falls back to per-process memory, where each instance keeps its own counters
+and the effective limit is multiplied by the number of warm instances — a speed
+bump only. Production should always configure Upstash.
+
+Two deliberate choices in the Upstash path:
+
+- **Fails open.** A Redis error or a 1s timeout falls back to the in-memory
+  limiter rather than rejecting the request. The limiter guards public
+  endpoints; Redis being down must not take the contact form with it.
+- `INCR` then `PEXPIRE` is two commands, so a crash between them leaves a key
+  with no TTL. The failure mode is a bucket that stops resetting, not one that
+  resets early, which is the safe direction. Do not "fix" this with a Lua
+  script unless the extra round trip is measured and acceptable.
+
+The in-memory fallback sweeps once a minute and caps the map at 10,000 entries.
+Do not add a per-call sweep: it is O(n) and would run on every request.
+
+Jest needs `moduleNameMapper` entries for `@upstash/redis` and `uncrypto`
+because jsdom resolves their browser ESM builds, which Jest cannot parse.
 
 ## Conventions
 
