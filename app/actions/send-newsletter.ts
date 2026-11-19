@@ -1,18 +1,27 @@
 "use server";
 
 import { serverClient as client } from "@/lib/sanity.server";
-import { Resend } from "resend";
+import { getResendClient } from "@/lib/resend";
 import { transformPortableTextToEmailHtml } from "@/lib/newsletter-utils";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { requireAdmin } from "@/lib/admin-auth";
+import { escapeHtml } from "@/lib/html-escape";
 
 export async function sendNewsletter(postId: string) {
+  await requireAdmin();
+
+  const resend = getResendClient();
+  if (!resend) {
+    return { success: false, message: "Email is not configured (RESEND_API_KEY missing)." };
+  }
+
   try {
     // 1. Fetch the post
     const post = await client.fetch(`*[_id == $postId][0]`, { postId });
     if (!post) return { success: false, message: "Post not found" };
 
-    const contentHtml = post.content ? transformPortableTextToEmailHtml(post.content) : `<p>${post.excerpt}</p>`;
+    const contentHtml = post.content
+      ? transformPortableTextToEmailHtml(post.content)
+      : `<p>${escapeHtml(post.excerpt)}</p>`;
 
     // 2. Fetch all active subscribers
     const subscribers = await client.fetch(`*[_type == "subscriber" && status == "subscribed"]`);
@@ -31,7 +40,7 @@ export async function sendNewsletter(postId: string) {
     for (const sub of subscribers) {
       const unsubscribeUrl = `${siteUrl}/api/unsubscribe?token=${sub.token}`;
 
-      const { data, error } = await resend.emails.send({
+      const { error } = await resend.emails.send({
         from: `Infinite Trail Brewing <${fromEmail}>`,
         to: sub.email,
         subject: `The Brew Log: ${post.title}`,
@@ -44,13 +53,13 @@ export async function sendNewsletter(postId: string) {
               <h1 style="color: #E8D7B5; margin: 0; font-size: 24px; letter-spacing: 2px; text-transform: uppercase;">The Brew Log</h1>
             </div>
             <div style="padding: 40px 30px; background-color: #F5F0E6;">
-              <h2 style="font-size: 28px; margin-bottom: 20px;">${post.title}</h2>
+              <h2 style="font-size: 28px; margin-bottom: 20px;">${escapeHtml(post.title)}</h2>
               <div style="font-family: sans-serif;">
                 ${contentHtml}
               </div>
-              ${post.visibility !== 'newsletter' ? `
+              ${post.visibility !== 'newsletter' && post.slug?.current ? `
               <div style="margin-top: 40px; text-align: center;">
-                <a href="${siteUrl}/blog/${post.slug.current}" style="background-color: #1A4132; color: #E8D7B5; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Read on Website</a>
+                <a href="${escapeHtml(`${siteUrl}/blog/${encodeURIComponent(post.slug.current)}`)}" style="background-color: #1A4132; color: #E8D7B5; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Read on Website</a>
               </div>
               ` : ''}
             </div>
@@ -77,15 +86,22 @@ export async function sendNewsletter(postId: string) {
 }
 
 export async function getSubscriberCount() {
+    await requireAdmin();
+
     try {
         const count = await client.fetch(`count(*[_type == "subscriber" && status == "subscribed"])`);
         return count;
-    } catch (e) {
+    } catch {
         return 0;
     }
 }
 
 export async function getResendStats() {
+    await requireAdmin();
+
+    const resend = getResendClient();
+    if (!resend) return null;
+
     try {
         const { data, error } = await resend.emails.list();
         if (error || !data) throw error;
