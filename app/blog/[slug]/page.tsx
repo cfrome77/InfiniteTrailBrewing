@@ -1,5 +1,6 @@
 // app/blog/[slug]/page.tsx
 import { Navbar } from "@/components/navbar";
+import { beerStyleLabel } from "@/lib/beer-style-label";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -185,7 +186,7 @@ export default async function BlogPostPage({
                               )}
                               <div>
                                   <h4 className="font-serif text-lg text-forest group-hover:text-sky transition-colors">{beer.beer_name}</h4>
-                                  <p className="text-xs text-forest/75 uppercase tracking-tighter">{beer.style}</p>
+                                  <p className="text-xs text-forest/75 uppercase tracking-tighter">{beerStyleLabel(beer.style)}</p>
                               </div>
                           </Link>
                       ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { beerStyleLabel } from "@/lib/beer-style-label";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Beer, FlaskConical, TrendingUp, Info, Loader2 } from "lucide-react";
 import { updateBeerStatus } from "@/app/actions/inventory";
@@ -96,7 +97,7 @@ export function InventoryManager({ beers: initialBeers }: { beers: BeerData[] })
                                     <tr key={beer._id} className="text-sm hover:bg-forest/5 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="font-medium text-forest">{beer.beer_name}</div>
-                                            <div className="text-[10px] text-forest/75 uppercase tracking-tighter">{beer.style}</div>
+                                            <div className="text-[10px] text-forest/75 uppercase tracking-tighter">{beerStyleLabel(beer.style) || "—"}</div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-1 rounded-full text-[9px] uppercase font-bold ${
