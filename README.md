@@ -57,10 +57,27 @@ Server-side fetches are tagged (`lib/beers.server.ts`, `lib/blog.server.ts`):
 - `/blog` -> `["posts"]`
 - `/blog/[slug]` -> `["post:<slug>", "posts"]`
 
-`/api/revalidate` verifies the `content-signature` header with an HMAC-SHA256 of
-the raw body against `SANITY_REVALIDATE_SECRET`, then calls `revalidateTag`. It
-responds `503` when the secret is unconfigured and `401` on a missing or invalid
-signature, so an unauthenticated caller can never clear the cache.
+`/api/revalidate` verifies Sanity's `sanity-webhook-signature` header the same
+way `@sanity/webhook` does: HMAC-SHA256 over `"<timestamp>.<raw body>"`,
+base64url encoded, compared in constant time. It then calls `revalidateTag`.
+It responds `503` when the secret is unconfigured and `401` on a missing,
+malformed or invalid signature, so an unauthenticated caller can never clear
+the cache.
+
+Configure the Sanity webhook with:
+
+- **URL**: `https://<site>/api/revalidate`
+- **Secret**: the same value as `SANITY_REVALIDATE_SECRET`
+- **Projection**: at minimum `{_type, _id, "slug": slug.current}`
+- **Filter**: `_type in ["beer", "post"]`
+
+Draft documents (`_id` starting with `drafts.`) are acknowledged but do not
+revalidate, because Studio autosaves continuously and would otherwise purge the
+cache on every keystroke.
+
+The legacy `content-signature` header (bare hex HMAC of the body) is still
+accepted so a webhook configured against the previous format keeps working
+during migration. Remove that branch once all webhooks are on Sanity signing.
 
 ---
 
