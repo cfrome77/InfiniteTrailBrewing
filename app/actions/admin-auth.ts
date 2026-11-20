@@ -9,33 +9,11 @@ import {
   isAdminAuthConfigured,
 } from "@/lib/admin-auth";
 import { constantTimeStringEquals } from "@/lib/constant-time";
+import { failedAdminLogins } from "@/lib/admin-login-limiter";
 
-const MAX_ATTEMPTS = 5;
-const ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
-
-const attempts = new Map<string, { count: number; firstAt: number }>();
 
 function clientKey(forwardedFor: string | null): string {
   return forwardedFor?.split(",")[0]?.trim() || "unknown";
-}
-
-function isThrottled(key: string, now: number): boolean {
-  const entry = attempts.get(key);
-  if (!entry) return false;
-  if (now - entry.firstAt > ATTEMPT_WINDOW_MS) {
-    attempts.delete(key);
-    return false;
-  }
-  return entry.count >= MAX_ATTEMPTS;
-}
-
-function recordFailure(key: string, now: number): void {
-  const entry = attempts.get(key);
-  if (!entry || now - entry.firstAt > ATTEMPT_WINDOW_MS) {
-    attempts.set(key, { count: 1, firstAt: now });
-    return;
-  }
-  entry.count += 1;
 }
 
 export interface LoginResult {
@@ -60,7 +38,7 @@ export async function loginAdmin(
   const now = Date.now();
   const key = clientKey((await headers()).get("x-forwarded-for"));
 
-  if (isThrottled(key, now)) {
+  if (failedAdminLogins.peek(key, now)) {
     return {
       success: false,
       message: "Too many failed attempts. Try again later.",
@@ -69,7 +47,7 @@ export async function loginAdmin(
 
   const submitted = formData.get("password");
   if (typeof submitted !== "string" || !constantTimeStringEquals(submitted, expected)) {
-    recordFailure(key, now);
+    failedAdminLogins(key, now);
     return { success: false, message: "Incorrect password." };
   }
 
@@ -78,7 +56,9 @@ export async function loginAdmin(
     return { success: false, message: "Admin session could not be created." };
   }
 
-  attempts.delete(key);
+  // A successful login clears the failure window so a legitimate admin who
+  // mistyped a few times is not locked out afterwards.
+  failedAdminLogins.reset(key);
 
   const store = await cookies();
   store.set(ADMIN_SESSION_COOKIE, token, {

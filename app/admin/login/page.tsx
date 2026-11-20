@@ -7,6 +7,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// isAdminAuthConfigured() reads ADMIN_SESSION_SECRET. Without this the page is
+// prerendered at build time, so a secret configured only in the runtime
+// environment leaves the form permanently replaced by "not configured".
+export const dynamic = "force-dynamic";
+
 export default function AdminLoginPage() {
   return (
     <main className="min-h-screen bg-cream flex items-center justify-center px-4">

@@ -2,6 +2,7 @@
  * @jest-environment node
  */
 import { subscribeToNewsletter } from "../../app/actions/newsletter";
+import { isSubscribeLimited } from "../../lib/subscribe-limiter";
 
 const mockFetch = jest.fn();
 const mockCreate = jest.fn();
@@ -24,9 +25,14 @@ jest.mock("../../lib/resend", () => ({
   getResendClient: () => mockGetResendClient(),
 }));
 
+jest.mock("next/headers", () => ({
+  headers: async () => new Map([["x-forwarded-for", "203.0.113.9"]]),
+}));
+
 describe("subscribeToNewsletter", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    isSubscribeLimited.reset("203.0.113.9");
     mockGetResendClient.mockReturnValue({ emails: { send: mockSend } });
     mockSend.mockResolvedValue({ data: {}, error: null });
     mockCreate.mockResolvedValue({});
@@ -61,9 +67,26 @@ describe("subscribeToNewsletter", () => {
     const result = await subscribeToNewsletter("new@example.com");
 
     expect(result.success).toBe(true);
-    expect(result.message).toMatch(/already subscribed/i);
     expect(mockCreate).not.toHaveBeenCalled();
     expect(mockSend).not.toHaveBeenCalled();
+  });
+
+  it("returns identical wording whether or not the address is on the list", async () => {
+    // An attacker can call this action directly, so a distinct "already
+    // subscribed" message would confirm list membership for any address.
+    mockFetch.mockResolvedValue({ _id: "s1", status: "subscribed", token: "t1" });
+    const existing = await subscribeToNewsletter("known@example.com");
+
+    jest.clearAllMocks();
+    mockGetResendClient.mockReturnValue({ emails: { send: mockSend } });
+    mockSend.mockResolvedValue({ data: {}, error: null });
+    mockCreate.mockResolvedValue({});
+    mockFetch.mockResolvedValue(null);
+    const fresh = await subscribeToNewsletter("brand-new@example.com");
+
+    expect(existing.message).toBe(fresh.message);
+    expect(existing.success).toBe(true);
+    expect(fresh.success).toBe(true);
   });
 
   it("resubscribes an unsubscribed address", async () => {
@@ -74,6 +97,20 @@ describe("subscribeToNewsletter", () => {
     expect(result.success).toBe(true);
     expect(mockSet).toHaveBeenCalledWith({ status: "subscribed", subscribedAt: expect.any(String), token: "t1" });
     expect(mockCommit).toHaveBeenCalled();
+  });
+
+  it("rate limits a client after repeated submissions", async () => {
+    mockFetch.mockResolvedValue(null);
+
+    for (let i = 0; i < 5; i++) {
+      const ok = await subscribeToNewsletter(`user${i}@example.com`);
+      expect(ok.success).toBe(true);
+    }
+
+    const blocked = await subscribeToNewsletter("one-more@example.com");
+    expect(blocked.success).toBe(false);
+    expect(blocked.message).toMatch(/too many/i);
+    expect(mockCreate).toHaveBeenCalledTimes(5);
   });
 
   it("does not claim a confirmation email was sent when the provider fails", async () => {

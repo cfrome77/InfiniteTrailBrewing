@@ -2,13 +2,35 @@
 
 import { serverClient as client } from "@/lib/sanity.server";
 import { randomUUID } from "crypto";
+import { headers } from "next/headers";
 import { getResendClient } from "@/lib/resend";
+import { isSubscribeLimited as isLimited } from "@/lib/subscribe-limiter";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// This action is publicly callable and both writes to Sanity and sends email,
+// so it needs the same per-IP cap as the contact route. Keyed by IP rather than
+// address: keying by address would still let one client mail many recipients.
+
+// Every success path returns this exact wording. The branches are only
+// reachable for new or re-subscribed addresses, so a distinct message per
+// branch would tell a caller whether an address is already on the list.
+const GENERIC_SUCCESS =
+  "Thanks! If that address wasn't already on the list, a welcome email is on its way.";
+
+
+async function clientKey(): Promise<string> {
+  const forwarded = (await headers()).get("x-forwarded-for");
+  return forwarded?.split(",")[0]?.trim() || "unknown";
+}
 
 export async function subscribeToNewsletter(email: string) {
   if (typeof email !== "string") {
     return { success: false, message: "Invalid email address" };
+  }
+
+  if (isLimited(await clientKey())) {
+    return { success: false, message: "Too many requests. Please try again later." };
   }
 
   const normalizedEmail = email.toLowerCase().trim();
@@ -28,7 +50,12 @@ export async function subscribeToNewsletter(email: string) {
 
     if (existing) {
       if (existing.status === 'subscribed') {
-        return { success: true, message: "You're already subscribed!" };
+        // Same wording as a new signup: distinguishing the two would let a
+        // caller probe whether an address is on the list.
+        return {
+          success: true,
+          message: GENERIC_SUCCESS,
+        };
       }
 
       // Re-subscribe
@@ -56,7 +83,10 @@ export async function subscribeToNewsletter(email: string) {
 
     if (!resend) {
       console.error("Welcome email skipped: RESEND_API_KEY is not configured.");
-      return { success: true, message: "You're subscribed! Check your inbox for a confirmation." };
+      return {
+        success: true,
+        message: GENERIC_SUCCESS,
+      };
     }
 
     const { error: sendError } = await resend.emails.send({
@@ -94,11 +124,14 @@ export async function subscribeToNewsletter(email: string) {
       console.error("Welcome email failed:", sendError);
       return {
         success: true,
-        message: "You're subscribed, but we could not send the welcome email.",
+        message: GENERIC_SUCCESS,
       };
     }
 
-    return { success: true, message: "Welcome to the trail! Check your inbox for a confirmation." };
+    return {
+      success: true,
+      message: GENERIC_SUCCESS,
+    };
   } catch (error) {
     console.error("Newsletter subscription error:", error);
     return { success: false, message: "Something went wrong. Please try again." };

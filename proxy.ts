@@ -27,5 +27,7 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin", "/admin/studio", "/admin/studio/:path*"],
+  // /admin/login is included so the "already signed in" redirect below can
+  // actually run; without it this branch was unreachable.
+  matcher: ["/admin", "/admin/login", "/admin/studio", "/admin/studio/:path*"],
 };
