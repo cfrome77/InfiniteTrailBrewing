@@ -72,6 +72,31 @@ describe("POST /api/contact", () => {
     expect(mockSend).not.toHaveBeenCalled();
   });
 
+  it("rejects an oversized body from the declared length without reading it", async () => {
+    // The header is the only signal available before the body is buffered, so a
+    // handler that skips it pays the memory cost of the whole payload.
+    const req = new Request("http://localhost/api/contact", {
+      method: "POST",
+      headers: {
+        "x-forwarded-for": `10.0.0.${++ipCounter}`,
+        "content-length": "999999",
+      },
+      body: JSON.stringify(validBody),
+    });
+
+    const res = await POST(req);
+
+    expect(res.status).toBe(413);
+    expect(mockSend).not.toHaveBeenCalled();
+  });
+
+  it("still rejects an oversized body when no length is declared", async () => {
+    const res = await POST(post({ ...validBody, message: "x".repeat(20_000) }));
+
+    expect(res.status).toBe(413);
+    expect(mockSend).not.toHaveBeenCalled();
+  });
+
   it("returns 503 rather than a false success when email is unconfigured", async () => {
     mockGetResendClient.mockReturnValue(null);
     jest.spyOn(console, "error").mockImplementation(() => {});

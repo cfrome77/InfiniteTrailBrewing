@@ -46,7 +46,7 @@ and rendered on `/beers/[slug]`; there is no standalone telemetry console.
 | --- | --- | --- |
 | `/api/contact` | POST | Validates, rate limits per IP, sends via Resend |
 | `/api/revalidate` | POST | Sanity webhook; HMAC-verified, fail-closed |
-| `/api/unsubscribe` | GET | Token-based unsubscribe link target |
+| `/api/unsubscribe` | GET, POST | Token-based unsubscribe. `GET` is the link target (redirects to `/unsubscribe`); `POST` is the RFC 8058 one-click target and returns `200` without redirecting |
 
 ### Cache invalidation
 
@@ -158,6 +158,15 @@ CI runs lint, typecheck, unit tests, build, and e2e; see
 - **`post`**: blog articles with Portable Text bodies.
 - **`subscriber`**: newsletter subscribers with `status`
   (`subscribed`/`unsubscribed`) and a `token` used for unsubscribe links.
+
+Every outbound newsletter email carries `List-Unsubscribe` and
+`List-Unsubscribe-Post: List-Unsubscribe=One-Click`, so a mail client can
+unsubscribe a recipient without them opening a page. The `POST` handler exists
+for that; it must not redirect, because the client only reads the status code.
+
+Subscribers created by hand in Studio have no `token`, so they are skipped by a
+send and counted in the result message rather than mailed a link that would
+fail.
 
 ---
 

@@ -27,6 +27,16 @@ export async function POST(req: Request) {
     return fail("Too many messages. Please try again later.", 429);
   }
 
+  // Reject an oversized body before reading it. Without this the handler
+  // buffered the whole request in memory and only then compared its length, so
+  // an oversized POST cost memory on every instance that received it. The
+  // header can be absent (chunked) or wrong, so the length is checked again
+  // after reading.
+  const declaredLength = Number(req.headers.get("content-length"));
+  if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) {
+    return fail("Message is too large.", 413);
+  }
+
   const raw = await req.text();
 
   if (raw.length > MAX_BODY_BYTES) {
