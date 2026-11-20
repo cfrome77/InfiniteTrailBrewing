@@ -94,7 +94,10 @@ export async function sendNewsletter(postId: string) {
           from: `Infinite Trail Brewing <${fromEmail}>`,
           to: sub.email,
           subject: `The Brew Log: ${post.title}`,
-          headers: { "List-Unsubscribe": `<${unsubscribeUrl}>` },
+          headers: {
+            "List-Unsubscribe": `<${unsubscribeUrl}>`,
+            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+          },
           html: buildEmailHtml(post, contentHtml, siteUrl, unsubscribeUrl),
         };
       });

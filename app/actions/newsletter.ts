@@ -18,7 +18,6 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const GENERIC_SUCCESS =
   "Thanks! If that address wasn't already on the list, a welcome email is on its way.";
 
-
 async function clientKey(): Promise<string> {
   const forwarded = (await headers()).get("x-forwarded-for");
   return forwarded?.split(",")[0]?.trim() || "unknown";
@@ -95,6 +94,7 @@ export async function subscribeToNewsletter(email: string) {
       subject: "Welcome to the Trail!",
       headers: {
         "List-Unsubscribe": `<${unsubscribeUrl}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
       },
       html: `
         <div style="font-family: serif; color: #1A4132; max-width: 600px; margin: 0 auto; border: 1px solid #E8D7B5; border-radius: 8px; overflow: hidden;">

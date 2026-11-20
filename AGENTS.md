@@ -60,6 +60,17 @@ npm run test:e2e   # playwright; uses a production build when CI=true
   `subscribeToNewsletter` is directly callable by anyone regardless of the UI.
 - **Newsletter success wording is deliberately uniform** across new, existing and
   re-subscribed addresses so the action cannot be used to enumerate subscribers.
+- **Every newsletter email must carry both `List-Unsubscribe` and
+  `List-Unsubscribe-Post: List-Unsubscribe=One-Click`.** The POST variant is what
+  RFC 8058 one-click unsubscribe requires, and `/api/unsubscribe` implements both
+  GET (human clicks, redirects to the UI) and POST (provider one-click, must
+  return 2xx and must not redirect).
+- **A subscriber can legitimately have no `token`** — the schema does not require
+  it, and Studio lets an editor create one by hand. Any send path must skip those
+  rather than building `?token=undefined`, which fails silently.
+- **Bulk sends must use `resend.batch.send` (max 100 per call), not a loop over
+  `emails.send`.** A per-recipient loop outgrows the serverless timeout and
+  leaves no record of who was already mailed, so a retry double-sends.
 - **Brand assets** live in `lib/brand.ts`. Import `BRAND.logo` /
   `BRAND.wordmark`; do not paste the Blob URLs into components again.
 - **Adding an import via script** — several files (`app/page.tsx`,

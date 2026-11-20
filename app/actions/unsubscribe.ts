@@ -88,7 +88,10 @@ export async function requestUnsubscribeLink(email: string) {
       from: `Infinite Trail Brewing <${fromEmail}>`,
       to: normalizedEmail,
       subject: "Unsubscribe from The Brew Log",
-      headers: { "List-Unsubscribe": `<${unsubscribeUrl}>` },
+      headers: {
+        "List-Unsubscribe": `<${unsubscribeUrl}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      },
       text: `We're sorry to see you go.\n\nConfirm your unsubscribe here: ${unsubscribeUrl}\n\nIf you didn't request this, you can ignore this email.`,
     });
 
