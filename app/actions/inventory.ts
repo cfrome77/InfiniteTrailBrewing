@@ -28,6 +28,19 @@ export async function updateBeerStatus(beerId: string, newStatus: string) {
   }
 
   try {
+    // patch() takes a raw document id and does not check its type. A beer
+    // status written onto another document would corrupt it silently --
+    // "ready" on a subscriber drops them from every future send -- so the
+    // id is confirmed to be a beer first.
+    const target = await client.fetch<{ _type?: string } | null>(
+      `*[_id == $beerId][0]{ _type }`,
+      { beerId },
+    );
+
+    if (!target || target._type !== "beer") {
+      return { success: false, message: "That beer could not be found." };
+    }
+
     await client
       .patch(beerId)
       .set({ status: newStatus })
