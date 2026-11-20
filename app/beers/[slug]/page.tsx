@@ -4,6 +4,7 @@ import { getBeerBySlug, getAllBeerSlugs } from "@/lib/beers.server";
 import { BeerStatus } from "@/types";
 import { urlFor } from "@/lib/sanity.client";
 import Image from "next/image";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { beerStyles } from "@/sanity/constants/beerStyles";
@@ -20,6 +21,59 @@ import {
   Info
 } from "lucide-react";
 import Link from "next/link";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string } | Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = "then" in params ? await params : params;
+  const beer = await getBeerBySlug(slug);
+
+  if (!beer) return { title: "Beer Not Found" };
+
+  // Mirrors the label logic the page renders: a reference gives its title, a
+  // plain string is an enum value that needs the human-readable lookup.
+  const style =
+    typeof beer.style === "object" && beer.style !== null
+      ? beer.style.title
+      : beerStyles.find((s) => s.value === beer.style)?.title ||
+        (beer.style as string);
+
+  // Beer documents have no `seo` field, so the description is assembled from
+  // the fields the page already renders. Editors who want different copy can
+  // still set the notes field, which wins here.
+  const facts = [
+    style,
+    beer.abv ? `${beer.abv}% ABV` : null,
+    beer.ibu ? `${beer.ibu} IBU` : null,
+  ].filter(Boolean);
+
+  const description =
+    beer.notes?.trim() ||
+    `${beer.beer_name}${facts.length ? ` — ${facts.join(" · ")}` : ""}. Hand-forged craft beer from Infinite Trail Brewing in Frederick, MD.`;
+
+  const title = `${beer.beer_name}${style ? ` | ${style}` : ""}`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      images: [
+        {
+          url: `/beers/${slug}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: { card: "summary_large_image", title, description },
+  };
+}
 
 export async function generateStaticParams() {
   const slugs = await getAllBeerSlugs();

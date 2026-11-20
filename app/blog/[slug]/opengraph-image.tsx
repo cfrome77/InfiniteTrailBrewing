@@ -1,0 +1,23 @@
+import { renderOgCard, OG_CONTENT_TYPE, OG_SIZE } from "@/lib/og-card";
+import { getPostBySlug } from "@/lib/blog.server";
+
+export const alt = "Infinite Trail Brewing";
+export const size = OG_SIZE;
+export const contentType = OG_CONTENT_TYPE;
+
+export default async function Image({
+  params,
+}: {
+  params: { slug: string } | Promise<{ slug: string }>;
+}) {
+  const { slug } = "then" in params ? await params : params;
+  const post = await getPostBySlug(slug);
+
+  const meta = [post?.category, post?.author].filter(Boolean).join(" · ");
+
+  return renderOgCard({
+    eyebrow: "The Brew Log",
+    title: post?.title || "Infinite Trail Brewing",
+    meta,
+  });
+}

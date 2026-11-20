@@ -21,7 +21,12 @@ export const metadata: Metadata = {
   // Resolves relative URLs in metadata (canonical, Open Graph images) against
   // the real origin instead of localhost.
   metadataBase: new URL(siteUrl),
-  title: "Infinite Trail Brewing | Frederick, MD",
+  title: {
+    default: "Infinite Trail Brewing | Frederick, MD",
+    // Child pages supply a bare title; the template keeps the site name on
+    // every tab and search result without each page repeating it.
+    template: "%s | Infinite Trail Brewing",
+  },
   description:
     "Brewed for the Next Adventure. Hand-forged craft beers in Frederick, MD. Discover our flagship beers including Blue Ridge Kölsch, Catoctin Copper Lager, Sugarloaf Saison, and Stone Path Porter.",
   keywords: [

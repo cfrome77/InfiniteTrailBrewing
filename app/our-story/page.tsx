@@ -17,6 +17,14 @@ import {
 } from "lucide-react";
 import { activeClient } from "@/lib/sanity.server";
 import { BRAND } from "@/lib/brand";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Our Story",
+  description:
+    "How Infinite Trail Brewing started, and why we brew for the next adventure in Frederick, MD.",
+});
 
 export const revalidate = 86400;
 

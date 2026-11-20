@@ -54,6 +54,20 @@ and rendered on `/beers/[slug]`; there is no standalone telemetry console.
 | --- | --- |
 | `/sitemap.xml` | Built from the same slug queries the pages use, so the draft and publish filters apply automatically |
 | `/robots.txt` | Disallows `/admin` and `/api/`; Studio and the login page also send `noindex` |
+| `/opengraph-image` | Generated 1200x630 social card; beer and post pages have their own at `<path>/opengraph-image` |
+
+### Page metadata
+
+Every page declares its own `title` and `description`. List pages use
+`pageMetadata()` from `lib/metadata.ts`; the two detail pages use
+`generateMetadata()` so the title and description come from the CMS document.
+Blog posts honour an editor-supplied `seo.title` / `seo.description` when set.
+
+`pageMetadata()` exists because a page that sets `openGraph` replaces the
+parent's object instead of merging into it, which silently drops the inherited
+social card. The helper always emits `images`, so a page cannot lose its
+`og:image`. The root layout supplies the `%s | Infinite Trail Brewing` template,
+so child pages pass a bare title.
 
 Both derive their origin from `lib/site-url.ts`, which reads
 `NEXT_PUBLIC_SITE_URL` and falls back to the production domain. That module is

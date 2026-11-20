@@ -9,6 +9,14 @@ import { urlFor } from "@/lib/sanity.client";
 import Image from "next/image";
 import { getCategoryColor, getTagColor } from "@/lib/blog-utils";
 import { Search, Filter } from "lucide-react";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = pageMetadata({
+  title: "The Brew Log",
+  description:
+    "Brewing notes, batch telemetry and stories from Infinite Trail Brewing in Frederick, MD.",
+});
 
 const categories = [
   "All",

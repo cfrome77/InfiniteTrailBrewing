@@ -6,7 +6,8 @@ import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "Off the Trail | Infinite Trail Brewing",
+  // Bare title: the root layout template appends the site name.
+  title: "Off the Trail",
   description: "This path doesn't lead anywhere. Head back to the trailhead.",
   robots: { index: false, follow: false },
 };

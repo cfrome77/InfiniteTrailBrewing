@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import { Calendar, Clock, ArrowLeft, Beer } from "lucide-react";
 import { getPostBySlug, getAllSlugs } from "@/lib/blog.server";
 import { PortableText } from '@portabletext/react';
+import type { Metadata } from "next";
 import { urlFor } from "@/lib/sanity.client";
 import Image from "next/image";
 import { getCategoryColor, getTagColor, calculateReadTime } from "@/lib/blog-utils";
@@ -18,6 +19,40 @@ function formatDate(dateString: string) {
     month: "long",
     day: "numeric",
   });
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string } | Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = "then" in params ? await params : params;
+  const post = await getPostBySlug(slug);
+
+  if (!post) return { title: "Post Not Found" };
+
+  // Editors can override either field in the `seo` object; anything they leave
+  // blank falls back to the document's own copy.
+  const title = post.seo?.title || post.title;
+  const description = post.seo?.description || post.excerpt;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "article",
+      publishedTime: post.date,
+      authors: post.author ? [post.author] : undefined,
+      // Explicit images: setting `openGraph` replaces the parent object, so the
+      // root card would not be inherited here.
+      images: [
+        { url: `/blog/${slug}/opengraph-image`, width: 1200, height: 630, alt: title },
+      ],
+    },
+    twitter: { card: "summary_large_image", title, description },
+  };
 }
 
 // Generate static params for SSG

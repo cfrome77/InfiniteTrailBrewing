@@ -3,6 +3,14 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { getBeersForPage } from "@/lib/beers.server";
 import { BeersContent } from "./beers-content";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Our Beers",
+  description:
+    "Every Infinite Trail beer on tap and in the archive — flagship lagers, kölsch, saison and porter brewed in Frederick, MD.",
+});
 
 export const revalidate = 86400;
 
