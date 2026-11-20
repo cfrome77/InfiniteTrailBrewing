@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Beer, BeerStatus, BeerStyle } from "@/types";
 import { getBeerImage } from "@/lib/images";
 import { getBeerStyleGradient } from "@/lib/beerStyleTheme";
-import { beerStyles } from "@/sanity/constants/beerStyles";
+import { beerStyleLabel } from "@/lib/beer-style-label";
 import { Activity, Beaker, ArrowRight, Search, X, RotateCcw, Filter } from "lucide-react";
 
 // Style Category Filter definitions
@@ -22,17 +22,9 @@ const STYLE_CATEGORIES = [
   { key: "cider_hybrid", label: "Ciders, Meads & Hybrids" },
 ];
 
-function getStyleName(style: BeerStyle | string | undefined | null): string {
-  if (!style) return "Craft Special";
-  if (typeof style === "object" && style !== null) return style.title || style.slug || "Craft Special";
-  const found = beerStyles.find((s) => s.value === style);
-  return found ? found.title : style;
-}
-
 function matchesStyleCategory(style: BeerStyle | string | undefined | null, categoryKey: string): boolean {
   if (categoryKey === "all") return true;
-  const styleStr = (typeof style === "object" && style !== null ? style.title || style.slug : style) || "";
-  const styleLower = styleStr.toLowerCase();
+  const styleLower = beerStyleLabel(style).toLowerCase();
 
   switch (categoryKey) {
     case "ipa":
@@ -60,7 +52,7 @@ function matchesSearchQuery(beer: Beer, query: string): boolean {
   const notesMatch = beer.notes?.toLowerCase().includes(q);
   const ingredientsMatch = beer.ingredients?.toLowerCase().includes(q);
   const hopsMatch = beer.notableHops?.some((h) => h.toLowerCase().includes(q));
-  const styleMatch = getStyleName(beer.style).toLowerCase().includes(q);
+  const styleMatch = beerStyleLabel(beer.style).toLowerCase().includes(q);
   const batchMatch = beer.batchNumber?.toLowerCase().includes(q);
 
   return Boolean(nameMatch || notesMatch || ingredientsMatch || hopsMatch || styleMatch || batchMatch);
@@ -138,9 +130,8 @@ function BeerGrid({ beers }: { beers: Beer[] }) {
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
       {beers.map((beer) => {
-        const styleStr = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beer.style as string);
-        const styleLabel = getStyleName(beer.style);
-        const color = getBeerStyleGradient(styleStr);
+        const styleLabel = beerStyleLabel(beer.style) || "Craft Special";
+        const color = getBeerStyleGradient(styleLabel);
         const imageUrl = getBeerImage(beer, "card");
 
         return (
