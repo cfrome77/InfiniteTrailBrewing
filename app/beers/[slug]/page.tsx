@@ -128,9 +128,8 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
 
   if (!beer) notFound();
 
-  const styleStr = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beer.style as string);
   const styleLabel = beerStyleLabel(beer.style) || "Craft Special";
-  const gradient = getBeerStyleGradient(styleStr);
+  const gradient = getBeerStyleGradient(styleLabel);
 
   // Core Temps based on real status (labeled clearly as target/estimated specifications)
   let coreTemp = "38.2°F";

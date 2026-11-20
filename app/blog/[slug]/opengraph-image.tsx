@@ -25,7 +25,8 @@ export default async function Image({
 
   return renderOgCard({
     eyebrow: "The Brew Log",
-    title: post?.title || "Infinite Trail Brewing",
+    // Same precedence as the page and its metadata: an editor's seo.title wins.
+    title: post?.seo?.title || post?.title || "Infinite Trail Brewing",
     meta,
   });
 }
