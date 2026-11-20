@@ -3,6 +3,14 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { getBeersForPage } from "@/lib/beers.server";
 import { BeersContent } from "./beers-content";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Our Beers",
+  description:
+    "Every Infinite Trail beer on tap and in the archive — flagship lagers, kölsch, saison and porter brewed in Frederick, MD.",
+});
 
 export const revalidate = 86400;
 
@@ -25,7 +33,7 @@ export default async function BeersPage() {
 
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <Suspense fallback={<div className="text-center py-20 text-forest/50">Loading beers...</div>}>
+          <Suspense fallback={<div className="text-center py-20 text-forest/75">Loading beers...</div>}>
             <BeersContent initialBeers={beers} />
           </Suspense>
         </div>

@@ -1,4 +1,4 @@
-import { getAllBeers, getBeersForPage, getBeerBySlug, getAllBeerSlugs } from "../../lib/beers.server";
+import { getBeersForPage, getBeerBySlug, getAllBeerSlugs } from "../../lib/beers.server";
 import { activeClient } from "../../lib/sanity.server";
 
 jest.mock("server-only", () => ({}));
@@ -36,7 +36,7 @@ describe("lib/beers.server", () => {
     ];
     (activeClient.fetch as jest.Mock).mockResolvedValue(mockBeers);
 
-    const beers = await getAllBeers();
+    const beers = await getBeersForPage();
 
     expect(activeClient.fetch).toHaveBeenCalled();
     expect(beers).toEqual(mockBeers);
@@ -82,7 +82,7 @@ describe("lib/beers.server", () => {
     const spy = jest.spyOn(console, "error").mockImplementation(() => {});
     (activeClient.fetch as jest.Mock).mockRejectedValue(new Error("Network error"));
 
-    const beers = await getAllBeers();
+    const beers = await getBeersForPage();
     const beer = await getBeerBySlug("non-existent");
     const slugs = await getAllBeerSlugs();
 

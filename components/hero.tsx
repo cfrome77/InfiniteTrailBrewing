@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, BookOpen, FlaskConical, Beer } from "lucide-react";
+import { BRAND } from "@/lib/brand";
 
 export function Hero() {
   return (
@@ -24,7 +25,7 @@ export function Hero() {
         {/* Logo */}
         <div className="mb-3 md:mb-4 animate-fade-in [animation-delay:100ms] opacity-0 [animation-fill-mode:forwards]">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingLogo-Transparent-v6FezPtqxZNb3SWQzDZTLQnNvIqEf6.png"
+            src={BRAND.logo}
             alt="Infinite Trail Brewing"
             width={180}
             height={180}
@@ -44,15 +45,15 @@ export function Hero() {
         </div>
 
         {/* Brand Narrative mapping: Beer -> Brewing -> Experimentation -> Adventure -> Exploration */}
-        <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3 text-[10px] md:text-sm font-mono text-tan/50 mb-3 md:mb-4 uppercase tracking-widest max-w-xl mx-auto animate-fade-in [animation-delay:300ms] opacity-0 [animation-fill-mode:forwards]">
+        <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3 text-[10px] md:text-sm font-mono text-tan/75 mb-3 md:mb-4 uppercase tracking-widest max-w-xl mx-auto animate-fade-in [animation-delay:300ms] opacity-0 [animation-fill-mode:forwards]">
           <span>Beer</span>
-          <span className="text-tan/20">➔</span>
+          <span aria-hidden="true" className="text-tan/20">➔</span>
           <span>Brewing</span>
-          <span className="text-tan/20">➔</span>
+          <span aria-hidden="true" className="text-tan/20">➔</span>
           <span>Experimentation</span>
-          <span className="text-tan/20">➔</span>
+          <span aria-hidden="true" className="text-tan/20">➔</span>
           <span>Adventure</span>
-          <span className="text-tan/20">➔</span>
+          <span aria-hidden="true" className="text-tan/20">➔</span>
           <span>Exploration</span>
         </div>
 
@@ -80,7 +81,7 @@ export function Hero() {
             asChild
             size="lg"
             variant="outline"
-            className="w-full sm:w-auto border-tan/30 text-tan hover:bg-tan/10 hover:border-tan font-serif text-base px-8 py-6 tracking-wide hover:scale-[1.03] transition-all duration-300"
+            className="w-full sm:w-auto bg-transparent border-tan/30 text-tan hover:bg-tan/10 hover:border-tan font-serif text-base px-8 py-6 tracking-wide hover:scale-[1.03] transition-all duration-300"
           >
             <Link href="/blog" className="flex items-center gap-2">
               <BookOpen className="w-4 h-4" />

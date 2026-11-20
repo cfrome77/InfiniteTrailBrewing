@@ -1,114 +1,206 @@
 # Infinite Trail Brewing
 
-A modern web application built with **Next.js**, **Sanity.io**, and **Tailwind CSS**, designed as an experimental private craft beer lab, telemetry console, and digital batch log.
+A non-commercial homebrew project site built with **Next.js 16** (App Router),
+**Sanity.io**, **Tailwind CSS v4**, and **Resend**.
 
 ---
 
-## 🧭 1. Brand & UX: The Private Lab & Digital Archive
+## Stack
 
-Infinite Trail Brewing operates strictly as a non-commercial, private homebrew project. The site is structured to prioritize **scientific transparency, experimentation logbooks, and community recipe sharing**.
-
-- **Navigational Paths:**
-  - `/beers` ➔ **The Brew Log:** A chronological log of active cellar batches and historical logs.
-  - `/telemetry` ➔ **Lab Telemetry:** Real-time water profile chemistry, kettle additions, and fermentation telemetry.
-  - `/blog` ➔ **Lab Notes:** Detailed logs, brew day recaps, water reports, and fermentation logs.
-- **The Homebrew Disclaimer:**
-  A permanent visual disclaimer in the global footer alerts all visitors:
-  > *Infinite Trail Brewing is a private, non-commercial homebrew project. Our beers are crafted strictly for personal documentation, educational exploration, and sharing with friends & community events. Not for commercial sale or public distribution.*
-- **Geographic Coordinates:**
-  Rather than standard business addresses, location is styled as geographic coordinates of origin:
-  `39.414° N, 77.411° W (Frederick, MD)`
+| Concern | Implementation |
+| --- | --- |
+| Framework | Next.js 16.4 (App Router, Server Components, Server Actions) |
+| CMS | Sanity.io (`sanity/schema/`) with embedded Studio at `/admin/studio` |
+| Styling | Tailwind CSS v4 with brand tokens in `app/globals.css` |
+| Email | Resend (`lib/resend.ts`) |
+| Tests | Jest (unit) and Playwright (e2e) |
 
 ---
 
-## 🎛️ 2. Kettle Telemetry System
+## Routes
 
-Accessible via the dedicated **Lab Telemetry** page (`/telemetry`), this high-end research console visualizes live batch statuses to capture both homebrewer interest and operational-level precision.
+| Route | Description |
+| --- | --- |
+| `/` | Homepage: hero, brewery pillars, featured brews |
+| `/beers` | The Brew Log — filterable catalog of batches |
+| `/beers/[slug]` | Individual beer: specs, tasting notes, telemetry |
+| `/beers/archive` | Brew Archive — retired batches |
+| `/blog` | Brew log notes |
+| `/blog/[slug]` | Individual article |
+| `/our-story` | About the brewery |
+| `/contact` | Contact form |
+| `/unsubscribe` | Token-based unsubscribe |
+| `/admin` | Redirects to `/admin/studio` |
+| `/admin/login` | Password login for the admin area |
+| `/admin/studio` | Embedded Sanity Studio |
 
-- **Teaser Alert:** The homepage Hero section integrates a pulsing, real-time alert button (`Kettle Live Status: Sensors Online ➔ View Live Telemetry`) guiding users directly to the telemetry console.
-- **3-Column SCADA-style Display:**
-  1.  **Fermentation Logs (Cold-Side):** Visualizes core sensor temperatures and specific density gravity curves (OG ➔ SG ➔ Target FG).
-  2.  **Water Chemistry:** Visualizes mashing pH values alongside progress bars representing ionic water concentrations (Sulfate, Chloride, Calcium).
-  3.  **Timing Schedules (Hot-Side):** Lists mashing and kettle additions (hops, finings, dry hops) as a vertical Gantt-style timeline.
-- **Dynamic Database-backed Fallback Engine:**
-  The dashboard retrieves live data from Sanity. If a batch contains real telemetry entries (pH, gravity, or timing list), they take immediate visual precedence. If those fields are blank, the component dynamically falls back to smart, style-based deterministic calculations (e.g. mashing IPA profiles vs Stout mineral targets), keeping the site completely robust and automatic.
-
----
-
-## 🗄️ 3. Extensible Sanity Schema Design
-
-The `beer` document type in `sanity/schema/beer.ts` is fully extensible to allow a seamless future transition to a retail storefront without requiring database migrations or code rewrites.
-
-- **Editor UI Tabs (`groups`):**
-  Splits the Sanity document panel into clean horizontal tabs:
-  - **Lab Specs:** Everyday brewing specs (style, ABV, IBU, tasting notes, telemetry logs).
-  - **Commercial Info:** Pricing, SKU, and stock levels.
-- **Conditional Visibility:**
-  Root-level boolean toggle `isCommercialProduct` ("Ready for Public Sale") hides the entire commercial specifications panel in Sanity Studio unless checked, keeping the editor interface 100% clean and focused during homebrewing logs.
-- **Sub-Object encapsulation:**
-  All transaction metrics are nested inside `commercialSpecs { price, sku, stockCount }` to maintain a dry, modular database payload.
+`/telemetry` is a legacy path that redirects to `/beers`. Telemetry data
+(pH, gravity, water profile, kettle schedule) is stored on the `beer` document
+and rendered on `/beers/[slug]`; there is no standalone telemetry console.
 
 ---
 
-## ⚡ 4. Next.js 15 Server Performance & Tag-Based Webhooks
+## API routes
 
-To keep pages "commercial-fast," data fetching has been moved from the client to Server Components, serving static pre-rendered HTML from the CDN edge cache.
+| Route | Method | Notes |
+| --- | --- | --- |
+| `/api/contact` | POST | Validates, rate limits per IP, sends via Resend |
+| `/api/revalidate` | POST | Sanity webhook; HMAC-verified, fail-closed |
+| `/api/unsubscribe` | GET, POST | Token-based unsubscribe. `GET` is the link target (redirects to `/unsubscribe`); `POST` is the RFC 8058 one-click target and returns `200` without redirecting |
 
-- **Cache Tags:**
-  Server-side fetches are tagged with cache identifiers:
-  - `/beers` fetches are tagged with `['beers']`.
-  - `/beers/[slug]` fetches are tagged with `['beer:slug', 'beers']`.
-  - `/blog` fetches are tagged with `['posts']`.
-- **API Webhook Handler (`/api/revalidate`):**
-  Listen for POST requests from Sanity's Content Lake whenever a document is updated.
-- **HMAC Signature Verification:**
-  The handler securely authenticates requests by hashing the raw body with SHA-256 HMAC using a local `SANITY_REVALIDATE_SECRET` and matching it against the incoming `content-signature` header to block unauthenticated cache-clearing attempts.
-- **Targeted Cache Invalidation:**
-  Upon valid webhook ingestion, the handler calls `revalidateTag` for that specific document and category, instantly evicting stale cache blocks so the very next visit receives freshly rendered content with 0ms database latency.
+### Generated routes
+
+| Route | Notes |
+| --- | --- |
+| `/sitemap.xml` | Built from the same slug queries the pages use, so the draft and publish filters apply automatically |
+| `/robots.txt` | Disallows `/admin` and `/api/`; Studio and the login page also send `noindex` |
+| `/opengraph-image` | Generated 1200x630 social card; beer and post pages have their own at `<path>/opengraph-image` |
+
+### Page metadata
+
+Every page declares its own `title` and `description`. List pages use
+`pageMetadata()` from `lib/metadata.ts`; the two detail pages use
+`generateMetadata()` so the title and description come from the CMS document.
+Blog posts honour an editor-supplied `seo.title` / `seo.description` when set.
+
+`pageMetadata()` exists because a page that sets `openGraph` replaces the
+parent's object instead of merging into it, which silently drops the inherited
+social card. The helper always emits `images`, so a page cannot lose its
+`og:image`. The root layout supplies the `%s | Infinite Trail Brewing` template,
+so child pages pass a bare title.
+
+The beer and post cards also export `generateStaticParams()`, so each card is
+built with its page instead of being re-rendered on every crawler request. An
+unknown slug still renders a card on demand rather than failing.
+
+Both derive their origin from `lib/site-url.ts`, which reads
+`NEXT_PUBLIC_SITE_URL` and falls back to the production domain. That module is
+also the single source for the absolute links in outbound email.
+
+### Cache invalidation
+
+Server-side fetches are tagged (`lib/beers.server.ts`, `lib/blog.server.ts`):
+
+- `/beers` -> `["beers"]`
+- `/beers/[slug]` -> `["beer:<slug>", "beers"]`
+- `/blog` -> `["posts"]`
+- `/blog/[slug]` -> `["post:<slug>", "posts"]`
+
+`/api/revalidate` verifies Sanity's `sanity-webhook-signature` header the same
+way `@sanity/webhook` does: HMAC-SHA256 over `"<timestamp>.<raw body>"`,
+base64url encoded, compared in constant time. It then calls `revalidateTag`.
+It responds `503` when the secret is unconfigured and `401` on a missing,
+malformed or invalid signature, so an unauthenticated caller can never clear
+the cache.
+
+Configure the Sanity webhook with:
+
+- **URL**: `https://<site>/api/revalidate`
+- **Secret**: the same value as `SANITY_REVALIDATE_SECRET`
+- **Projection**: at minimum `{_type, _id, "slug": slug.current}`
+- **Filter**: `_type in ["beer", "post"]`
+
+Draft documents (`_id` starting with `drafts.`) are acknowledged but do not
+revalidate, because Studio autosaves continuously and would otherwise purge the
+cache on every keystroke.
+
+The legacy `content-signature` header (bare hex HMAC of the body) is still
+accepted so a webhook configured against the previous format keeps working
+during migration. Remove that branch once all webhooks are on Sanity signing.
 
 ---
 
-## 🚀 Getting Started
+## Admin access
 
-### 1. Project Initialization
+The admin area is gated by `proxy.ts` (middleware) using a signed session cookie
+issued by `app/actions/admin-auth.ts`.
 
-1.  **Clone and Install:**
-    ```bash
-    git clone <repository-url>
-    cd InfiniteTrailBrewing
-    npm install
-    ```
-
-2.  **Configure Environment Variables:**
-    Create a `.env.local` file in the root directory and add the following:
-    ```env
-    # Sanity.io
-    NEXT_PUBLIC_SANITY_PROJECT_ID="your-project-id"
-    NEXT_PUBLIC_SANITY_DATASET="production"
-    NEXT_PUBLIC_SITE_URL="https://yourdomain.com"
-    NEXT_PUBLIC_CONTACT_EMAIL="hello@yourdomain.com"
-    SANITY_API_TOKEN="your-api-token"
-    SANITY_REVALIDATE_SECRET="your-secure-webhook-secret"
-
-    # Email (Resend)
-    RESEND_API_KEY="your-resend-api-key"
-    CONTACT_RECEIVING_EMAIL="hello@yourdomain.com"
-    ```
-
-### 2. Accessing the Admin Area
-- Visit `http://localhost:3000/admin`.
-- Log in using your Sanity credentials.
+- Authentication is a **shared password** (`ADMIN_LOGIN_PASSWORD`), not Sanity
+  SSO credentials. The password is compared in constant time
+  (`lib/constant-time.ts`) and the session token is signed with
+  `ADMIN_SESSION_SECRET`.
+- Server Actions that mutate data re-check the session server-side via
+  `requireAdmin` (`lib/admin-auth.ts`). Hiding UI is never the security
+  boundary: invoking an action directly still requires a valid session.
 
 ---
 
-## 🧪 Testing
+## Environment variables
 
-### Unit & Component Tests (Jest)
+Copy `.env.example` to `.env.local` and fill in the values.
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SANITY_PROJECT_ID` | yes | Sanity project |
+| `NEXT_PUBLIC_SANITY_DATASET` | yes | Usually `production` |
+| `SANITY_API_TOKEN` | yes | Server-side reads and writes |
+| `SANITY_REVALIDATE_SECRET` | yes | HMAC secret for `/api/revalidate` |
+| `NEXT_PUBLIC_SITE_URL` | yes | Absolute URL used in emails |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | yes | Public contact address |
+| `NEXT_PUBLIC_FOURTHWALL_SHOP_URL` | no | External shop link |
+| `RESEND_API_KEY` | yes | Email delivery |
+| `CONTACT_RECEIVING_EMAIL` | yes | Contact-form recipient |
+| `ADMIN_LOGIN_PASSWORD` | yes | Admin area password |
+| `ADMIN_SESSION_SECRET` | yes | Signs the admin session cookie |
+
+When `RESEND_API_KEY` is absent, email-dependent features degrade to explicit
+`503`/error responses rather than silently reporting success.
+
+---
+
+## Getting started
+
 ```bash
-npm run test
+npm ci
+cp .env.example .env.local   # then fill in the values
+npm run dev                  # http://localhost:3000
 ```
 
-### End-to-End Tests (Playwright)
+Log in at `/admin/login`.
+
+---
+
+## Scripts
+
 ```bash
-npm run test:e2e
+npm run dev        # dev server
+npm run build      # production build (type checking enabled)
+npm run start      # serve the production build
+npm run lint       # eslint; expected to report 0 warnings
+npm run typecheck  # tsc --noEmit
+npm test           # jest unit tests
+npm run test:e2e   # playwright (production build when CI=true)
 ```
+
+CI runs lint, typecheck, unit tests, build, and e2e; see
+`.github/workflows/ci.yml`.
+
+---
+
+## Content model
+
+- **`beer`** (`sanity/schema/beer.ts`): split into **Lab Specs** and
+  **Commercial Info** tabs. Commercial fields are hidden unless
+  `isCommercialProduct` is enabled. Telemetry (gravity, water chemistry, kettle
+  schedule) is optional; the beer page falls back to style-based defaults when
+  it is absent.
+- **`post`**: blog articles with Portable Text bodies.
+- **`subscriber`**: newsletter subscribers with `status`
+  (`subscribed`/`unsubscribed`) and a `token` used for unsubscribe links.
+
+Every outbound newsletter email carries `List-Unsubscribe` and
+`List-Unsubscribe-Post: List-Unsubscribe=One-Click`, so a mail client can
+unsubscribe a recipient without them opening a page. The `POST` handler exists
+for that; it must not redirect, because the client only reads the status code.
+
+Subscribers created by hand in Studio have no `token`, so they are skipped by a
+send and counted in the result message rather than mailed a link that would
+fail.
+
+---
+
+## Disclaimer
+
+Infinite Trail Brewing is a private, non-commercial homebrew project. Beers are
+crafted for personal documentation, educational exploration, and sharing with
+friends and community events, not for commercial sale or public distribution.

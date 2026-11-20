@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FaInstagram, FaFacebook } from "react-icons/fa6";
+import { BRAND } from "@/lib/brand";
 
 const footerLinks = [
   { href: "/", label: "Home" },
@@ -24,13 +25,13 @@ export function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-2">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingWordmarkDeepForest-Transparent-mWmicyKGqRtwkNbzt0Qqv431s925IK.png"
+              src={BRAND.wordmark}
               alt="Infinite Trail Brewing"
               width={200}
               height={67}
               className="h-14 w-auto brightness-0 invert mb-6"
             />
-            <p className="text-tan/70 max-w-md leading-relaxed mb-6 font-light">
+            <p className="text-tan/75 max-w-md leading-relaxed mb-6 font-light">
               Brewed for the Adventure. An experimental private craft beer lab
               and digital brew log documented in Frederick, MD.
             </p>
@@ -58,13 +59,13 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-serif text-xl mb-6 tracking-wide uppercase text-xs font-mono text-tan/60">Quick Links</h4>
+            <h4 className="font-serif text-xl mb-6 tracking-wide uppercase text-xs font-mono text-tan/75">Quick Links</h4>
             <nav className="flex flex-col gap-3">
               {footerLinks.map((link) => (
                 <Link
                   key={`footer-link-${link.href}`}
                   href={link.href}
-                  className="text-tan/70 hover:text-tan transition-colors text-sm font-light"
+                  className="text-tan/75 hover:text-tan transition-colors text-sm font-light"
                 >
                   {link.label}
                 </Link>
@@ -82,8 +83,8 @@ export function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h4 className="font-serif text-xl mb-6 tracking-wide uppercase text-xs font-mono text-tan/60">Coordinates</h4>
-            <div className="space-y-3 text-tan/70 font-light">
+            <h4 className="font-serif text-xl mb-6 tracking-wide uppercase text-xs font-mono text-tan/75">Coordinates</h4>
+            <div className="space-y-3 text-tan/75 font-light">
               <p className="font-mono text-sm tracking-widest">39.414° N, 77.411° W</p>
               <p className="text-sm">Frederick, MD</p>
               <p className="pt-2 text-sm">
@@ -109,10 +110,10 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-t border-tan/20 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-tan/50 text-sm font-light">
+          <p className="text-tan/75 text-sm font-light">
             © {new Date().getFullYear()} Infinite Trail Brewing. All rights reserved.
           </p>
-          <p className="text-tan/50 text-sm font-light">
+          <p className="text-tan/75 text-sm font-light">
             Drink responsibly. Must be 21+ to enter.
           </p>
         </div>

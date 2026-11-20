@@ -15,6 +15,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { FaFacebook, FaInstagram } from "react-icons/fa6";
+import { BRAND } from "@/lib/brand";
 
 export default function ContactPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -46,7 +47,8 @@ export default function ContactPage() {
     if (res.ok) {
       setIsSubmitted(true);
     } else {
-      alert("Something went wrong. Please try again.");
+      const data = await res.json().catch(() => null);
+      alert(data?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -215,7 +217,7 @@ export default function ContactPage() {
                         Location
                       </h3>
                       <p className="text-forest/70">Frederick, MD</p>
-                      <p className="text-sm text-forest/50 mt-1">
+                      <p className="text-sm text-forest/75 mt-1">
                         Home brewery—not open to the public
                       </p>
                     </div>
@@ -273,7 +275,7 @@ export default function ContactPage() {
               {/* Logo */}
               <div className="bg-forest/5 rounded-2xl p-8 text-center">
                 <Image
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingLogo-Transparent-v6FezPtqxZNb3SWQzDZTLQnNvIqEf6.png"
+                  src={BRAND.logo}
                   alt="Infinite Trail Brewing"
                   width={200}
                   height={200}

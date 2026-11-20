@@ -1,29 +1,75 @@
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { getBeerBySlug, getAllBeerSlugs } from "@/lib/beers.server";
-import { Beer as BeerType, BeerStatus } from "@/types";
+import { BeerStatus } from "@/types";
 import { urlFor } from "@/lib/sanity.client";
 import Image from "next/image";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { beerStyles } from "@/sanity/constants/beerStyles";
+import { beerStyleLabel } from "@/lib/beer-style-label";
 import { getBeerStyleGradient } from "@/lib/beerStyleTheme";
 import { ActionBox } from "@/components/action-box";
 import {
   BookOpen,
   ArrowLeft,
-  Calendar,
-  Hash,
   Droplet,
   Thermometer,
   Layers,
   Beaker,
-  Activity,
-  Award,
   Sparkles,
   Info
 } from "lucide-react";
 import Link from "next/link";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string } | Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = "then" in params ? await params : params;
+  const beer = await getBeerBySlug(slug);
+
+  if (!beer) return { title: "Beer Not Found" };
+
+  // Mirrors the label logic the page renders: a reference gives its title, a
+  // plain string is an enum value that needs the human-readable lookup.
+  const style = beerStyleLabel(beer.style);
+
+  // Beer documents have no `seo` field, so the description is assembled from
+  // the fields the page already renders. Editors who want different copy can
+  // still set the notes field, which wins here.
+  const facts = [
+    style,
+    beer.abv ? `${beer.abv}% ABV` : null,
+    beer.ibu ? `${beer.ibu} IBU` : null,
+  ].filter(Boolean);
+
+  const description =
+    beer.notes?.trim() ||
+    `${beer.beer_name}${facts.length ? ` — ${facts.join(" · ")}` : ""}. Hand-forged craft beer from Infinite Trail Brewing in Frederick, MD.`;
+
+  const title = `${beer.beer_name}${style ? ` | ${style}` : ""}`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      images: [
+        {
+          url: `/beers/${slug}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: { card: "summary_large_image", title, description },
+  };
+}
 
 export async function generateStaticParams() {
   const slugs = await getAllBeerSlugs();
@@ -82,9 +128,8 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
 
   if (!beer) notFound();
 
-  const styleStr = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beer.style as string);
-  const styleLabel = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beerStyles.find(s => s.value === (beer.style as string))?.title || (beer.style as string) || "Craft Special");
-  const gradient = getBeerStyleGradient(styleStr);
+  const styleLabel = beerStyleLabel(beer.style) || "Craft Special";
+  const gradient = getBeerStyleGradient(styleLabel);
 
   // Core Temps based on real status (labeled clearly as target/estimated specifications)
   let coreTemp = "38.2°F";
@@ -240,7 +285,7 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
         <section className="py-20 px-4 bg-white/30 border-b border-forest/5">
           <div className="container mx-auto max-w-5xl">
             <div className="text-center max-w-2xl mx-auto mb-16">
-              <span className="text-xs font-mono uppercase tracking-widest text-forest/50">Sensory Evaluation</span>
+              <span className="text-xs font-mono uppercase tracking-widest text-forest/75">Sensory Evaluation</span>
               <h2 className="font-serif text-3xl md:text-4xl text-forest mt-2">The Organoleptic Profile</h2>
               <div className="w-16 h-0.5 bg-forest/20 mx-auto mt-4" />
             </div>
@@ -291,7 +336,7 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
         <section className="py-20 px-4 bg-tan/10 border-b border-forest/5">
           <div className="container mx-auto max-w-5xl">
             <div className="text-center max-w-2xl mx-auto mb-16">
-              <span className="text-xs font-mono uppercase tracking-widest text-forest/50">Recipe Sheet</span>
+              <span className="text-xs font-mono uppercase tracking-widest text-forest/75">Recipe Sheet</span>
               <h2 className="font-serif text-3xl md:text-4xl text-forest mt-2">Grist & Hop Bill</h2>
               <div className="w-16 h-0.5 bg-forest/20 mx-auto mt-4" />
             </div>
@@ -491,7 +536,7 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
       {beer.relatedPosts && beer.relatedPosts.length > 0 && (
         <section className="py-20 px-4 bg-tan/20 border-b border-forest/5">
           <div className="container mx-auto max-w-4xl text-center">
-            <span className="text-xs font-mono uppercase tracking-widest text-forest/50">From the Logbooks</span>
+            <span className="text-xs font-mono uppercase tracking-widest text-forest/75">From the Logbooks</span>
             <h2 className="font-serif text-3xl md:text-4xl text-forest mt-2 mb-12 flex items-center justify-center gap-3">
               <BookOpen className="w-6 h-6 text-sky" />
               From The Brew Log

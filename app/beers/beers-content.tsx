@@ -1,14 +1,14 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Beer, BeerStatus, BeerStyle } from "@/types";
 import { getBeerImage } from "@/lib/images";
 import { getBeerStyleGradient } from "@/lib/beerStyleTheme";
-import { beerStyles } from "@/sanity/constants/beerStyles";
+import { beerStyleLabel } from "@/lib/beer-style-label";
 import { Activity, Beaker, ArrowRight, Search, X, RotateCcw, Filter } from "lucide-react";
 
 // Style Category Filter definitions
@@ -22,17 +22,9 @@ const STYLE_CATEGORIES = [
   { key: "cider_hybrid", label: "Ciders, Meads & Hybrids" },
 ];
 
-function getStyleName(style: BeerStyle | string | undefined | null): string {
-  if (!style) return "Craft Special";
-  if (typeof style === "object" && style !== null) return style.title || style.slug || "Craft Special";
-  const found = beerStyles.find((s) => s.value === style);
-  return found ? found.title : style;
-}
-
 function matchesStyleCategory(style: BeerStyle | string | undefined | null, categoryKey: string): boolean {
   if (categoryKey === "all") return true;
-  const styleStr = (typeof style === "object" && style !== null ? style.title || style.slug : style) || "";
-  const styleLower = styleStr.toLowerCase();
+  const styleLower = beerStyleLabel(style).toLowerCase();
 
   switch (categoryKey) {
     case "ipa":
@@ -60,7 +52,7 @@ function matchesSearchQuery(beer: Beer, query: string): boolean {
   const notesMatch = beer.notes?.toLowerCase().includes(q);
   const ingredientsMatch = beer.ingredients?.toLowerCase().includes(q);
   const hopsMatch = beer.notableHops?.some((h) => h.toLowerCase().includes(q));
-  const styleMatch = getStyleName(beer.style).toLowerCase().includes(q);
+  const styleMatch = beerStyleLabel(beer.style).toLowerCase().includes(q);
   const batchMatch = beer.batchNumber?.toLowerCase().includes(q);
 
   return Boolean(nameMatch || notesMatch || ingredientsMatch || hopsMatch || styleMatch || batchMatch);
@@ -138,9 +130,8 @@ function BeerGrid({ beers }: { beers: Beer[] }) {
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
       {beers.map((beer) => {
-        const styleStr = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beer.style as string);
-        const styleLabel = getStyleName(beer.style);
-        const color = getBeerStyleGradient(styleStr);
+        const styleLabel = beerStyleLabel(beer.style) || "Craft Special";
+        const color = getBeerStyleGradient(styleLabel);
         const imageUrl = getBeerImage(beer, "card");
 
         return (
@@ -192,7 +183,7 @@ function BeerGrid({ beers }: { beers: Beer[] }) {
 
                   <div>
                     {/* Metrics Row */}
-                    <div className="grid grid-cols-2 gap-4 border-t border-forest/10 pt-4 mb-4 font-mono text-xs text-forest/60">
+                    <div className="grid grid-cols-2 gap-4 border-t border-forest/10 pt-4 mb-4 font-mono text-xs text-forest/75">
                       <div className="flex items-center gap-1.5">
                         <span className="font-bold text-forest">ABV:</span>
                         <span>{beer.abv ? `${beer.abv}%` : "TBD"}</span>
@@ -232,13 +223,21 @@ export function BeersContent({
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const [searchQuery, setSearchQuery] = useState<string>(searchParams.get("q") || "");
-  const [selectedStyle, setSelectedStyle] = useState<string>(searchParams.get("style") || "all");
+  const urlQuery = searchParams.get("q") || "";
+  const urlStyle = searchParams.get("style") || "all";
 
-  useEffect(() => {
-    setSearchQuery(searchParams.get("q") || "");
-    setSelectedStyle(searchParams.get("style") || "all");
-  }, [searchParams]);
+  const [searchQuery, setSearchQuery] = useState<string>(urlQuery);
+  const [selectedStyle, setSelectedStyle] = useState<string>(urlStyle);
+
+  // Re-sync from the URL on back/forward without an effect. Typing only
+  // touches local state, so it stays responsive; the URL changes on submit.
+  const urlKey = `${urlQuery}\u0000${urlStyle}`;
+  const [lastUrlKey, setLastUrlKey] = useState(urlKey);
+  if (lastUrlKey !== urlKey) {
+    setLastUrlKey(urlKey);
+    setSearchQuery(urlQuery);
+    setSelectedStyle(urlStyle);
+  }
 
   const updateFilters = (newQuery: string, newStyle: string) => {
     setSearchQuery(newQuery);
@@ -277,7 +276,7 @@ export function BeersContent({
           className={`flex-1 py-2.5 px-4 text-center font-serif text-sm md:text-base tracking-wider uppercase rounded-lg transition-all duration-300 ${
             mode === "active"
               ? "bg-forest text-tan shadow-md font-bold"
-              : "text-forest/60 hover:text-forest"
+              : "text-forest/75 hover:text-forest"
           }`}
         >
           On Tap & On Deck
@@ -288,7 +287,7 @@ export function BeersContent({
           className={`flex-1 py-2.5 px-4 text-center font-serif text-sm md:text-base tracking-wider uppercase rounded-lg transition-all duration-300 ${
             mode === "archive"
               ? "bg-forest text-tan shadow-md font-bold"
-              : "text-forest/60 hover:text-forest"
+              : "text-forest/75 hover:text-forest"
           }`}
         >
           Brew Archive
@@ -325,6 +324,7 @@ export function BeersContent({
             <select
               value={selectedStyle}
               onChange={(e) => updateFilters(searchQuery, e.target.value)}
+              aria-label="Filter beers by style"
               className="w-full px-3.5 py-2.5 bg-forest/5 border border-forest/15 rounded-xl text-sm text-forest focus:outline-none focus:ring-2 focus:ring-forest/30 transition-all font-sans cursor-pointer"
             >
               {STYLE_CATEGORIES.map((cat) => (

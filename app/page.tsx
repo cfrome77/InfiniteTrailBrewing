@@ -4,11 +4,7 @@ import { Navbar } from "@/components/navbar"
 import { Hero } from "@/components/hero"
 import { Footer } from "@/components/footer"
 import { NewsletterPopup } from "@/components/newsletter-popup"
-import { getBeersForPage } from "@/lib/beers.server"
 import { Button } from "@/components/ui/button"
-import { getBeerImage } from "@/lib/images"
-import { getBeerStyleGradient } from "@/lib/beerStyleTheme"
-import { beerStyles } from "@/sanity/constants/beerStyles"
 import {
   Beer,
   BookOpen,
@@ -16,15 +12,12 @@ import {
   FlaskConical,
   Sparkles,
   ArrowRight,
-  Activity
 } from "lucide-react"
+import { BRAND } from "@/lib/brand"
 
 export const revalidate = 86400;
 
 export default async function Home() {
-  const beers = await getBeersForPage();
-
-
   return (
     <main className="min-h-screen bg-cream text-forest">
       <Navbar />
@@ -44,7 +37,7 @@ export default async function Home() {
                 <div className="absolute -inset-1 border border-forest/5 rounded-3xl" />
                 <div className="relative z-10 flex items-center justify-center h-full bg-forest/5 rounded-2xl p-8 shadow-inner">
                   <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingLogo-Transparent-v6FezPtqxZNb3SWQzDZTLQnNvIqEf6.png"
+                    src={BRAND.logo}
                     alt="Infinite Trail Brewing"
                     width={320}
                     height={320}
@@ -96,7 +89,7 @@ export default async function Home() {
       <section className="bg-white py-20 md:py-32 px-4 border-t border-b border-forest/5 relative">
         <div className="container mx-auto max-w-5xl">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-mono uppercase tracking-widest text-forest/50">Core Philosophy</span>
+            <span className="text-xs font-mono uppercase tracking-widest text-forest/75">Core Philosophy</span>
             <h2 className="font-serif text-3xl md:text-4xl text-forest mt-2 uppercase tracking-wide">The Pillars of the Trail</h2>
             <div className="w-16 h-0.5 bg-forest/20 mx-auto mt-4" />
           </div>
@@ -142,7 +135,7 @@ export default async function Home() {
       <section className="bg-cream py-20 md:py-32 px-4 relative">
         <div className="container mx-auto max-w-4xl">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-mono uppercase tracking-widest text-forest/50">Explore Our World</span>
+            <span className="text-xs font-mono uppercase tracking-widest text-forest/75">Explore Our World</span>
             <h2 className="font-serif text-3xl md:text-4xl text-forest mt-2 uppercase tracking-wide">The Brewery Experience</h2>
             <div className="w-16 h-0.5 bg-forest/20 mx-auto mt-4" />
           </div>

@@ -9,6 +9,14 @@ import { urlFor } from "@/lib/sanity.client";
 import Image from "next/image";
 import { getCategoryColor, getTagColor } from "@/lib/blog-utils";
 import { Search, Filter } from "lucide-react";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = pageMetadata({
+  title: "The Brew Log",
+  description:
+    "Brewing notes, batch telemetry and stories from Infinite Trail Brewing in Frederick, MD.",
+});
 
 const categories = [
   "All",
@@ -105,7 +113,7 @@ export default async function BlogPage({
               <Filter className="w-8 h-8 text-forest/30" />
             </div>
             <h3 className="text-xl font-serif text-forest">No trails found</h3>
-            <p className="text-forest/50 mt-2">Try adjusting your search or filters.</p>
+            <p className="text-forest/75 mt-2">Try adjusting your search or filters.</p>
             <Button asChild variant="link" className="mt-4 text-forest">
               <Link href="/blog">Clear all filters</Link>
             </Button>
@@ -133,7 +141,7 @@ export default async function BlogPage({
                   </div>
                 )}
                 <div className="md:col-span-2 p-8 md:p-12 flex flex-col justify-center bg-white">
-                  <div className="text-sm text-forest/50 mb-4 flex items-center gap-2">
+                  <div className="text-sm text-forest/75 mb-4 flex items-center gap-2">
                     {new Date(featuredPost.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                     <span className="w-1 h-1 bg-tan rounded-full" />
                     By {featuredPost.author || "Infinite Trail"}
@@ -179,7 +187,7 @@ export default async function BlogPage({
                   </div>
                 )}
                 <div className="p-6 flex flex-col flex-grow">
-                  <div className="text-xs text-forest/50 mb-3 uppercase tracking-wider">
+                  <div className="text-xs text-forest/75 mb-3 uppercase tracking-wider">
                     {new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </div>
 

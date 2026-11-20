@@ -81,11 +81,11 @@ export function NewsletterManager({ posts }: { posts: Post[] }) {
                             {resendStats?.recentEmails?.map((email: any) => (
                                 <div key={email.id} className="text-xs flex justify-between border-b border-tan/10 pb-1">
                                     <span title={email.subject} className="truncate max-w-[150px] font-medium">{email.subject}</span>
-                                    <span className="text-forest/40">{new Date(email.createdAt).toLocaleDateString()}</span>
+                                    <span className="text-forest/75">{new Date(email.createdAt).toLocaleDateString()}</span>
                                 </div>
                             ))}
                             {!resendStats?.recentEmails?.length && (
-                                <div className="text-xs text-forest/40 italic">No recent campaigns.</div>
+                                <div className="text-xs text-forest/75 italic">No recent campaigns.</div>
                             )}
                         </div>
                     </CardContent>
@@ -103,7 +103,7 @@ export function NewsletterManager({ posts }: { posts: Post[] }) {
                             <div key={post._id} className="py-4 flex items-center justify-between gap-4">
                                 <div>
                                     <h4 className="font-medium text-forest">{post.title}</h4>
-                                    <p className="text-xs text-forest/50">{new Date(post.date).toLocaleDateString()}</p>
+                                    <p className="text-xs text-forest/75">{new Date(post.date).toLocaleDateString()}</p>
                                 </div>
                                 <Button
                                     size="sm"
@@ -121,7 +121,7 @@ export function NewsletterManager({ posts }: { posts: Post[] }) {
                             </div>
                         ))}
                         {posts.filter(p => p.is_published).length === 0 && (
-                            <div className="py-8 text-center text-forest/40 italic">
+                            <div className="py-8 text-center text-forest/75 italic">
                                 No published posts found to send.
                             </div>
                         )}

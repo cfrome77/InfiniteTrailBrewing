@@ -1,6 +1,5 @@
 import 'server-only';
 import { createClient } from 'next-sanity';
-import { client } from './sanity.client';
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'pzzfhnzk';
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'development';
@@ -30,7 +29,10 @@ export const serverClient = createClient({
 });
 
 /**
- * server-only client that automatically uses the SANITY_API_TOKEN if available.
- * Use this in Server Components, API routes, and Server Actions.
+ * Server-side client for Server Components, route handlers and actions.
+ *
+ * This is the same authenticated client as `serverClient`; it previously
+ * switched to the public browser client when the token was absent, which
+ * silently degraded to unauthenticated reads and hid the misconfiguration.
  */
-export const activeClient = token ? serverClient : client;
+export const activeClient = serverClient;

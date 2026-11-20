@@ -3,6 +3,6 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Sanity Studio handles its own authentication.
+  // Access is gated in proxy.ts; Studio adds its own Sanity auth on top.
   return <>{children}</>;
 }

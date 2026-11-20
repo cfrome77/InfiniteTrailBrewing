@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { NewsletterManager } from "./newsletter-manager";
+import { getAdminPosts } from "@/app/actions/admin-data";
 
 export function NewsletterTool() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -9,11 +10,13 @@ export function NewsletterTool() {
 
   useEffect(() => {
     async function fetchPosts() {
-      const { client } = await import("@/lib/sanity.client");
-      const { ALL_POSTS_ADMIN_QUERY } = await import("@/lib/blog");
-      const allPosts = await client.fetch(ALL_POSTS_ADMIN_QUERY);
-      setPosts(allPosts);
-      setLoading(false);
+      try {
+        setPosts(await getAdminPosts());
+      } catch {
+        setPosts([]);
+      } finally {
+        setLoading(false);
+      }
     }
     fetchPosts();
   }, []);

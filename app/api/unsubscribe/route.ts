@@ -1,36 +1,48 @@
-import { serverClient as client } from "@/lib/sanity.server";
 import { redirect } from "next/navigation";
+import { unsubscribeByToken } from "@/lib/unsubscribe";
 
+/**
+ * Unsubscribe links from emails land here. The token is the only credential,
+ * so a missing or unknown token never reveals whether an address is on the list.
+ *
+ * Two entry points share the same effect:
+ * - GET, for the link a person clicks in the email body.
+ * - POST, for RFC 8058 one-click unsubscribe. Mailbox providers POST to the
+ *   List-Unsubscribe URL on the recipient's behalf and expect a 2xx with no
+ *   redirect and no confirmation step.
+ */
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const token = searchParams.get("token");
+  const token = new URL(request.url).searchParams.get("token");
 
   if (!token) {
-    return new Response("Missing unsubscribe token", { status: 400 });
+    redirect("/unsubscribe?error=missing");
   }
 
-  let subscriber;
-  try {
-    subscriber = await (client as any).fetch(
-      `*[_type == "subscriber" && token == $token][0]`,
-      { token }
-    );
+  const outcome = await unsubscribeByToken(token);
 
-    if (subscriber) {
-      await client
-        .patch(subscriber._id)
-        .set({ status: "unsubscribed" })
-        .commit();
-    }
-  } catch (error) {
-    console.error("API Unsubscribe error:", error);
-    return new Response("An error occurred while processing your request", { status: 500 });
+  redirect(
+    outcome === "unsubscribed" || outcome === "already"
+      ? "/unsubscribe?success=true"
+      : outcome === "invalid"
+        ? "/unsubscribe?error=invalid"
+        : "/unsubscribe?error=failed",
+  );
+}
+
+export async function POST(request: Request) {
+  const token = new URL(request.url).searchParams.get("token");
+
+  if (!token) {
+    return new Response("Missing token", { status: 400 });
   }
 
-  if (subscriber) {
-    // Redirect to a success page or the main unsubscribe page with a success flag
-    redirect("/unsubscribe?success=true");
-  } else {
-    return new Response("Invalid unsubscribe token", { status: 404 });
+  const outcome = await unsubscribeByToken(token);
+
+  if (outcome === "failed") {
+    return new Response("Unsubscribe failed", { status: 500 });
   }
+
+  // A repeated one-click unsubscribe is still a success: the provider only
+  // cares that the address ends up off the list.
+  return new Response("Unsubscribed", { status: 200 });
 }

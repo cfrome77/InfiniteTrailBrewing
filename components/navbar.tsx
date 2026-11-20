@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { FaInstagram, FaFacebook } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
+import { BRAND } from "@/lib/brand";
 
 interface NavLinkItem {
   href: string;
@@ -49,11 +50,15 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu & dropdown on route change
-  useEffect(() => {
+  // Close mobile menu & dropdown on route change. Adjusting state during
+  // render is the documented alternative to an effect here: React re-renders
+  // immediately without painting the stale open menu.
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (lastPathname !== pathname) {
+    setLastPathname(pathname);
     setIsMobileMenuOpen(false);
     setBeersDropdownOpen(false);
-  }, [pathname]);
+  }
 
   // Click outside to close desktop dropdown
   useEffect(() => {
@@ -81,7 +86,7 @@ export function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingWordmarkDeepForest-Transparent-mWmicyKGqRtwkNbzt0Qqv431s925IK.png"
+            src={BRAND.wordmark}
             alt="Infinite Trail Brewing"
             width={240}
             height={80}
@@ -113,7 +118,7 @@ export function Navbar() {
                   <button
                     onClick={() => setBeersDropdownOpen((prev) => !prev)}
                     className={`inline-flex items-center gap-1 font-sans text-sm tracking-wide uppercase transition-colors cursor-pointer focus:outline-none ${
-                      isBeersActive ? "text-tan font-semibold" : "text-tan/70 hover:text-tan"
+                      isBeersActive ? "text-tan font-semibold" : "text-tan/75 hover:text-tan"
                     }`}
                     aria-expanded={beersDropdownOpen}
                     aria-label="Toggle Our Beers menu"
@@ -138,7 +143,7 @@ export function Navbar() {
                             className={`block px-4 py-2.5 text-xs font-sans uppercase tracking-wider transition-colors ${
                               pathname === sub.href
                                 ? "bg-tan/15 text-tan font-bold"
-                                : "text-tan/70 hover:text-tan hover:bg-tan/10"
+                                : "text-tan/75 hover:text-tan hover:bg-tan/10"
                             }`}
                           >
                             {sub.label}
@@ -158,7 +163,7 @@ export function Navbar() {
                 target={isExternal ? "_blank" : undefined}
                 rel={isExternal ? "noopener noreferrer" : undefined}
                 className={`font-sans text-sm tracking-wide uppercase transition-colors ${
-                  pathname === link.href ? "text-tan" : "text-tan/70 hover:text-tan"
+                  pathname === link.href ? "text-tan" : "text-tan/75 hover:text-tan"
                 }`}
               >
                 {link.label}
@@ -171,16 +176,20 @@ export function Navbar() {
             <Link
               href="https://instagram.com/infinitetrailbrewing"
               target="_blank"
-              className="text-tan/70 hover:text-tan"
+              rel="noopener noreferrer"
+              aria-label="Follow us on Instagram"
+              className="text-tan/75 hover:text-tan"
             >
-              <FaInstagram className="w-5 h-5" />
+              <FaInstagram className="w-5 h-5" aria-hidden="true" />
             </Link>
             <Link
               href="https://facebook.com/infinitetrailbrewing"
               target="_blank"
-              className="text-tan/70 hover:text-tan"
+              rel="noopener noreferrer"
+              aria-label="Follow us on Facebook"
+              className="text-tan/75 hover:text-tan"
             >
-              <FaFacebook className="w-5 h-5" />
+              <FaFacebook className="w-5 h-5" aria-hidden="true" />
             </Link>
           </div>
         </div>
@@ -191,14 +200,17 @@ export function Navbar() {
           size="icon"
           className="md:hidden text-tan hover:bg-tan/10"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-menu"
         >
-          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {isMobileMenuOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
         </Button>
       </nav>
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-forest/95 backdrop-blur-md border-t border-tan/20 animate-fade-in duration-300">
+        <div id="mobile-menu" className="md:hidden bg-forest/95 backdrop-blur-md border-t border-tan/20 animate-fade-in duration-300">
           <div className="container mx-auto px-4 py-6 flex flex-col gap-4">
             {navLinks.map((link) => {
               const isExternal = link.isExternal;
@@ -217,7 +229,7 @@ export function Navbar() {
                           href={sub.href}
                           onClick={() => setIsMobileMenuOpen(false)}
                           className={`font-sans text-base uppercase py-1 ${
-                            pathname === sub.href ? "text-tan font-bold" : "text-tan/70 hover:text-tan"
+                            pathname === sub.href ? "text-tan font-bold" : "text-tan/75 hover:text-tan"
                           }`}
                         >
                           • {sub.label}
@@ -234,7 +246,7 @@ export function Navbar() {
                   href={link.href || "/"}
                   target={isExternal ? "_blank" : undefined}
                   rel={isExternal ? "noopener noreferrer" : undefined}
-                  className="font-sans text-lg uppercase py-2 text-tan/70 hover:text-tan"
+                  className="font-sans text-lg uppercase py-2 text-tan/75 hover:text-tan"
                 >
                   {link.label}
                 </Link>

@@ -2,16 +2,42 @@
 
 import { serverClient as client } from "@/lib/sanity.server";
 import { randomUUID } from "crypto";
-import { Resend } from "resend";
+import { headers } from "next/headers";
+import { getResendClient } from "@/lib/resend";
+import { isSubscribeLimited as isLimited } from "@/lib/subscribe-limiter";
+import { siteUrl } from "@/lib/site-url";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// This action is publicly callable and both writes to Sanity and sends email,
+// so it needs the same per-IP cap as the contact route. Keyed by IP rather than
+// address: keying by address would still let one client mail many recipients.
+
+// Every success path returns this exact wording. The branches are only
+// reachable for new or re-subscribed addresses, so a distinct message per
+// branch would tell a caller whether an address is already on the list.
+const GENERIC_SUCCESS =
+  "Thanks! If that address wasn't already on the list, a welcome email is on its way.";
+
+async function clientKey(): Promise<string> {
+  const forwarded = (await headers()).get("x-forwarded-for");
+  return forwarded?.split(",")[0]?.trim() || "unknown";
+}
 
 export async function subscribeToNewsletter(email: string) {
-  if (!email || !email.includes("@")) {
+  if (typeof email !== "string") {
     return { success: false, message: "Invalid email address" };
   }
 
+  if (isLimited(await clientKey())) {
+    return { success: false, message: "Too many requests. Please try again later." };
+  }
+
   const normalizedEmail = email.toLowerCase().trim();
+
+  if (normalizedEmail.length > 254 || !EMAIL_RE.test(normalizedEmail)) {
+    return { success: false, message: "Invalid email address" };
+  }
 
   try {
     // Check if already exists
@@ -24,7 +50,12 @@ export async function subscribeToNewsletter(email: string) {
 
     if (existing) {
       if (existing.status === 'subscribed') {
-        return { success: true, message: "You're already subscribed!" };
+        // Same wording as a new signup: distinguishing the two would let a
+        // caller probe whether an address is on the list.
+        return {
+          success: true,
+          message: GENERIC_SUCCESS,
+        };
       }
 
       // Re-subscribe
@@ -43,17 +74,27 @@ export async function subscribeToNewsletter(email: string) {
       });
     }
 
+    const resend = getResendClient();
+
     // Send Welcome Email
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://infinitetrailbrewing.com";
     const fromEmail = process.env.CONTACT_RECEIVING_EMAIL || "newsletter@infinitetrailbrewing.com";
     const unsubscribeUrl = `${siteUrl}/api/unsubscribe?token=${token}`;
 
-    await resend.emails.send({
+    if (!resend) {
+      console.error("Welcome email skipped: RESEND_API_KEY is not configured.");
+      return {
+        success: true,
+        message: GENERIC_SUCCESS,
+      };
+    }
+
+    const { error: sendError } = await resend.emails.send({
       from: `Infinite Trail Brewing <${fromEmail}>`,
       to: normalizedEmail,
       subject: "Welcome to the Trail!",
       headers: {
         "List-Unsubscribe": `<${unsubscribeUrl}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
       },
       html: `
         <div style="font-family: serif; color: #1A4132; max-width: 600px; margin: 0 auto; border: 1px solid #E8D7B5; border-radius: 8px; overflow: hidden;">
@@ -76,7 +117,21 @@ export async function subscribeToNewsletter(email: string) {
       `,
     });
 
-    return { success: true, message: "Welcome to the trail! Check your inbox for a confirmation." };
+    // Resend reports failures in its response rather than throwing; without this
+    // check a dropped welcome email still reported success and the subscriber
+    // never received their unsubscribe link.
+    if (sendError) {
+      console.error("Welcome email failed:", sendError);
+      return {
+        success: true,
+        message: GENERIC_SUCCESS,
+      };
+    }
+
+    return {
+      success: true,
+      message: GENERIC_SUCCESS,
+    };
   } catch (error) {
     console.error("Newsletter subscription error:", error);
     return { success: false, message: "Something went wrong. Please try again." };

@@ -12,11 +12,19 @@ import {
   ArrowRight,
   Flame,
   Activity,
-  Heart,
   MapPin,
   Sparkles
 } from "lucide-react";
 import { activeClient } from "@/lib/sanity.server";
+import { BRAND } from "@/lib/brand";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Our Story",
+  description:
+    "How Infinite Trail Brewing started, and why we brew for the next adventure in Frederick, MD.",
+});
 
 export const revalidate = 86400;
 
@@ -111,7 +119,7 @@ export default async function OurStoryPage() {
                 <div className="absolute -inset-1 border border-forest/5 rounded-3xl" />
                 <div className="relative z-10 flex items-center justify-center h-full bg-forest/5 rounded-2xl p-8 shadow-inner">
                   <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingLogo-Transparent-v6FezPtqxZNb3SWQzDZTLQnNvIqEf6.png"
+                    src={BRAND.logo}
                     alt="Infinite Trail Brewing Badge"
                     width={400}
                     height={400}
@@ -124,7 +132,7 @@ export default async function OurStoryPage() {
 
             {/* Story Details */}
             <div className="space-y-6">
-              <span className="text-xs font-mono uppercase tracking-widest text-forest/60">The Spark Behind The Kettle</span>
+              <span className="text-xs font-mono uppercase tracking-widest text-forest/75">The Spark Behind The Kettle</span>
               <h2 className="font-serif text-4xl text-forest tracking-wide">
                 Why We Exist
               </h2>
@@ -150,7 +158,7 @@ export default async function OurStoryPage() {
       <section className="py-20 md:py-32 bg-white border-t border-b border-forest/5">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center max-w-3xl mx-auto mb-20">
-            <span className="text-xs font-mono uppercase tracking-widest text-forest/50">Our Process & Ethos</span>
+            <span className="text-xs font-mono uppercase tracking-widest text-forest/75">Our Process & Ethos</span>
             <h2 className="font-serif text-4xl text-forest mt-2 tracking-wide uppercase">From Grain to Glass</h2>
             <div className="w-20 h-1 bg-forest/25 mx-auto mt-4 mb-6" />
             <p className="text-base text-forest/70 font-light">
@@ -169,7 +177,7 @@ export default async function OurStoryPage() {
               >
                 {/* Step Number & Icon */}
                 <div className="md:col-span-3 flex md:flex-col items-center md:items-start gap-4">
-                  <div className="font-serif text-5xl md:text-6xl text-forest/20 font-bold">
+                  <div aria-hidden="true" className="font-serif text-5xl md:text-6xl text-forest/55 font-bold">
                     {step.step}
                   </div>
                   <div className="p-3 bg-white border border-forest/15 rounded-xl shadow-sm">
@@ -180,7 +188,7 @@ export default async function OurStoryPage() {
                 {/* Content */}
                 <div className="md:col-span-9 space-y-3">
                   <div className="flex flex-col">
-                    <span className="text-xs font-mono uppercase tracking-widest text-forest/50 font-bold">{step.subtitle}</span>
+                    <span className="text-xs font-mono uppercase tracking-widest text-forest/75 font-bold">{step.subtitle}</span>
                     <h3 className="font-serif text-2xl text-forest font-semibold tracking-wide">{step.title}</h3>
                   </div>
                   <p className="text-base text-forest/75 leading-relaxed font-light">
@@ -240,7 +248,7 @@ export default async function OurStoryPage() {
       <section className="py-20 md:py-32 bg-cream">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs font-mono uppercase tracking-widest text-forest/50">Keep Exploring</span>
+            <span className="text-xs font-mono uppercase tracking-widest text-forest/75">Keep Exploring</span>
             <h2 className="font-serif text-4xl text-forest mt-2 tracking-wide">Continue The Adventure</h2>
             <div className="w-16 h-0.5 bg-forest/20 mx-auto mt-4" />
           </div>
@@ -314,7 +322,7 @@ export default async function OurStoryPage() {
               <div className="font-serif text-5xl md:text-6xl text-forest font-bold mb-2">
                 {flagshipCount}
               </div>
-              <div className="text-xs text-forest/60 uppercase tracking-widest font-mono">
+              <div className="text-xs text-forest/75 uppercase tracking-widest font-mono">
                 Flagship Recipes
               </div>
             </div>
@@ -323,7 +331,7 @@ export default async function OurStoryPage() {
               <div className="font-serif text-5xl md:text-6xl text-forest font-bold mb-2">
                 {totalCount}
               </div>
-              <div className="text-xs text-forest/60 uppercase tracking-widest font-mono">
+              <div className="text-xs text-forest/75 uppercase tracking-widest font-mono">
                 Batches Brewed
               </div>
             </div>
@@ -332,7 +340,7 @@ export default async function OurStoryPage() {
               <div className="font-serif text-5xl md:text-6xl text-forest font-bold mb-2">
                 1
               </div>
-              <div className="text-xs text-forest/60 uppercase tracking-widest font-mono">
+              <div className="text-xs text-forest/75 uppercase tracking-widest font-mono">
                 Garage Lab
               </div>
             </div>
@@ -341,7 +349,7 @@ export default async function OurStoryPage() {
               <div className="font-serif text-5xl md:text-6xl text-forest font-bold mb-2">
                 &#8734;
               </div>
-              <div className="text-xs text-forest/60 uppercase tracking-widest font-mono">
+              <div className="text-xs text-forest/75 uppercase tracking-widest font-mono">
                 Trails to Chase
               </div>
             </div>
@@ -356,7 +364,7 @@ export default async function OurStoryPage() {
           <h3 className="font-serif text-3xl text-forest mb-4 tracking-wide uppercase">
             Have questions or want to collaborate?
           </h3>
-          <p className="text-base text-forest/70 font-light mb-8 leading-relaxed">
+          <p className="text-base text-forest/75 font-light mb-8 leading-relaxed">
             Whether you want to trade yeast starter tips, ask about our water profiles, or plan a joint backcountry hike in Maryland, our doors are open to fellow explorers.
           </p>
           <Button

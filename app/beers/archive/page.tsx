@@ -3,6 +3,14 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { getBeersForPage } from "@/lib/beers.server";
 import { BeersContent } from "../beers-content";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Beer Archive",
+  description:
+    "The full Infinite Trail Brewing archive — every batch we have brewed, past and present.",
+});
 
 export const revalidate = 86400;
 
@@ -25,7 +33,7 @@ export default async function BeerArchivePage() {
 
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <Suspense fallback={<div className="text-center py-20 text-forest/50">Loading archive...</div>}>
+          <Suspense fallback={<div className="text-center py-20 text-forest/75">Loading archive...</div>}>
             <BeersContent initialBeers={beers} mode="archive" />
           </Suspense>
         </div>

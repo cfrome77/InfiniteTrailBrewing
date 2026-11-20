@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { beerStyleLabel } from "@/lib/beer-style-label";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Beer, FlaskConical, TrendingUp, Info, Loader2 } from "lucide-react";
 import { updateBeerStatus } from "@/app/actions/inventory";
@@ -20,7 +21,6 @@ export function InventoryManager({ beers: initialBeers }: { beers: BeerData[] })
 
     const onTap = beers.filter(b => b.status === "ready");
     const brewing = beers.filter(b => b.status === "brewing");
-    const onDeck = beers.filter(b => b.status === "on_deck");
     const avgAbv = onTap.length > 0 ? (onTap.reduce((acc, b) => acc + (b.abv || 0), 0) / onTap.length).toFixed(1) : 0;
 
     const handleStatusChange = async (beerId: string, newStatus: string) => {
@@ -48,7 +48,7 @@ export function InventoryManager({ beers: initialBeers }: { beers: BeerData[] })
 
                 <Card className="border-tan/20 shadow-sm">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-xs uppercase tracking-wider font-medium text-forest/60">Brewing</CardTitle>
+                        <CardTitle className="text-xs uppercase tracking-wider font-medium text-forest/75">Brewing</CardTitle>
                         <FlaskConical className="h-4 w-4 text-forest/30" />
                     </CardHeader>
                     <CardContent>
@@ -58,7 +58,7 @@ export function InventoryManager({ beers: initialBeers }: { beers: BeerData[] })
 
                 <Card className="border-tan/20 shadow-sm">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-xs uppercase tracking-wider font-medium text-forest/60">Avg. ABV</CardTitle>
+                        <CardTitle className="text-xs uppercase tracking-wider font-medium text-forest/75">Avg. ABV</CardTitle>
                         <TrendingUp className="h-4 w-4 text-forest/30" />
                     </CardHeader>
                     <CardContent>
@@ -68,7 +68,7 @@ export function InventoryManager({ beers: initialBeers }: { beers: BeerData[] })
 
                 <Card className="border-tan/20 shadow-sm">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-xs uppercase tracking-wider font-medium text-forest/60">Total Library</CardTitle>
+                        <CardTitle className="text-xs uppercase tracking-wider font-medium text-forest/75">Total Library</CardTitle>
                         <Info className="h-4 w-4 text-forest/30" />
                     </CardHeader>
                     <CardContent>
@@ -97,12 +97,12 @@ export function InventoryManager({ beers: initialBeers }: { beers: BeerData[] })
                                     <tr key={beer._id} className="text-sm hover:bg-forest/5 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="font-medium text-forest">{beer.beer_name}</div>
-                                            <div className="text-[10px] text-forest/40 uppercase tracking-tighter">{beer.style}</div>
+                                            <div className="text-[10px] text-forest/75 uppercase tracking-tighter">{beerStyleLabel(beer.style) || "—"}</div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-1 rounded-full text-[9px] uppercase font-bold ${
                                                 beer.status === 'ready' ? 'bg-green-100 text-green-700' :
-                                                beer.status === 'brewing' ? 'bg-sky-100 text-sky-700' : 'bg-tan/20 text-forest/60'
+                                                beer.status === 'brewing' ? 'bg-sky-100 text-sky-700' : 'bg-tan/20 text-forest/75'
                                             }`}>
                                                 {beer.status === 'ready' ? 'On Tap' : beer.status}
                                             </span>

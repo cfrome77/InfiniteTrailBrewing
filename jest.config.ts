@@ -19,4 +19,17 @@ const config: Config = {
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
-export default createJestConfig(config);
+const createConfig = createJestConfig(config);
+
+// @portabletext/to-html ships ESM only. next/jest prepends its own ignore
+// patterns, so this has to be applied to the resolved config instead of the
+// object above, otherwise the appended pattern is shadowed.
+const jestConfig = async () => {
+  const resolved = await createConfig();
+  return {
+    ...resolved,
+    transformIgnorePatterns: ['/node_modules/(?!(@portabletext)/)'],
+  };
+};
+
+export default jestConfig;

@@ -1,60 +1,114 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback, useTransition } from "react"
 import Image from "next/image"
 import { X, Beer, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { subscribeToNewsletter } from "@/app/actions/newsletter"
+import { BRAND } from "@/lib/brand";
+
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])'
 
 export function NewsletterPopup() {
   const [isOpen, setIsOpen] = useState(false)
   const [email, setEmail] = useState("")
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const previouslyFocused = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
     // Never show to subscribers
     const isSubscribed = localStorage.getItem("itb-newsletter-subscribed")
     if (isSubscribed) return
-    
+
     // Check if user has dismissed the popup recently (within 7 days)
     const dismissedAt = localStorage.getItem("itb-newsletter-dismissed")
-    
+
     if (dismissedAt) {
       const dismissedDate = new Date(dismissedAt)
       const now = new Date()
       const daysSinceDismissed = (now.getTime() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24)
-      
+
       // Don't show if dismissed within the last 7 days
       if (daysSinceDismissed < 7) {
         return
       }
     }
-    
+
     // Show popup after 3 seconds
     const timer = setTimeout(() => {
       setIsOpen(true)
     }, 3000)
-    
+
     return () => clearTimeout(timer)
   }, [])
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsOpen(false)
     // Store the dismissal date so we can show again after 7 days
     localStorage.setItem("itb-newsletter-dismissed", new Date().toISOString())
-  }
+  }, [])
+
+  // Move focus into the dialog on open and restore it on close, so keyboard
+  // users are not stranded behind the backdrop.
+  useEffect(() => {
+    if (!isOpen) return
+
+    previouslyFocused.current = document.activeElement as HTMLElement | null
+    dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus()
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleClose()
+        return
+      }
+      if (e.key !== "Tab" || !dialogRef.current) return
+
+      const nodes = Array.from(dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE))
+      if (nodes.length === 0) return
+
+      const first = nodes[0]
+      const last = nodes[nodes.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown)
+    return () => {
+      document.removeEventListener("keydown", onKeyDown)
+      previouslyFocused.current?.focus()
+    }
+  }, [isOpen, handleClose])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle newsletter signup here
-    setIsSubmitted(true)
-    // Store a permanent flag for subscribers so they never see it again
-    localStorage.setItem("itb-newsletter-subscribed", "true")
-    
-    // Close popup after showing success message
-    setTimeout(() => {
-      setIsOpen(false)
-    }, 2000)
+    setError(null)
+
+    startTransition(async () => {
+      const result = await subscribeToNewsletter(email)
+
+      if (!result.success) {
+        setError(result.message)
+        return
+      }
+
+      setIsSubmitted(true)
+      // Permanent flag so subscribers are never shown the popup again.
+      localStorage.setItem("itb-newsletter-subscribed", "true")
+
+      setTimeout(() => {
+        setIsOpen(false)
+      }, 2000)
+    })
   }
 
   if (!isOpen) return null
@@ -62,87 +116,101 @@ export function NewsletterPopup() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-forest/80 backdrop-blur-sm"
         onClick={handleClose}
       />
-      
+
       {/* Modal */}
-      <div className="relative bg-cream rounded-lg shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="newsletter-popup-title"
+        className="relative bg-cream rounded-lg shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-300"
+      >
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-2 right-2 p-2 text-tan/60 hover:text-tan transition-colors z-10"
+          className="absolute top-2 right-2 p-2 text-tan/75 hover:text-tan transition-colors z-10"
           aria-label="Close popup"
         >
-          <X className="w-6 h-6" />
+          <X className="w-6 h-6" aria-hidden="true" />
         </button>
-        
+
         {/* Header with logo */}
         <div className="bg-forest px-6 py-8 text-center">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InfiniteTrailBrewingLogo-Transparent-v6FezPtqxZNb3SWQzDZTLQnNvIqEf6.png"
+            src={BRAND.logo}
             alt="Infinite Trail Brewing"
             width={120}
             height={120}
             className="w-24 h-24 mx-auto mb-4"
           />
-          <h2 className="font-serif text-2xl text-tan">Join the Trail</h2>
+          <h2 id="newsletter-popup-title" className="font-serif text-2xl text-tan">Join the Trail</h2>
         </div>
-        
+
         {/* Content */}
         <div className="px-6 py-8">
           {!isSubmitted ? (
             <>
-              <div className="flex items-center justify-center gap-2 mb-4 text-forest/70">
-                <Beer className="w-5 h-5" />
+              <div className="flex items-center justify-center gap-2 mb-4 text-forest/75">
+                <Beer className="w-5 h-5" aria-hidden="true" />
                 <span className="text-sm font-medium">Homebrew Updates</span>
               </div>
-              
+
               <p className="text-center text-forest/80 mb-6">
                 Get brew day recaps, new beer announcements, recipes, and homebrewing tips delivered to your inbox.
               </p>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-forest/40" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-forest/40" aria-hidden="true" />
                   <Input
                     type="email"
                     placeholder="Enter your email"
+                    aria-label="Email address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     className="pl-10 bg-white border-forest/20 text-forest placeholder:text-forest/40 focus:border-forest focus:ring-forest"
                   />
                 </div>
-                
-                <Button 
+
+                <Button
                   type="submit"
-                  className="w-full bg-forest text-tan hover:bg-forest/90 font-serif tracking-wide"
+                  disabled={isPending}
+                  className="w-full bg-forest text-tan hover:bg-forest/90 font-serif tracking-wide disabled:opacity-60"
                 >
-                  Subscribe
+                  {isPending ? "Subscribing…" : "Subscribe"}
                 </Button>
+
+                {error && (
+                  <p role="alert" className="text-center text-sm text-red-700">
+                    {error}
+                  </p>
+                )}
 
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="w-full text-xs text-forest/40 hover:text-forest/60 transition-colors uppercase tracking-widest mt-2"
+                  className="w-full text-xs text-forest/75 hover:text-forest transition-colors uppercase tracking-widest mt-2"
                 >
                   No thanks, maybe later
                 </button>
               </form>
-              
-              <p className="text-center text-xs text-forest/50 mt-4">
+
+              <p className="text-center text-xs text-forest/75 mt-4">
                 No spam, ever. Unsubscribe anytime.
               </p>
             </>
           ) : (
-            <div className="text-center py-4">
+            <div className="text-center py-4" role="status">
               <div className="w-16 h-16 bg-forest/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Beer className="w-8 h-8 text-forest" />
+                <Beer className="w-8 h-8 text-forest" aria-hidden="true" />
               </div>
               <h3 className="font-serif text-xl text-forest mb-2">Welcome to the Trail!</h3>
-              <p className="text-forest/70">Check your inbox for a confirmation email.</p>
+              <p className="text-forest/75">Check your inbox for a confirmation email.</p>
             </div>
           )}
         </div>
