@@ -68,6 +68,12 @@ npm run test:e2e   # playwright; uses a production build when CI=true
 - **A subscriber can legitimately have no `token`** — the schema does not require
   it, and Studio lets an editor create one by hand. Any send path must skip those
   rather than building `?token=undefined`, which fails silently.
+- **Every query that feeds a public page must apply the full publish filter set:
+  `is_published == true`, `visibility in ["website", "both"]`, and the drafts
+  guard.** Subqueries are easy to miss — the related-posts subquery on the beer
+  page filtered drafts only and rendered unpublished posts. `is_published`
+  defaults to false, so any omission leaks drafts. See
+  `tests/unit/beer-queries.test.ts`.
 - **Bulk sends must use `resend.batch.send` (max 100 per call), not a loop over
   `emails.send`.** A per-recipient loop outgrows the serverless timeout and
   leaves no record of who was already mailed, so a retry double-sends.
