@@ -9,7 +9,7 @@ import {
 
 const mockRequireAdmin = jest.fn();
 const mockFetch = jest.fn();
-const mockEmailsSend = jest.fn();
+const mockBatchSend = jest.fn();
 const mockEmailsList = jest.fn();
 const mockGetResendClient = jest.fn();
 
@@ -35,8 +35,10 @@ jest.mock("../../lib/newsletter-utils", () => ({
 
 const resendClient = {
   emails: {
-    send: (...args: unknown[]) => mockEmailsSend(...args),
     list: (...args: unknown[]) => mockEmailsList(...args),
+  },
+  batch: {
+    send: (...args: unknown[]) => mockBatchSend(...args),
   },
 };
 
@@ -52,7 +54,7 @@ describe("send-newsletter actions", () => {
 
       await expect(sendNewsletter("post-1")).rejects.toThrow(/Unauthorized/);
       expect(mockFetch).not.toHaveBeenCalled();
-      expect(mockEmailsSend).not.toHaveBeenCalled();
+      expect(mockBatchSend).not.toHaveBeenCalled();
     });
 
     it("blocks getSubscriberCount for unauthenticated callers", async () => {
@@ -81,7 +83,7 @@ describe("send-newsletter actions", () => {
         success: false,
         message: "Email is not configured (RESEND_API_KEY missing).",
       });
-      expect(mockEmailsSend).not.toHaveBeenCalled();
+      expect(mockBatchSend).not.toHaveBeenCalled();
     });
 
     it("returns null from getResendStats rather than throwing", async () => {
@@ -100,7 +102,7 @@ describe("send-newsletter actions", () => {
       const result = await sendNewsletter("missing");
 
       expect(result).toEqual({ success: false, message: "Post not found" });
-      expect(mockEmailsSend).not.toHaveBeenCalled();
+      expect(mockBatchSend).not.toHaveBeenCalled();
     });
 
     it("returns a message when there are no active subscribers", async () => {
@@ -112,10 +114,9 @@ describe("send-newsletter actions", () => {
       const result = await sendNewsletter("post-1");
 
       expect(result).toEqual({ success: false, message: "No active subscribers found" });
-      expect(mockEmailsSend).not.toHaveBeenCalled();
+      expect(mockBatchSend).not.toHaveBeenCalled();
     });
-
-    it("sends one email per subscriber and includes a List-Unsubscribe header", async () => {
+    it("sends one batch containing every subscriber with a List-Unsubscribe header", async () => {
       mockRequireAdmin.mockResolvedValue(undefined);
       mockFetch
         .mockResolvedValueOnce({ _id: "post-1", title: "Big News", excerpt: "E" })
@@ -123,30 +124,107 @@ describe("send-newsletter actions", () => {
           { email: "a@example.com", token: "tok-a" },
           { email: "b@example.com", token: "tok-b" },
         ]);
-      mockEmailsSend.mockResolvedValue({ data: { id: "x" }, error: null });
+      mockBatchSend.mockResolvedValue({ data: { data: [{ id: "1" }, { id: "2" }] }, error: null });
 
       const result = await sendNewsletter("post-1");
 
-      expect(mockEmailsSend).toHaveBeenCalledTimes(2);
-      const firstCall = mockEmailsSend.mock.calls[0][0];
-      expect(firstCall.to).toBe("a@example.com");
-      expect(firstCall.headers["List-Unsubscribe"]).toContain("token=tok-a");
+      // One API call for the whole chunk, not one per subscriber.
+      expect(mockBatchSend).toHaveBeenCalledTimes(1);
+      const payload = mockBatchSend.mock.calls[0][0];
+      expect(payload).toHaveLength(2);
+      expect(payload[0].to).toBe("a@example.com");
+      expect(payload[0].headers["List-Unsubscribe"]).toContain("token=tok-a");
+      expect(payload[1].headers["List-Unsubscribe"]).toContain("token=tok-b");
       expect(result.success).toBe(true);
       expect(result.message).toContain("2 successful, 0 failed");
     });
 
-    it("counts provider errors as failures", async () => {
+    it("splits large lists into batches of at most 100", async () => {
+      mockRequireAdmin.mockResolvedValue(undefined);
+      const many = Array.from({ length: 250 }, (_, i) => ({
+        email: `s${i}@example.com`,
+        token: `tok-${i}`,
+      }));
+      mockFetch
+        .mockResolvedValueOnce({ _id: "post-1", title: "T", excerpt: "E" })
+        .mockResolvedValueOnce(many);
+      mockBatchSend.mockResolvedValue({ data: { data: [] }, error: null });
+
+      const result = await sendNewsletter("post-1");
+
+      expect(mockBatchSend).toHaveBeenCalledTimes(3);
+      const sizes = mockBatchSend.mock.calls.map((c) => c[0].length);
+      expect(sizes).toEqual([100, 100, 50]);
+      expect(result.message).toContain("250 successful, 0 failed");
+    });
+
+    it("counts per-email errors reported by a permissive batch", async () => {
       mockRequireAdmin.mockResolvedValue(undefined);
       mockFetch
         .mockResolvedValueOnce({ _id: "post-1", title: "T", excerpt: "E" })
-        .mockResolvedValueOnce([{ email: "a@example.com", token: "t" }]);
-      mockEmailsSend.mockResolvedValue({ data: null, error: { message: "boom" } });
+        .mockResolvedValueOnce([
+          { email: "a@example.com", token: "tok-a" },
+          { email: "b@example.com", token: "tok-b" },
+        ]);
+      mockBatchSend.mockResolvedValue({
+        data: { data: [{ id: "1" }], errors: [{ index: 1, message: "invalid" }] },
+        error: null,
+      });
 
       const result = await sendNewsletter("post-1");
 
       expect(result.success).toBe(true);
-      expect(result.message).toContain("0 successful, 1 failed");
+      expect(result.message).toContain("1 successful, 1 failed");
     });
+
+    it("counts every address in a chunk as failed when the batch call errors", async () => {
+      mockRequireAdmin.mockResolvedValue(undefined);
+      mockFetch
+        .mockResolvedValueOnce({ _id: "post-1", title: "T", excerpt: "E" })
+        .mockResolvedValueOnce([
+          { email: "a@example.com", token: "tok-a" },
+          { email: "b@example.com", token: "tok-b" },
+        ]);
+      mockBatchSend.mockResolvedValue({ data: null, error: { message: "boom" } });
+
+      const result = await sendNewsletter("post-1");
+
+      expect(result.success).toBe(true);
+      expect(result.message).toContain("0 successful, 2 failed");
+    });
+
+    it("skips subscribers with no unsubscribe token instead of sending a broken link", async () => {
+      mockRequireAdmin.mockResolvedValue(undefined);
+      mockFetch
+        .mockResolvedValueOnce({ _id: "post-1", title: "T", excerpt: "E" })
+        .mockResolvedValueOnce([
+          { email: "ok@example.com", token: "tok-a" },
+          { email: "studio-added@example.com" },
+        ]);
+      mockBatchSend.mockResolvedValue({ data: { data: [{ id: "1" }] }, error: null });
+
+      const result = await sendNewsletter("post-1");
+
+      const payload = mockBatchSend.mock.calls[0][0];
+      expect(payload).toHaveLength(1);
+      expect(payload[0].to).toBe("ok@example.com");
+      expect(result.message).toContain("1 skipped");
+    });
+
+    it("refuses to send when no subscriber has a token", async () => {
+      mockRequireAdmin.mockResolvedValue(undefined);
+      mockFetch
+        .mockResolvedValueOnce({ _id: "post-1", title: "T", excerpt: "E" })
+        .mockResolvedValueOnce([{ email: "a@example.com" }]);
+
+      const result = await sendNewsletter("post-1");
+
+      expect(result.success).toBe(false);
+      expect(result.message).toMatch(/no subscribers have an unsubscribe token/i);
+      expect(mockBatchSend).not.toHaveBeenCalled();
+    });
+
+
   });
 
   describe("getSubscriberCount", () => {
