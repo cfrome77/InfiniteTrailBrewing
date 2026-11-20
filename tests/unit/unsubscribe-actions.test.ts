@@ -65,6 +65,9 @@ describe("unsubscribe actions", () => {
 
       expect(result.success).toBe(true);
       expect(mockCommit).not.toHaveBeenCalled();
+      // The copy is user-facing: an idempotent repeat must not claim a fresh
+      // unsubscribe, which would read as though the first click failed.
+      expect(result.message).toBe("You are already unsubscribed from The Brew Log.");
     });
 
     it("queries by token, never by email", async () => {

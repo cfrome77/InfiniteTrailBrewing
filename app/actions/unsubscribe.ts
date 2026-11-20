@@ -4,6 +4,7 @@ import { serverClient as client } from "@/lib/sanity.server";
 import { randomUUID } from "crypto";
 import { getResendClient } from "@/lib/resend";
 import { createRateLimiter } from "@/lib/rate-limit";
+import { unsubscribeByToken as revokeByToken } from "@/lib/unsubscribe";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -19,26 +20,21 @@ export async function unsubscribeByToken(token: string) {
     return { success: false, message: "Invalid unsubscribe link." };
   }
 
-  try {
-    const subscriber: { _id: string; status?: string } | null = await client.fetch(
-      `*[_type == "subscriber" && token == $unsubscribeToken][0]{ _id, status }`,
-      { unsubscribeToken: token.trim() },
-    );
+  const outcome = await revokeByToken(token.trim());
 
-    if (!subscriber) {
-      return { success: false, message: "This unsubscribe link is no longer valid." };
-    }
+  if (outcome === "invalid") {
+    return { success: false, message: "This unsubscribe link is no longer valid." };
+  }
 
-    if (subscriber.status === "unsubscribed") {
-      return { success: true, message: "You are already unsubscribed from The Brew Log." };
-    }
-
-    await client.patch(subscriber._id).set({ status: "unsubscribed" }).commit();
-    return { success: true, message: "You have been successfully unsubscribed from The Brew Log." };
-  } catch (error) {
-    console.error("Unsubscribe error:", error);
+  if (outcome === "failed") {
     return { success: false, message: "Something went wrong. Please try again later." };
   }
+
+  if (outcome === "already") {
+    return { success: true, message: "You are already unsubscribed from The Brew Log." };
+  }
+
+  return { success: true, message: "You have been successfully unsubscribed from The Brew Log." };
 }
 
 /**

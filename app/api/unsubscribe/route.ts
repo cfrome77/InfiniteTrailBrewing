@@ -1,5 +1,5 @@
-import { serverClient as client } from "@/lib/sanity.server";
 import { redirect } from "next/navigation";
+import { unsubscribeByToken } from "@/lib/unsubscribe";
 
 /**
  * Unsubscribe links from emails land here. The token is the only credential,
@@ -11,28 +11,6 @@ import { redirect } from "next/navigation";
  *   List-Unsubscribe URL on the recipient's behalf and expect a 2xx with no
  *   redirect and no confirmation step.
  */
-type Outcome = "unsubscribed" | "invalid" | "failed";
-
-async function unsubscribeByToken(token: string): Promise<Outcome> {
-  try {
-    const subscriber: { _id: string; status?: string } | null = await client.fetch(
-      `*[_type == "subscriber" && token == $unsubscribeToken][0]{ _id, status }`,
-      { unsubscribeToken: token },
-    );
-
-    if (!subscriber) return "invalid";
-
-    if (subscriber.status !== "unsubscribed") {
-      await client.patch(subscriber._id).set({ status: "unsubscribed" }).commit();
-    }
-
-    return "unsubscribed";
-  } catch (error) {
-    console.error("API Unsubscribe error:", error);
-    return "failed";
-  }
-}
-
 export async function GET(request: Request) {
   const token = new URL(request.url).searchParams.get("token");
 
@@ -43,7 +21,7 @@ export async function GET(request: Request) {
   const outcome = await unsubscribeByToken(token);
 
   redirect(
-    outcome === "unsubscribed"
+    outcome === "unsubscribed" || outcome === "already"
       ? "/unsubscribe?success=true"
       : outcome === "invalid"
         ? "/unsubscribe?error=invalid"
