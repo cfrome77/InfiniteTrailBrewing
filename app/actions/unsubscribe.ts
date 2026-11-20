@@ -82,17 +82,22 @@ export async function requestUnsubscribeLink(email: string) {
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://infinitetrailbrewing.com";
     const fromEmail = process.env.CONTACT_RECEIVING_EMAIL || "newsletter@infinitetrailbrewing.com";
-    const unsubscribeUrl = `${siteUrl}/unsubscribe?token=${token}`;
+    // Two URLs on purpose. The page is where a human confirms; the API route is
+    // the only one that answers RFC 8058's POST, and advertising a one-click
+    // header that points at a page returns 405 and leaves the recipient
+    // subscribed. The other senders already point the header at the API.
+    const pageUrl = `${siteUrl}/unsubscribe?token=${token}`;
+    const oneClickUrl = `${siteUrl}/api/unsubscribe?token=${encodeURIComponent(token)}`;
 
     const { error: sendError } = await resend.emails.send({
       from: `Infinite Trail Brewing <${fromEmail}>`,
       to: normalizedEmail,
       subject: "Unsubscribe from The Brew Log",
       headers: {
-        "List-Unsubscribe": `<${unsubscribeUrl}>`,
+        "List-Unsubscribe": `<${oneClickUrl}>`,
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
       },
-      text: `We're sorry to see you go.\n\nConfirm your unsubscribe here: ${unsubscribeUrl}\n\nIf you didn't request this, you can ignore this email.`,
+      text: `We're sorry to see you go.\n\nConfirm your unsubscribe here: ${pageUrl}\n\nIf you didn't request this, you can ignore this email.`,
     });
 
     // Still return the generic message: surfacing the failure would reveal

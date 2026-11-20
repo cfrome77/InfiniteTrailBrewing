@@ -113,6 +113,23 @@ describe("unsubscribe actions", () => {
       expect(mockCommit).toHaveBeenCalledTimes(1);
       const link = mockSend.mock.calls[0][0].text;
       expect(link).toContain("/unsubscribe?token=");
+      // The body is for a human, so it must point at the page, not the API.
+      expect(link).not.toContain("/api/unsubscribe");
+    });
+
+    it("points List-Unsubscribe at the API route that answers one-click POST", async () => {
+      // The page at /unsubscribe answers GET only, so a header aimed there
+      // returns 405 and leaves the recipient subscribed while advertising
+      // one-click support.
+      mockFetch.mockResolvedValue({ _id: "sub-1", token: "tok-abc" });
+
+      await requestUnsubscribeLink("ada@example.com");
+
+      const headers = mockSend.mock.calls[0][0].headers;
+      expect(headers["List-Unsubscribe"]).toBe(
+        "<https://infinitetrailbrewing.com/api/unsubscribe?token=tok-abc>",
+      );
+      expect(headers["List-Unsubscribe-Post"]).toBe("List-Unsubscribe=One-Click");
     });
 
     it("stops sending after the per-address limit is reached", async () => {
