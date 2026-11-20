@@ -1,9 +1,17 @@
 import { renderOgCard, OG_CONTENT_TYPE, OG_SIZE } from "@/lib/og-card";
-import { getPostBySlug } from "@/lib/blog.server";
+import { getPostBySlug, getAllSlugs } from "@/lib/blog.server";
 
 export const alt = "Infinite Trail Brewing";
 export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
+export const revalidate = 86400;
+
+// Matches the post page, which is statically generated; without this the card
+// is rendered on every crawler request.
+export async function generateStaticParams() {
+  const slugs = await getAllSlugs();
+  return slugs.map((slug) => ({ slug }));
+}
 
 export default async function Image({
   params,

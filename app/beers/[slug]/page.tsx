@@ -7,7 +7,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { beerStyles } from "@/sanity/constants/beerStyles";
+import { beerStyleLabel } from "@/lib/beer-style-label";
 import { getBeerStyleGradient } from "@/lib/beerStyleTheme";
 import { ActionBox } from "@/components/action-box";
 import {
@@ -34,11 +34,7 @@ export async function generateMetadata({
 
   // Mirrors the label logic the page renders: a reference gives its title, a
   // plain string is an enum value that needs the human-readable lookup.
-  const style =
-    typeof beer.style === "object" && beer.style !== null
-      ? beer.style.title
-      : beerStyles.find((s) => s.value === beer.style)?.title ||
-        (beer.style as string);
+  const style = beerStyleLabel(beer.style);
 
   // Beer documents have no `seo` field, so the description is assembled from
   // the fields the page already renders. Editors who want different copy can
@@ -133,7 +129,7 @@ export default async function BeerDetailPage({ params }: { params: { slug: strin
   if (!beer) notFound();
 
   const styleStr = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beer.style as string);
-  const styleLabel = (typeof beer.style === "object" && beer.style !== null) ? beer.style.title : (beerStyles.find(s => s.value === (beer.style as string))?.title || (beer.style as string) || "Craft Special");
+  const styleLabel = beerStyleLabel(beer.style) || "Craft Special";
   const gradient = getBeerStyleGradient(styleStr);
 
   // Core Temps based on real status (labeled clearly as target/estimated specifications)

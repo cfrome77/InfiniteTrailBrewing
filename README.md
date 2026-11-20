@@ -69,6 +69,10 @@ social card. The helper always emits `images`, so a page cannot lose its
 `og:image`. The root layout supplies the `%s | Infinite Trail Brewing` template,
 so child pages pass a bare title.
 
+The beer and post cards also export `generateStaticParams()`, so each card is
+built with its page instead of being re-rendered on every crawler request. An
+unknown slug still renders a card on demand rather than failing.
+
 Both derive their origin from `lib/site-url.ts`, which reads
 `NEXT_PUBLIC_SITE_URL` and falls back to the production domain. That module is
 also the single source for the absolute links in outbound email.
