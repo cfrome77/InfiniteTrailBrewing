@@ -105,10 +105,61 @@ describe("send-newsletter actions", () => {
       expect(mockBatchSend).not.toHaveBeenCalled();
     });
 
+    it("refuses to email an unpublished post", async () => {
+      mockRequireAdmin.mockResolvedValue(undefined);
+      mockFetch.mockResolvedValueOnce({
+        _id: "post-1",
+        is_published: false,
+        visibility: "both",
+        title: "Draft",
+        excerpt: "E",
+      });
+
+      const result = await sendNewsletter("post-1");
+
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("not published");
+      expect(mockBatchSend).not.toHaveBeenCalled();
+      // Only the post lookup ran; subscribers were never queried.
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("refuses to email a post marked website-only", async () => {
+      mockRequireAdmin.mockResolvedValue(undefined);
+      mockFetch.mockResolvedValueOnce({
+        _id: "post-1",
+        is_published: true,
+        visibility: "website",
+        title: "Web only",
+        excerpt: "E",
+      });
+
+      const result = await sendNewsletter("post-1");
+
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("website-only");
+      expect(mockBatchSend).not.toHaveBeenCalled();
+    });
+
+    it("still sends a legacy post that omits visibility", async () => {
+      // visibility is optional in the schema; older documents have no value and
+      // the Studio picker treats those as eligible, so the action must agree.
+      mockRequireAdmin.mockResolvedValue(undefined);
+      mockFetch
+        .mockResolvedValueOnce({ _id: "post-1", is_published: true, title: "Legacy", excerpt: "E" })
+        .mockResolvedValueOnce([{ email: "a@example.com", token: "tok-a" }]);
+      mockBatchSend.mockResolvedValue({ data: { data: [{ id: "1" }] }, error: null });
+
+      const result = await sendNewsletter("post-1");
+
+      expect(result.success).toBe(true);
+      expect(mockBatchSend).toHaveBeenCalledTimes(1);
+    });
+
     it("returns a message when there are no active subscribers", async () => {
       mockRequireAdmin.mockResolvedValue(undefined);
       mockFetch
-        .mockResolvedValueOnce({ _id: "post-1", title: "T", excerpt: "E" })
+        .mockResolvedValueOnce({ _id: "post-1", is_published: true, visibility: "both", title: "T", excerpt: "E" })
         .mockResolvedValueOnce([]);
 
       const result = await sendNewsletter("post-1");
@@ -119,7 +170,7 @@ describe("send-newsletter actions", () => {
     it("sends one batch containing every subscriber with a List-Unsubscribe header", async () => {
       mockRequireAdmin.mockResolvedValue(undefined);
       mockFetch
-        .mockResolvedValueOnce({ _id: "post-1", title: "Big News", excerpt: "E" })
+        .mockResolvedValueOnce({ _id: "post-1", is_published: true, visibility: "both", title: "Big News", excerpt: "E" })
         .mockResolvedValueOnce([
           { email: "a@example.com", token: "tok-a" },
           { email: "b@example.com", token: "tok-b" },
@@ -146,7 +197,7 @@ describe("send-newsletter actions", () => {
         token: `tok-${i}`,
       }));
       mockFetch
-        .mockResolvedValueOnce({ _id: "post-1", title: "T", excerpt: "E" })
+        .mockResolvedValueOnce({ _id: "post-1", is_published: true, visibility: "both", title: "T", excerpt: "E" })
         .mockResolvedValueOnce(many);
       mockBatchSend.mockResolvedValue({ data: { data: [] }, error: null });
 
@@ -161,7 +212,7 @@ describe("send-newsletter actions", () => {
     it("counts per-email errors reported by a permissive batch", async () => {
       mockRequireAdmin.mockResolvedValue(undefined);
       mockFetch
-        .mockResolvedValueOnce({ _id: "post-1", title: "T", excerpt: "E" })
+        .mockResolvedValueOnce({ _id: "post-1", is_published: true, visibility: "both", title: "T", excerpt: "E" })
         .mockResolvedValueOnce([
           { email: "a@example.com", token: "tok-a" },
           { email: "b@example.com", token: "tok-b" },
@@ -180,7 +231,7 @@ describe("send-newsletter actions", () => {
     it("counts every address in a chunk as failed when the batch call errors", async () => {
       mockRequireAdmin.mockResolvedValue(undefined);
       mockFetch
-        .mockResolvedValueOnce({ _id: "post-1", title: "T", excerpt: "E" })
+        .mockResolvedValueOnce({ _id: "post-1", is_published: true, visibility: "both", title: "T", excerpt: "E" })
         .mockResolvedValueOnce([
           { email: "a@example.com", token: "tok-a" },
           { email: "b@example.com", token: "tok-b" },
@@ -196,7 +247,7 @@ describe("send-newsletter actions", () => {
     it("skips subscribers with no unsubscribe token instead of sending a broken link", async () => {
       mockRequireAdmin.mockResolvedValue(undefined);
       mockFetch
-        .mockResolvedValueOnce({ _id: "post-1", title: "T", excerpt: "E" })
+        .mockResolvedValueOnce({ _id: "post-1", is_published: true, visibility: "both", title: "T", excerpt: "E" })
         .mockResolvedValueOnce([
           { email: "ok@example.com", token: "tok-a" },
           { email: "studio-added@example.com" },
@@ -214,7 +265,7 @@ describe("send-newsletter actions", () => {
     it("refuses to send when no subscriber has a token", async () => {
       mockRequireAdmin.mockResolvedValue(undefined);
       mockFetch
-        .mockResolvedValueOnce({ _id: "post-1", title: "T", excerpt: "E" })
+        .mockResolvedValueOnce({ _id: "post-1", is_published: true, visibility: "both", title: "T", excerpt: "E" })
         .mockResolvedValueOnce([{ email: "a@example.com" }]);
 
       const result = await sendNewsletter("post-1");

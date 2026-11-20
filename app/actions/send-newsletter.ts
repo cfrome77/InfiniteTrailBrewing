@@ -55,6 +55,19 @@ export async function sendNewsletter(postId: string) {
     const post = await client.fetch(`*[_id == $postId][0]`, { postId });
     if (!post) return { success: false, message: "Post not found" };
 
+    // The picker in Studio only lists newsletter-eligible posts, but this
+    // action is callable on its own, so the rule has to hold here too: an
+    // unpublished draft or a website-only post must never reach the list.
+    // visibility is optional in the schema and older documents omit it, which
+    // is treated as eligible, matching the picker.
+    if (post.is_published !== true) {
+      return { success: false, message: "Post is not published." };
+    }
+
+    if (post.visibility === "website") {
+      return { success: false, message: "This post is marked website-only and cannot be emailed." };
+    }
+
     const contentHtml = post.content
       ? transformPortableTextToEmailHtml(post.content)
       : `<p>${escapeHtml(post.excerpt)}</p>`;
