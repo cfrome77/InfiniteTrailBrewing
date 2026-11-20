@@ -5,6 +5,7 @@ import { randomUUID } from "crypto";
 import { getResendClient } from "@/lib/resend";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { unsubscribeByToken as revokeByToken } from "@/lib/unsubscribe";
+import { siteUrl } from "@/lib/site-url";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -76,7 +77,6 @@ export async function requestUnsubscribeLink(email: string) {
       return { success: false, message: "Email is temporarily unavailable. Please try again later." };
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://infinitetrailbrewing.com";
     const fromEmail = process.env.CONTACT_RECEIVING_EMAIL || "newsletter@infinitetrailbrewing.com";
     // Two URLs on purpose. The page is where a human confirms; the API route is
     // the only one that answers RFC 8058's POST, and advertising a one-click

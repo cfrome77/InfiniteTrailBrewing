@@ -5,6 +5,7 @@ import { randomUUID } from "crypto";
 import { headers } from "next/headers";
 import { getResendClient } from "@/lib/resend";
 import { isSubscribeLimited as isLimited } from "@/lib/subscribe-limiter";
+import { siteUrl } from "@/lib/site-url";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -76,7 +77,6 @@ export async function subscribeToNewsletter(email: string) {
     const resend = getResendClient();
 
     // Send Welcome Email
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://infinitetrailbrewing.com";
     const fromEmail = process.env.CONTACT_RECEIVING_EMAIL || "newsletter@infinitetrailbrewing.com";
     const unsubscribeUrl = `${siteUrl}/api/unsubscribe?token=${token}`;
 

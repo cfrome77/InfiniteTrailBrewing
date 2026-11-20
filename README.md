@@ -48,6 +48,17 @@ and rendered on `/beers/[slug]`; there is no standalone telemetry console.
 | `/api/revalidate` | POST | Sanity webhook; HMAC-verified, fail-closed |
 | `/api/unsubscribe` | GET, POST | Token-based unsubscribe. `GET` is the link target (redirects to `/unsubscribe`); `POST` is the RFC 8058 one-click target and returns `200` without redirecting |
 
+### Generated routes
+
+| Route | Notes |
+| --- | --- |
+| `/sitemap.xml` | Built from the same slug queries the pages use, so the draft and publish filters apply automatically |
+| `/robots.txt` | Disallows `/admin` and `/api/`; Studio and the login page also send `noindex` |
+
+Both derive their origin from `lib/site-url.ts`, which reads
+`NEXT_PUBLIC_SITE_URL` and falls back to the production domain. That module is
+also the single source for the absolute links in outbound email.
+
 ### Cache invalidation
 
 Server-side fetches are tagged (`lib/beers.server.ts`, `lib/blog.server.ts`):

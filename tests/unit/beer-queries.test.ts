@@ -1,8 +1,12 @@
 /**
  * @jest-environment node
  */
-import { ALL_POSTS_QUERY, POST_BY_SLUG_QUERY } from "../../lib/blog";
-import { BEER_BY_SLUG_QUERY } from "../../lib/beers";
+import {
+  ALL_POSTS_QUERY,
+  ALL_POST_SLUGS_QUERY,
+  POST_BY_SLUG_QUERY,
+} from "../../lib/blog";
+import { ALL_BEER_SLUGS_QUERY, BEER_BY_SLUG_QUERY } from "../../lib/beers";
 
 /**
  * Every query that reaches a public page must apply the same publish rules.
@@ -33,6 +37,20 @@ describe("public post queries", () => {
     for (const filter of PUBLIC_POST_FILTERS) {
       expect(related).toContain(filter);
     }
+  });
+
+  it("ALL_POST_SLUGS_QUERY applies every publish filter", () => {
+    // Feeds the sitemap. A slug that escapes this query publishes a URL to a
+    // page that is not meant to be public.
+    for (const filter of PUBLIC_POST_FILTERS) {
+      expect(ALL_POST_SLUGS_QUERY).toContain(filter);
+    }
+  });
+
+  it("ALL_BEER_SLUGS_QUERY filters draft beers", () => {
+    // Beer documents have no is_published or visibility field, so draft
+    // exclusion is the whole rule here rather than a subset of it.
+    expect(ALL_BEER_SLUGS_QUERY).toContain('!(_id in path("drafts.**"))');
   });
 
   it("BEER_BY_SLUG_QUERY still filters draft beers", () => {

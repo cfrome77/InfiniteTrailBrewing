@@ -5,6 +5,7 @@ import { getResendClient } from "@/lib/resend";
 import { transformPortableTextToEmailHtml } from "@/lib/newsletter-utils";
 import { requireAdmin } from "@/lib/admin-auth";
 import { escapeHtml } from "@/lib/html-escape";
+import { siteUrl as siteOrigin } from "@/lib/site-url";
 
 /** Resend accepts at most 100 messages per batch call. */
 const BATCH_SIZE = 100;
@@ -89,7 +90,6 @@ export async function sendNewsletter(postId: string) {
       };
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://infinitetrailbrewing.com";
     const fromEmail = process.env.CONTACT_RECEIVING_EMAIL || "newsletter@infinitetrailbrewing.com";
 
     let successCount = 0;
@@ -102,7 +102,7 @@ export async function sendNewsletter(postId: string) {
       const chunk = sendable.slice(i, i + BATCH_SIZE);
 
       const payload = chunk.map((sub) => {
-        const unsubscribeUrl = `${siteUrl}/api/unsubscribe?token=${encodeURIComponent(sub.token as string)}`;
+        const unsubscribeUrl = `${siteOrigin}/api/unsubscribe?token=${encodeURIComponent(sub.token as string)}`;
         return {
           from: `Infinite Trail Brewing <${fromEmail}>`,
           to: sub.email,
@@ -111,7 +111,7 @@ export async function sendNewsletter(postId: string) {
             "List-Unsubscribe": `<${unsubscribeUrl}>`,
             "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
           },
-          html: buildEmailHtml(post, contentHtml, siteUrl, unsubscribeUrl),
+          html: buildEmailHtml(post, contentHtml, siteOrigin, unsubscribeUrl),
         };
       });
 
